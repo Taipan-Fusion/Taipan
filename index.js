@@ -501,7 +501,17 @@ function transferCargo() {
 }
 
 
-
+// function handleLocationInput(input) {
+//   if (input === "1") {
+//     if (player.location === "Hong Kong") {
+//       console.log("You're already here, Taipan.")
+//     } else {
+//       console.log("Location: Hong Kong")
+//       player.location = "Hong Kong"
+//       break
+//     }
+//   }
+// }
 
 function quitTrading() {
   while (true) {
