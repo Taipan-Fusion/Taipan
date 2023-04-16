@@ -4,10 +4,10 @@ const ship = {
   health: 100,
   cargoUnits: 100,
   hold: 100,
-  cargoSpaceOpium: 0,
-  cargoSpaceSilk: 0,
-  cargoSpaceArms: 0,
-  cargoSpaceGeneral: 0
+  Opium: 0,
+  Silk: 0,
+  Arms: 0,
+  General: 0
 }
 
 const player = {
@@ -18,17 +18,17 @@ const player = {
 }
 
 const prices = {
-  opium: 0,
-  silk: 0,
-  arms: 0,
-  general: 0
+  Opium: 0,
+  Silk: 0,
+  Arms: 0,
+  General: 0
 }
 
 const warehouse = {
-  cargoSpaceOpium: 0,
-  cargoSpaceSilk: 0,
-  cargoSpaceArms: 0,
-  cargoSpaceGeneral: 0,
+  Opium: 0,
+  Silk: 0,
+  Arms: 0,
+  General: 0,
   inUse: 0,
   vacant: 10000
 }
@@ -96,21 +96,21 @@ function pirateGenerator(min, max) {
 }
 
 function priceDisplay() {
-  prices.opium = priceGenerator(1000)
-  prices.silk = priceGenerator(100)
-  prices.arms = priceGenerator(10)
-  prices.general = priceGenerator(1)
+  prices.Opium = priceGenerator(1000)
+  prices.Silk = priceGenerator(100)
+  prices.Arms = priceGenerator(10)
+  prices.General = priceGenerator(1)
   console.log("Taipan, prices per unit here are: \n"
-    + "Opium:", prices.opium.toString() + "\t" + "Silk:", prices.silk.toString() + "\n"
-  + "Arms:", prices.arms.toString() + "\t" + "General:", prices.general.toString())
+    + "Opium:", prices.Opium.toString() + "\t" + "Silk:", prices.Silk.toString() + "\n"
+  + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
 }
 
 function generalPrompt() {
   while (true) {
     console.log("Player:", player, "Ship:", ship, "Warehouse:", warehouse, "Date:", gameAttributes)
     console.log("Taipan, prices per unit here are: \n"
-      + "Opium:", prices.opium.toString() + "\t" + "Silk:", prices.silk.toString() + "\n"
-    + "Arms:", prices.arms.toString() + "\t" + "General:", prices.general.toString())
+      + "Opium:", prices.Opium.toString() + "\t" + "Silk:", prices.Silk.toString() + "\n"
+    + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
     if (player.location === "Hong Kong") {
       if (player.bank + player.cash >= 1000000) {
         let input = prompt("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit trading, or Retire? ")
@@ -174,127 +174,67 @@ function generalPrompt() {
       }
     }
   }
+}
 
+function buyHandler(product) {
+  while (true) {
+    let input = prompt(`How many units of ${product} do you want to buy? `)
+    let inputAmount = parseInt(input)
+    if (inputAmount * prices[product] > player.cash) {
+
+    } else {
+      ship[product] += inputAmount
+      player.cash -= inputAmount * prices[product]
+      ship.hold -= inputAmount
+      return false
+    }
+  }
 }
 
 function buy() {
-  loop1: while (true) {
+  let status = true
+  while (status) {
     let input = prompt("What do you wish to buy, Taipan? ")
     if (input === "o") {
-      while (true) {
-        let input = prompt("How many units of Opium do you want to buy? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount * prices.opium > player.cash) {
-
-        } else {
-          ship.cargoSpaceOpium += inputAmount
-          player.cash -= inputAmount * prices.opium
-          ship.hold -= inputAmount
-          break loop1
-        }
-      }
+      status = buyHandler("Opium")
     } else if (input === "s") {
-      while (true) {
-        let input = prompt("How many units of Silk do you want to buy? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount * prices.silk > player.cash) {
-
-        } else {
-          ship.cargoSpaceSilk += inputAmount
-          player.cash -= inputAmount * prices.silk
-          ship.hold -= inputAmount
-          break loop1
-        }
-      }
-
+      status = buyHandler("Silk")
     } else if (input === "a") {
-      while (true) {
-        let input = prompt("How many units of Arms do you want to buy? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount * prices.arms > player.cash) {
-
-        } else {
-          ship.cargoSpaceArms += inputAmount
-          player.cash -= inputAmount * prices.arms
-          ship.hold -= inputAmount
-          break loop1
-        }
-      }
+      status = buyHandler("Arms")
     } else if (input === "g") {
-      while (true) {
-        let input = prompt("How many units of General do you want to buy? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount * prices.general > player.cash) {
-
-        } else {
-          ship.cargoSpaceGeneral += inputAmount
-          player.cash -= inputAmount * prices.general
-          ship.hold -= inputAmount
-          break loop1
-        }
-      }
+      status = buyHandler("General")
     } else {
+    }
+  }
+}
 
+function sellHandler(product) {
+  while (true) {
+    let input = prompt(`How many units of ${product} do you want to sell? `)
+    let inputAmount = parseInt(input)
+    if (inputAmount > ship[product]) {
+
+    } else {
+      ship[product] -= inputAmount
+      player.cash += inputAmount * prices[product]
+      ship.hold += inputAmount
+      return false
     }
   }
 }
 
 function sell() {
-  loop1: while (true) {
+  let status = true
+  while (status) {
     let input = prompt("What do you wish to sell, Taipan? ")
     if (input === "o") {
-      while (true) {
-        let input = prompt("How many units of Opium do you want to sell? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceOpium) {
-
-        } else {
-          ship.cargoSpaceOpium -= inputAmount
-          player.cash += inputAmount * prices.opium
-          ship.hold += inputAmount
-          break loop1
-        }
-      }
+      status = sellHandler("Opium")
     } else if (input === "s") {
-      while (true) {
-        let input = prompt("How many units of Silk do you want to sell? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceSilk) {
-
-        } else {
-          ship.cargoSpaceSilk -= inputAmount
-          player.cash += inputAmount * prices.silk
-          ship.hold += inputAmount
-          break loop1
-        }
-      }
-
+      status = sellHandler("Silk")
     } else if (input === "a") {
-      while (true) {
-        let input = prompt("How many units of Arms do you want to sell? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceArms) {
-
-        } else {
-          ship.cargoSpaceArms -= inputAmount
-          player.cash += inputAmount * prices.arms
-          ship.hold += inputAmount
-          break loop1
-        }
-      }
+      status = sellHandler("Arms")
     } else if (input === "g") {
-      while (true) {
-        let input = prompt("How many units of General do you want to sell? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceGeneral) {
-
-        } else {
-          ship.cargoSpaceGeneral -= inputAmount
-          player.cash += inputAmount * prices.general
-          ship.hold += inputAmount
-          break loop1
-        }
-      }
+      status = sellHandler("General")
     } else {
 
     }
@@ -329,167 +269,21 @@ function visitBank() {
   }
 }
 
-function transferCargo() {
+
+function transferCargoHandlerToWarehouse(product) {
   while (true) {
-    if (ship.cargoSpaceOpium > 0) {
+    if (ship[product] > 0) {
       while (true) {
-        input = prompt("How much Opium shall I move to the warehouse, Taipan? ")
+        input = prompt(`How much ${product} shall I move to the warehouse, Taipan? `)
         let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceOpium) {
-          console.log("You only have", ship.cargoSpaceOpium.toString(), "Taipan.")
+        if (inputAmount > ship[product]) {
+          console.log("You only have", ship[product].toString(), "Taipan.")
         } else if (Number.isInteger(inputAmount)) {
           ship.hold += inputAmount
           warehouse.inUse += inputAmount
-          warehouse.cargoSpaceOpium += inputAmount
+          warehouse[product] += inputAmount
           warehouse.vacant -= inputAmount
-          ship.cargoSpaceOpium -= inputAmount
-          break
-        } else {
-
-        }
-      }
-    }
-    break
-  }
-  while (true) {
-    if (ship.cargoSpaceSilk > 0) {
-      while (true) {
-        input = prompt("How much Silk shall I move to the warehouse, Taipan? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceSilk) {
-          console.log("You only have", ship.cargoSpaceSilk.toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
-          ship.hold += inputAmount
-          warehouse.inUse += inputAmount
-          warehouse.cargoSpaceSilk += inputAmount
-          warehouse.vacant -= inputAmount
-          ship.cargoSpaceSilk -= inputAmount
-          break
-        } else {
-
-        }
-      }
-    }
-    break
-  }
-  while (true) {
-    if (ship.cargoSpaceArms > 0) {
-      while (true) {
-        input = prompt("How much Arms shall I move to the warehouse, Taipan? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceArms) {
-          console.log("You only have", ship.cargoSpaceArms.toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
-          ship.hold += inputAmount
-          warehouse.inUse += inputAmount
-          warehouse.cargoSpaceArms += inputAmount
-          warehouse.vacant -= inputAmount
-          ship.cargoSpaceArms -= inputAmount
-          break
-        } else {
-
-        }
-      }
-    }
-    break
-  }
-  while (true) {
-    if (ship.cargoSpaceGeneral > 0) {
-      while (true) {
-        input = prompt("How much General shall I move to the warehouse, Taipan? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > ship.cargoSpaceGeneral) {
-          console.log("You only have", ship.cargoSpaceGeneral.toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
-          ship.hold += inputAmount
-          warehouse.inUse += inputAmount
-          warehouse.cargoSpaceGeneral += inputAmount
-          warehouse.vacant -= inputAmount
-          ship.cargoSpaceGeneral -= inputAmount
-          break
-        } else {
-
-        }
-      }
-    }
-    break
-  }
-  while (true) {
-    if (warehouse.cargoSpaceOpium > 0) {
-      while (true) {
-        input = prompt("How much Opium shall I move aboard ship, Taipan? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > warehouse.cargoSpaceOpium) {
-          console.log("You only have", warehouse.cargoSpaceOpium.toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
-          ship.hold -= inputAmount
-          warehouse.inUse -= inputAmount
-          warehouse.cargoSpaceOpium -= inputAmount
-          warehouse.vacant += inputAmount
-          ship.cargoSpaceOpium += inputAmount
-          break
-        } else {
-
-        }
-      }
-    }
-    break
-  }
-  while (true) {
-    if (warehouse.cargoSpaceSilk > 0) {
-      while (true) {
-        input = prompt("How much Silk shall I move aboard ship, Taipan? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > warehouse.cargoSpaceSilk) {
-          console.log("You only have", warehouse.cargoSpaceSilk.toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
-          ship.hold -= inputAmount
-          warehouse.inUse -= inputAmount
-          warehouse.cargoSpaceSilk -= inputAmount
-          warehouse.vacant += inputAmount
-          ship.cargoSpaceSilk += inputAmount
-          break
-        } else {
-
-        }
-      }
-    }
-    break
-  }
-  while (true) {
-    if (warehouse.cargoSpaceArms > 0) {
-      while (true) {
-        input = prompt("How much Arms shall I move aboard ship, Taipan? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > warehouse.cargoSpaceArms) {
-          console.log("You only have", warehouse.cargoSpaceArms.toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
-          ship.hold -= inputAmount
-          warehouse.inUse -= inputAmount
-          warehouse.cargoSpaceArms -= inputAmount
-          warehouse.vacant += inputAmount
-          ship.cargoSpaceArms += inputAmount
-          break
-        } else {
-
-        }
-      }
-    }
-    break
-  }
-  while (true) {
-    if (warehouse.cargoSpaceGeneral > 0) {
-      while (true) {
-        input = prompt("How much General shall I move aboard ship, Taipan? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > warehouse.cargoSpaceGeneral) {
-          console.log("You only have", warehouse.cargoSpaceGeneral.toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
-          ship.hold -= inputAmount
-          warehouse.inUse -= inputAmount
-          warehouse.cargoSpaceGeneral -= inputAmount
-          warehouse.vacant += inputAmount
-          ship.cargoSpaceGeneral += inputAmount
+          ship[product] -= inputAmount
           break
         } else {
 
@@ -500,108 +294,58 @@ function transferCargo() {
   }
 }
 
+function transferCargoHandlerToShip(product) {
+  while (true) {
+    if (warehouse[product] > 0) {
+      while (true) {
+        input = prompt(`How much ${product} shall I move aboard ship, Taipan? `)
+        let inputAmount = parseInt(input)
+        if (inputAmount > warehouse[product]) {
+          console.log("You only have", warehouse[product].toString(), "Taipan.")
+        } else if (Number.isInteger(inputAmount)) {
+          ship.hold -= inputAmount
+          warehouse.inUse -= inputAmount
+          warehouse[product] -= inputAmount
+          warehouse.vacant += inputAmount
+          ship[product] += inputAmount
+          break
+        } else {
 
-// function handleLocationInput(input) {
-//   if (input === "1") {
-//     if (player.location === "Hong Kong") {
-//       console.log("You're already here, Taipan.")
-//     } else {
-//       console.log("Location: Hong Kong")
-//       player.location = "Hong Kong"
-//       break
-//     }
-//   }
-// }
+        }
+      }
+    }
+    break
+  }
+}
+
+function transferCargo() {
+  transferCargoHandlerToWarehouse("Opium")
+  transferCargoHandlerToWarehouse("Silk")
+  transferCargoHandlerToWarehouse("Arms")
+  transferCargoHandlerToWarehouse("General")
+  transferCargoHandlerToShip("Opium")
+  transferCargoHandlerToShip("Silk")
+  transferCargoHandlerToShip("Arms")
+  transferCargoHandlerToShip("General")
+}
+
+
+function handleLocationInput(input) {
+  if (player.location === locationsMap[input]) {
+    console.log("You're already here, Taipan.")
+  } else {
+    player.location = locationsMap[input]
+    return "Done"
+  }
+}
 
 function quitTrading() {
-  while (true) {
+  let status = "Incomplete"
+  while (status !== "Done") {
 
     let input = prompt("Taipan, do you wish to go to: " +
       "1) Hong Kong, 2) Shanghai, 3) Nagasaki, 4) Saigon, 5) Manila, 6) Singapore, 7) Batavia ? ")
-
-    if (input === "1") {
-      if (player.location === "Hong Kong") {
-        console.log("You're already here, Taipan.")
-      } else {
-        console.log("Location: Hong Kong")
-        player.location = "Hong Kong"
-        break
-      }
-    }
-
-
-    if (input === "2") {
-      if (player.location === "Shanghai") {
-        console.log("You're already here, Taipan.")
-      } else {
-
-        console.log("Location: Shanghai")
-        player.location = "Shanghai"
-        break
-      }
-    }
-
-
-    if (input === "3") {
-      if (player.location === "Nagasaki") {
-        console.log("You're already here, Taipan.")
-      } else {
-
-        console.log("Location: Nagasaki")
-        player.location = "Nagasaki"
-        break
-      }
-    }
-
-
-    if (input === "4") {
-      if (player.location === "Saigon") {
-        console.log("You're already here, Taipan.")
-      } else {
-
-        console.log("Location: Saigon")
-        player.location = "Saigon"
-        break
-      }
-    }
-
-
-    if (input === "5") {
-      if (player.location === "Manila") {
-        console.log("You're already here, Taipan.")
-      } else {
-
-        console.log("Location: Manila")
-        player.location = "Manila"
-        break
-      }
-    }
-
-
-    if (input === "6") {
-      if (player.location === "Singapore") {
-        console.log("You're already here, Taipan.")
-      } else {
-
-        console.log("Location: Singapore")
-        player.location = "Singapore"
-        break
-      }
-    }
-
-
-    if (input === "7") {
-      if (player.location === "Batavia") {
-        console.log("You're already here, Taipan.")
-      } else {
-
-        console.log("Location: Batavia")
-        player.location = "Batavia"
-        break
-      }
-    }
-
-
+    status = handleLocationInput(input)
   }
 }
 
@@ -631,7 +375,7 @@ function eventSea() {
     pirates("Li Yuen", number)
   } else {
     if (rndPirates <= 0.3) {
-      number = pirateGenerator(Math.floor(gameAttributes.month / 6) + Math.floor(ship.cargoUnits / 100) + Math.round(ship.cargoSpaceOpium / 100 + ship.cargoSpaceSilk / 100), 38 + Math.floor(gameAttributes.month / 6 + Math.floor(ship.cargoUnits / 100)))
+      number = pirateGenerator(Math.floor(gameAttributes.month / 6) + Math.floor(ship.cargoUnits / 100) + Math.round(ship.Opium / 100 + ship.Silk / 100), 38 + Math.floor(gameAttributes.month / 6 + Math.floor(ship.cargoUnits / 100)))
       console.log(number.toString(), "hostile ships, Taipan!")
       pirates("Regular", number)
     }
@@ -683,7 +427,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       let numberSank = 0
       for (let i = 0; i < ship.cannons; i++) {
         let chanceOfPirateShipSinking = Math.random()
-        if (chanceOfPirateShipSinking <= 0.45 * 250 / (gameAttributes.month * pirateResistanceCoefficient + 250 * pirateResistanceCoefficient)) {
+        if (chanceOfPirateShipSinking <= 0.4 * 250 / (gameAttributes.month * pirateResistanceCoefficient + 250 * pirateResistanceCoefficient)) {
           number--
           numberSank++
         }
