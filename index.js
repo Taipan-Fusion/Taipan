@@ -38,7 +38,8 @@ const gameAttributes = {
   eventChanceSea: 0.5,
   eventChancePort: 0.25,
   liYuenFactor: 0.8,
-  liYuenExtortionFactor: 0.8
+  liYuenExtortionFactor: 0.8,
+  status: "Running"
 }
 
 const locationsMap = {
@@ -55,7 +56,7 @@ const locationsMap = {
 function game() {
   console.log("Welcome to Taipan!")
   let input
-  while (input !== "e") {
+  while (status !== "Terminated") {
     if (player.location === "Hong Kong") {
       if (ship.health < 100) {
         shipyard()
@@ -388,6 +389,7 @@ function quitTrading() {
 
 function retire() {
   console.log(player, ship, warehouse, gameAttributes)
+  gameAttributes.status = "Terminated"
 }
 
 function turnProgression() {
@@ -640,7 +642,6 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
     if (ship.health === 0) {
       console.log("We're going down, Taipan!")
       retire()
-      return "Done"
     }
   }
 }
@@ -651,7 +652,6 @@ function storm() {
   if (Math.random() < chanceOfSinking) {
     console.log("We're going down, Taipan!")
     retire()
-    return "Done"
   } else {
     console.log("We survived, Taipan!")
   }
