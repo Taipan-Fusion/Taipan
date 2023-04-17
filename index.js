@@ -2,7 +2,7 @@ const prompt = require('prompt-sync')();
 const ship = {
   cannons: 5,
   health: 100,
-  cargoUnits: 100,
+  cargoUnits: 150,
   hold: 100,
   Opium: 0,
   Silk: 0,
