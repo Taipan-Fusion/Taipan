@@ -12,7 +12,7 @@ const ship = {
 
 const player = {
   bank: 0,
-  cash: 10000,
+  cash: 10000000,
   debt: 0,
   location: "Hong Kong"
 }
@@ -56,7 +56,7 @@ const locationsMap = {
 function game() {
   console.log("Welcome to Taipan!")
   let input
-  while (status !== "Terminated") {
+  while (gameAttributes.status !== "Terminated") {
     if (player.location === "Hong Kong") {
       if (ship.health < 100) {
         shipyard()
@@ -72,6 +72,9 @@ function game() {
     }
     priceDisplay()
     generalPrompt()
+    if (gameAttributes.status === "Terminated") {
+      break
+    }
     //put this before the second if to replace the calls to Random()
     // |
     //\/
@@ -93,7 +96,7 @@ function game() {
 }
 
 function time() {
-  return (gameAttributes.month * 0.005) + 1
+  return (gameAttributes.month * 0.0015) + 1
 }
 
 function priceGenerator(max) {
@@ -388,8 +391,8 @@ function quitTrading() {
 }
 
 function retire() {
+    gameAttributes.status = "Terminated"
   console.log(player, ship, warehouse, gameAttributes)
-  gameAttributes.status = "Terminated"
 }
 
 function turnProgression() {
@@ -550,7 +553,7 @@ function moreGuns() {
 }
 
 function opiumConfiscationChance() {
-  return (ship.Opium / ship.cargoUnits) * 0.2
+  return (ship.Opium / ship.cargoUnits) * 0.7
 }
 
 function shipyard() {
@@ -574,6 +577,7 @@ function shipyard() {
 function pirates(type, number) {
   if (type === "Li Yuen") {
     gameAttributes.liYuenFactor = 0.8
+    gameAttributes.liYuenExtortionFactor = 0.8
     let result = combat(2, 0.2, number, 2)
     if (result === "Done") {
       throw new Error("Done.")
