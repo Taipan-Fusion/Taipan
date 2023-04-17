@@ -71,6 +71,9 @@ function game() {
     }
     priceDisplay()
     generalPrompt()
+    //put this before the second if to replace the calls to Random()
+    // |
+    //\/
     let rnd = Math.random()
     //console.log(rnd)
     let status = true
@@ -93,6 +96,18 @@ function time() {
 }
 
 function priceGenerator(max) {
+  /* 
+    Feature Suggestion: Prices should be based on what each port has in stock
+    Implementation: There should be a class called Port, which stores the info for a generic port. Then, a const list of ports can be created for each port to store the info. The port class contains the following:
+      -Name:String
+  -Supply:Object[string : int]
+    -MaxSupply: int
+    -FirstRestock:string
+    -PriceScalar: float(?)
+The price of each commodity would be decided with something like this : price = MaxSupply/Supply[type]*PriceScalar
+Additionally, an extra cost can be applied(can be negaitve lol) if you buy all the stuff from a port
+A port will restock a random amount when taipan leaves the port. It will always try to restock its firstRestock first, then will try to restock a random good. If either fail, it will restock a random good until something suceeds or all goods fail.(the latter can be done with a conditional at the top of the restock action)
+ */
   function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -442,10 +457,10 @@ function eventPort() {
   let moreGunsChance = Math.random()
   let getRobbed = Math.random()
   let opiumConfiscation = Math.random()
-  if (newShipChance <= 0.5) {
+  if (newShipChance <= 0.75) {
     newShip()
   }
-  if (moreGunsChance <= 0.8) {
+  if (moreGunsChance <= 0.85) {
     moreGuns()
   }
   if (getRobbed <= 0.15) {
@@ -556,6 +571,7 @@ function shipyard() {
 
 function pirates(type, number) {
   if (type === "Li Yuen") {
+    gameAttributes.liYuenFactor = 0.8
     let result = combat(2, 0.2, number, 2)
     if (result === "Done") {
       throw new Error("Done.")
@@ -581,7 +597,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       let numberSank = 0
       for (let i = 0; i < ship.cannons; i++) {
         let chanceOfPirateShipSinking = Math.random()
-        if (chanceOfPirateShipSinking <= 0.5 * 250 / (gameAttributes.month * pirateResistanceCoefficient + 250 * pirateResistanceCoefficient)) {
+        if (chanceOfPirateShipSinking <= 0.5 * 250 / (gameAttributes.month * pirateResistanceCoefficient + 200 * pirateResistanceCoefficient)) {
           number--
           numberSank++
         }
