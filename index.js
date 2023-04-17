@@ -353,9 +353,11 @@ function transferCargo() {
 function handleLocationInput(input) {
   if (player.location === locationsMap[input]) {
     console.log("You're already here, Taipan.")
-  } else {
+  } else if (Number.isInteger(parseInt(input))) {
     player.location = locationsMap[input]
     return "Done"
+  } else {
+
   }
 }
 
