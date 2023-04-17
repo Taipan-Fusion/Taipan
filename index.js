@@ -12,7 +12,7 @@ const ship = {
 
 const player = {
   bank: 0,
-  cash: 10000000,
+  cash: 1000,
   debt: 0,
   location: "Hong Kong"
 }
@@ -69,6 +69,9 @@ function game() {
     }
     if (Math.random() <= gameAttributes.eventChancePort) {
       eventPort()
+    }
+    if (Math.random() <= 1) {
+      randomPrice()
     }
     priceDisplay()
     generalPrompt()
@@ -391,7 +394,7 @@ function quitTrading() {
 }
 
 function retire() {
-    gameAttributes.status = "Terminated"
+  gameAttributes.status = "Terminated"
   console.log(player, ship, warehouse, gameAttributes)
 }
 
@@ -554,6 +557,24 @@ function moreGuns() {
 
 function opiumConfiscationChance() {
   return (ship.Opium / ship.cargoUnits) * 0.7
+}
+
+function randomPrice() {
+  let arr = ["Opium", "Silk", "Arms", "General"]
+  let arr2 = [1000, 100, 10, 1]
+  let randomIndex = pirateGenerator(1, 4)
+  let product = arr[randomIndex]
+  let multiplier = arr2[randomIndex]
+  console.log("Taipan!!!")
+  console.log("Prices for " + product + " are wild!!!")
+  let newPrice;
+  if (Math.random() < 0.5) {
+    newPrice = pirateGenerator(1, 4) * multiplier
+  } else {
+    newPrice = pirateGenerator(50, 1000) * multiplier
+  }
+  prices[product] = newPrice
+  console.log(product + " is at " + newPrice + "!!!")
 }
 
 function shipyard() {
