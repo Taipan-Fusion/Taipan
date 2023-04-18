@@ -21,7 +21,8 @@ const prices = {
   Opium: 0,
   Silk: 0,
   Arms: 0,
-  General: 0
+  General: 0,
+  Type: "Regular"
 }
 
 const warehouse = {
@@ -70,10 +71,16 @@ function game() {
     if (Math.random() <= gameAttributes.eventChancePort) {
       eventPort()
     }
-    if (Math.random() <= 1) {
+    prices.Type = "Regular"
+    if (Math.random() <= 0.05) {
       randomPrice()
+      prices.Type = "Random"
     }
-    priceDisplay()
+    else if (prices.Type === "Regular") {
+      priceDisplay()
+    } else {
+      priceRandomDisplay()
+    }
     generalPrompt()
     if (gameAttributes.status === "Terminated") {
       break
@@ -140,6 +147,30 @@ function priceDisplay() {
   console.log("Taipan, prices per unit here are: \n"
     + "Opium:", prices.Opium.toString() + "\t" + "Silk:", prices.Silk.toString() + "\n"
   + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
+}
+
+function priceRandomDisplay(product) {
+  prices.Type = "Random"
+  if (product === "Opium") {
+    prices.Silk = priceGenerator(100)
+    prices.Arms = priceGenerator(10)
+    prices.General = priceGenerator(1)
+  } else if (product === "Silk") {
+    prices.Opium = priceGenerator(1000)
+    prices.Arms = priceGenerator(10)
+    prices.General = priceGenerator(1)
+  } else if (product === "Arms") {
+    prices.Silk = priceGenerator(100)
+    prices.Opium = priceGenerator(1000)
+    prices.General = priceGenerator(1)
+  } else {
+    prices.Silk = priceGenerator(100)
+    prices.Opium = priceGenerator(1000)
+    prices.Arms = priceGenerator(10)
+  }
+  // console.log("Taipan, prices per unit here are: \n"
+  //   + "Opium:", prices.Opium.toString() + "\t" + "Silk:", prices.Silk.toString() + "\n"
+  // + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
 }
 
 function generalPrompt() {
@@ -562,7 +593,7 @@ function opiumConfiscationChance() {
 function randomPrice() {
   let arr = ["Opium", "Silk", "Arms", "General"]
   let arr2 = [1000, 100, 10, 1]
-  let randomIndex = pirateGenerator(1, 4)
+  let randomIndex = pirateGenerator(0, 3)
   let product = arr[randomIndex]
   let multiplier = arr2[randomIndex]
   console.log("Taipan!!!")
@@ -575,6 +606,8 @@ function randomPrice() {
   }
   prices[product] = newPrice
   console.log(product + " is at " + newPrice + "!!!")
+  prices.Type = "Random"
+  priceRandomDisplay(product)
 }
 
 function shipyard() {
