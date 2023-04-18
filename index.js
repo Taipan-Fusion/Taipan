@@ -13,7 +13,7 @@ const ship = {
 const player = {
   bank: 0,
   cash: 1000,
-  debt: 0,
+  debt: 5000,
   location: "Hong Kong"
 }
 
@@ -471,7 +471,7 @@ function LiYuen() {
     if (input === "y") {
       if (amount > player.cash) {
         player.cash = 0
-        player.debt = amount - player.cash
+        player.debt = amount - player.cash + player.debt 
         gameAttributes.liYuenExtortionFactor = 0.1
         gameAttributes.liYuenFactor = 0.05
         break
@@ -496,10 +496,10 @@ function eventPort() {
   let moreGunsChance = Math.random()
   let getRobbed = Math.random()
   let opiumConfiscation = Math.random()
-  if (newShipChance <= 0.55) {
+  if (newShipChance <= 0.35 & player.cash >= 1000) {
     newShip()
   }
-  if (moreGunsChance <= 0.65) {
+  if (moreGunsChance <= 0.45 & player.cash >= 100) {
     moreGuns()
   }
   if (getRobbed <= 0.15) {
@@ -693,7 +693,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       console.log(ship)
       rndGunKnockout = Math.random()
     } else {
-      console.log(damageToShip)
+      console.log("We took " + damageToShip + " damage, Taipan!")
       ship.health -= damageToShip
       console.log(ship)
     }
