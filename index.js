@@ -587,7 +587,7 @@ function moreGuns() {
 }
 
 function opiumConfiscationChance() {
-  return (ship.Opium / ship.cargoUnits) * 0.7
+  return (ship.Opium / ship.cargoUnits) * 0.85
 }
 
 function randomPrice() {
