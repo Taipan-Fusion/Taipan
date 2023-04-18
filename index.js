@@ -496,14 +496,14 @@ function eventPort() {
   let moreGunsChance = Math.random()
   let getRobbed = Math.random()
   let opiumConfiscation = Math.random()
-  if (newShipChance <= 0.35 & player.cash >= 1000) {
+  if (newShipChance <= 0.35 && player.cash >= 1000) {
     newShip()
   }
-  if (moreGunsChance <= 0.45 & player.cash >= 100) {
+  if (moreGunsChance <= 0.45 && player.cash >= 100) {
     moreGuns()
   }
   if (getRobbed <= 0.15) {
-    let amount = Math.round((Math.random() + 0.1) * player.cash)
+    let amount = Math.round((Math.random() + 0.1) * player.cash * 0.9)
     console.log("You were beaten and robbed", amount, "in cash, Taipan!")
     player.cash -= amount
   }
