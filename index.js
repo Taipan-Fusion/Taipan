@@ -251,11 +251,13 @@ function buyHandler(product) {
     let inputAmount = parseInt(input)
     if (inputAmount * prices[product] > player.cash) {
 
-    } else {
+    } else if (Number.isInteger(inputAmount)) {
       ship[product] += inputAmount
       player.cash -= inputAmount * prices[product]
       ship.hold -= inputAmount
       return false
+    } else {
+
     }
   }
 }
@@ -283,11 +285,13 @@ function sellHandler(product) {
     let inputAmount = parseInt(input)
     if (inputAmount > ship[product]) {
 
-    } else {
+    } else if (Number.isInteger(inputAmount)) {
       ship[product] -= inputAmount
       player.cash += inputAmount * prices[product]
       ship.hold += inputAmount
       return false
+    } else {
+
     }
   }
 }
@@ -471,7 +475,7 @@ function LiYuen() {
     if (input === "y") {
       if (amount > player.cash) {
         player.cash = 0
-        player.debt = amount - player.cash + player.debt 
+        player.debt = amount - player.cash + player.debt
         gameAttributes.liYuenExtortionFactor = 0.1
         gameAttributes.liYuenFactor = 0.05
         break
