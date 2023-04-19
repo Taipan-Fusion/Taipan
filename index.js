@@ -648,10 +648,23 @@ function pirates(type, number) {
   }
 }
 
+function pirateHealthGenerator(pirateResistanceCoefficient) {
+  return Math.round((Math.random() + 0.5) * 20 * time() * pirateResistanceCoefficient)
+}
+
+function damageToPirateShip() {
+  return Math.round((Math.random() + 0.2) * 20 * time())
+}
+
 function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCoefficient) {
-  let resistanceRatio = gameAttributes.month / ship.cargoUnits
+  let resistanceRatio = gameAttributes.month / ship.cargoUnits * 1.5
   let runRatio = 0.25 * 200 / (ship.cargoUnits + 5 * number)
   let rndGunKnockout = Math.random()
+  let piratesArr = []
+  for (let i = 0; i < number; i++) {
+    let pirateShip = pirateHealthGenerator()
+    piratesArr.push(pirateShip)
+  }
   const number2 = number
   console.log(number, "ships attacking, Taipan!")
   loop1: while (true) {
@@ -665,7 +678,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
           number--
           numberSank++
         }
-        if (number === 0) {
+        if (number <= 0) {
           console.log("Sank", numberSank, "buggers, Taipan!")
           console.log("We got them all, Taipan!")
           let booty = Math.round(numberSank * pirateGenerator(5, 100) * pirateGenerator(2, 10) * pirateGenerator(1, 5) * (1 + gameAttributes.month / 12))
@@ -678,13 +691,17 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
     } else {
       let numberRan = 0
       if (Math.random() < runRatio) {
-        numberRan = pirateGenerator(number / 5, number)
+        numberRan = pirateGenerator(Math.round(number / 5), number)
         if (numberRan === number) {
           console.log("We got away from them, Taipan!")
           break loop1
         } else {
           number -= numberRan
           console.log("Can't escape them, Taipan, but we got away from", numberRan, "of them!")
+          if (number <= 0) {
+            console.log("We got away from them, Taipan!")
+            break loop1
+          }
         }
       } else {
         console.log("Can't escape them, Taipan!")
