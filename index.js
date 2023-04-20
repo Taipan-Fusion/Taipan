@@ -471,8 +471,8 @@ function eventSea(status) {
 }
 
 function LiYuen() {
+  let amount = Math.round((Math.random() + 0.1) * player.cash * 1.1 * Math.random() * gameAttributes.liYuenMultiplier)
   loop1: while (true) {
-    let amount = Math.round((Math.random() + 0.1) * player.cash * 1.1 * Math.random() * gameAttributes.liYuenMultiplier)
     let input = prompt("Li Yuen asks " + amount + " in donation to the temple of Tin Hau, the Sea Goddess. Will you pay? ")
     if (input === "y") {
       if (amount > player.cash) {
@@ -543,8 +543,8 @@ function eventPort() {
 }
 
 function newShip() {
+  let amount = Math.round((Math.random() + 0.1) * player.cash * 0.5)
   while (true) {
-    let amount = Math.round((Math.random() + 0.1) * player.cash * 0.5)
     if (ship.health < 100) {
       let input = prompt("Would you like to change your damaged ship with one fifty units larger for " + amount + " cash? ")
       if (input === "y") {
@@ -572,8 +572,8 @@ function newShip() {
 }
 
 function moreGuns() {
+  let amount = Math.round(((Math.random()) + 0.1) * player.cash * 0.5 * 0.3)
   while (true) {
-    let amount = Math.round(((Math.random()) + 0.1) * player.cash * 0.5 * 0.3)
     let input = prompt("Would you like a random amount of guns for " + amount + " cash? ")
     if (ship.hold - 10 < 0) {
       console.log("Your ship would be overburdened, Taipan!")
