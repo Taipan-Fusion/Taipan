@@ -678,7 +678,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
         if (number <= 0) {
           console.log("Sank", numberSank, "buggers, Taipan!")
           console.log("We got them all, Taipan!")
-          let booty = Math.round(numberOfPirates * pirateGenerator(5, 100) * pirateGenerator(2, 10) * (1 + gameAttributes.month / 12))
+          let booty = Math.round(numberOfPirates * pirateGenerator(5, 50) * pirateGenerator(2, 5) * (1 + gameAttributes.month / 12))
           player.cash += booty
           console.log("We got", booty, "in booty, Taipan!")
           break loop1
@@ -692,7 +692,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       }
       if (number <= 0) {
         console.log("We got them all, Taipan!")
-        let booty = Math.round(numberOfPirates * pirateGenerator(5, 100) * pirateGenerator(2, 10) * (1 + gameAttributes.month / 12))
+        let booty = Math.round(numberOfPirates * pirateGenerator(5, 50) * pirateGenerator(2, 5) * (1 + gameAttributes.month / 12))
         player.cash += booty
         console.log("We got", booty, "in booty, Taipan!")
         break loop1
