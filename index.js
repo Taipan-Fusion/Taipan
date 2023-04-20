@@ -811,9 +811,9 @@ function moneylender() {
           }
         }
       }
-      let input = prompt("How much do you wish to borrow? ")
+      let input = prompt("How much do you wish to borrow? You can borrow up to " + player.cash * 2 + ". ")
       let inputAmount = parseInt(input)
-      if (inputAmount >= player.cash) {
+      if (inputAmount > player.cash * 2) {
         console.log("He won't loan you so much, Taipan!")
       } else {
         player.cash += inputAmount
