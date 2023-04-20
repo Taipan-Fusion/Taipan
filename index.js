@@ -635,9 +635,6 @@ function pirates(type, number) {
     gameAttributes.liYuenFactor = 0.8
     gameAttributes.liYuenExtortionFactor = 0.8
     combat(2, 0.2, number, 2)
-    if (result === "Done") {
-      throw new Error("Done.")
-    }
   } else {
     combat(1, 0.1, number, 1)
   }
