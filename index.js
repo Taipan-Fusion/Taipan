@@ -597,7 +597,7 @@ function randomPrice() {
   let randomIndex = pirateGenerator(0, 3)
   let product = arr[randomIndex]
   let multiplier = arr2[randomIndex]
-  console.log(randomIndex, product)
+  //console.log(randomIndex, product)
   console.log("Taipan!!!")
   console.log("Prices for " + product + " are wild!!!")
   let newPrice;
