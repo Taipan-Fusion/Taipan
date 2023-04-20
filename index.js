@@ -461,10 +461,7 @@ function eventSea(status) {
     }
   }
   if (rndStorm <= 0.3) {
-    let result = storm()
-    if (result === "done") {
-      throw new Error("Done.")
-    }
+    storm()
   }
 }
 
@@ -600,6 +597,7 @@ function randomPrice() {
   let randomIndex = pirateGenerator(0, 3)
   let product = arr[randomIndex]
   let multiplier = arr2[randomIndex]
+  console.log(randomIndex, product)
   console.log("Taipan!!!")
   console.log("Prices for " + product + " are wild!!!")
   let newPrice;
@@ -636,15 +634,12 @@ function pirates(type, number) {
   if (type === "Li Yuen") {
     gameAttributes.liYuenFactor = 0.8
     gameAttributes.liYuenExtortionFactor = 0.8
-    let result = combat(2, 0.2, number, 2)
+    combat(2, 0.2, number, 2)
     if (result === "Done") {
       throw new Error("Done.")
     }
   } else {
-    let result = combat(1, 0.1, number, 1)
-    if (result === "Done") {
-      throw new Error("Done.")
-    }
+    combat(1, 0.1, number, 1)
   }
 }
 
@@ -653,7 +648,7 @@ function pirateHealthGenerator(pirateResistanceCoefficient) {
 }
 
 function damageToPirateShip() {
-  return Math.round((Math.random() + 0.2) * 20 * time())
+  return Math.round((Math.random() + 0.3) * 25 * time())
 }
 
 function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCoefficient) {
@@ -662,32 +657,50 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
   let rndGunKnockout = Math.random()
   let piratesArr = []
   for (let i = 0; i < number; i++) {
-    let pirateShip = pirateHealthGenerator()
+    let pirateShip = pirateHealthGenerator(pirateResistanceCoefficient)
     piratesArr.push(pirateShip)
   }
+  let num = piratesArr.length
+  let numberOfPirates = num
   const number2 = number
   console.log(number, "ships attacking, Taipan!")
   loop1: while (true) {
-    let damageToShip = Math.round(resistanceRatio * damageCoefficient ** 2 * (Math.random() + 1) * 25 * number / number2)
+    let damageToShip = Math.round(resistanceRatio * damageCoefficient ** 2 * (Math.random() + 1) * 50 * number / number2)
     let input = prompt("Shall we fight or run, Taipan? ")
     if (input === "f") {
       let numberSank = 0
       for (let i = 0; i < ship.cannons; i++) {
-        let chanceOfPirateShipSinking = Math.random()
-        if (chanceOfPirateShipSinking <= 0.5 * 250 / (gameAttributes.month * pirateResistanceCoefficient + 200 * pirateResistanceCoefficient)) {
+        let damageToPirateS = damageToPirateShip()
+        piratesArr[0] -= damageToPirateS
+        console.log(piratesArr)
+        if (piratesArr[0] <= 0) {
+          piratesArr.shift()
           number--
           numberSank++
         }
         if (number <= 0) {
           console.log("Sank", numberSank, "buggers, Taipan!")
           console.log("We got them all, Taipan!")
-          let booty = Math.round(numberSank * pirateGenerator(5, 100) * pirateGenerator(2, 10) * pirateGenerator(1, 5) * (1 + gameAttributes.month / 12))
+          let booty = Math.round(numberOfPirates * pirateGenerator(5, 100) * pirateGenerator(2, 10) * (1 + gameAttributes.month / 12))
           player.cash += booty
           console.log("We got", booty, "in booty, Taipan!")
           break loop1
         }
       }
-      console.log("Sank", numberSank, "buggers, Taipan!", number, "remain, Taipan!")
+      console.log("Sank", numberSank, "buggers, Taipan!")
+      if (numberSank >= Math.floor(0.5 * number)) {
+        let numberRanAway = pirateGenerator(1 + Math.round(0.1 * number), 1 + Math.round(0.35 * number))
+        console.log(numberRanAway + " buggers ran away, Taipan!")
+        number -= numberRanAway
+      }
+      if (number <= 0) {
+        console.log("We got them all, Taipan!")
+        let booty = Math.round(numberOfPirates * pirateGenerator(5, 100) * pirateGenerator(2, 10) * (1 + gameAttributes.month / 12))
+        player.cash += booty
+        console.log("We got", booty, "in booty, Taipan!")
+        break loop1
+      }
+      console.log(number, "remain, Taipan!")
     } else {
       let numberRan = 0
       if (Math.random() < runRatio) {
@@ -695,13 +708,15 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
         if (numberRan === number) {
           console.log("We got away from them, Taipan!")
           break loop1
-        } else {
+        } else if (numberRan > 0) {
           number -= numberRan
           console.log("Can't escape them, Taipan, but we got away from", numberRan, "of them!")
           if (number <= 0) {
             console.log("We got away from them, Taipan!")
             break loop1
           }
+        } else {
+          console.log("Can't escape them, Taipan!")
         }
       } else {
         console.log("Can't escape them, Taipan!")
@@ -719,7 +734,8 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       console.log(ship)
     }
     if (ship.health === 0) {
-      console.log("We're going down, Taipan!")
+      console.log("It's all over Taipan!!")
+      console.log("We're going down, Taipan!!")
       retire()
     }
   }
@@ -733,6 +749,12 @@ function storm() {
     retire()
   } else {
     console.log("We survived, Taipan!")
+    if (Math.random() < 0.35) {
+      let num = pirateGenerator(1, 7)
+      let numString = num.toString()
+      player.location = locationsMap[numString]
+      console.log("We've been blown off course to", player.location)
+    }
   }
 }
 
