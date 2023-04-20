@@ -40,6 +40,7 @@ const gameAttributes = {
   eventChancePort: 0.25,
   liYuenFactor: 0.8,
   liYuenExtortionFactor: 0.8,
+  liYuenMultiplier: 1,
   status: "Running"
 }
 
@@ -56,7 +57,6 @@ const locationsMap = {
 
 function game() {
   console.log("Welcome to Taipan!")
-  let input
   while (gameAttributes.status !== "Terminated") {
     if (player.location === "Hong Kong") {
       if (ship.health < 100) {
@@ -95,6 +95,7 @@ function game() {
       number = pirateGenerator(1 + Math.floor(gameAttributes.month / 4) + Math.floor(ship.cargoUnits / 50), 10 + 2 * (Math.floor(gameAttributes.month / 4 + Math.floor(ship.cargoUnits / 50))))
       console.log(number.toString(), "ships from Li Yuen's private fleet, Taipan!")
       pirates("Li Yuen", number)
+      gameAttributes.liYuenMultiplier = (Math.random() + 1) * 1.5
       status = false
     }
     if (rnd <= gameAttributes.eventChanceSea) {
@@ -434,12 +435,16 @@ function retire() {
 }
 
 function turnProgression() {
-  console.log("Arriving at", player.location)
-  gameAttributes.month += 1
-  player.debt *= 1.2
-  player.bank *= 1.05
-  player.debt = Math.round(player.debt)
-  player.bank = Math.round(player.bank)
+  if (gameAttributes.status === "Terminated") {
+    
+  } else {
+    console.log("Arriving at", player.location)
+    gameAttributes.month += 1
+    player.debt *= 1.2
+    player.bank *= 1.05
+    player.debt = Math.round(player.debt)
+    player.bank = Math.round(player.bank) 
+  }
 }
 
 function eventSea(status) {
@@ -467,25 +472,45 @@ function eventSea(status) {
 
 function LiYuen() {
   while (true) {
-    let amount = Math.round((Math.random() + 0.1) * player.cash * 1.1 * Math.random())
+    let amount = Math.round((Math.random() + 0.1) * player.cash * 1.1 * Math.random() * gameAttributes.liYuenMultiplier)
     let input = prompt("Li Yuen asks " + amount + " in donation to the temple of Tin Hau, the Sea Goddess. Will you pay? ")
     if (input === "y") {
       if (amount > player.cash) {
-        player.cash = 0
-        player.debt = amount - player.cash + player.debt
+        while (true) {
+          let newInput = prompt("Taipan! You do not have enough cash!!! Do you want Elder Brother Wu to make up the difference? ")
+          if (newInput === "y") {
+            player.cash = 0
+            player.debt = amount - player.cash + player.debt
+            console.log("Elder Brother Wu has given Li Yuen the difference, which will be added to your debt.")
+            break
+          } else if (newInput === "n") {
+            console.log("The difference will not be paid! Elder Brother Wu says, 'I would be wary of pirates if I were you, Taipan!'")
+            gameAttributes.liYuenExtortionFactor = 0.8
+            gameAttributes.liYuenFactor = 0.8
+            
+            break
+          } else {
+            
+          }
+        }
         gameAttributes.liYuenExtortionFactor = 0.1
         gameAttributes.liYuenFactor = 0.05
+        gameAttributes.liYuenMultiplier = 1
+
         break
       } else {
         player.cash -= amount
         gameAttributes.liYuenExtortionFactor = 0.05
         gameAttributes.liYuenFactor = 0.025
+        gameAttributes.liYuenMultiplier = 1
         break
       }
-    } else {
+    } else if (input === "n") {
       gameAttributes.liYuenExtortionFactor = 0.8
       gameAttributes.liYuenFactor = 0.8
       break
+    } else {
+      
     }
   }
 }
@@ -662,7 +687,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
   const number2 = number
   console.log(number, "ships attacking, Taipan!")
   loop1: while (true) {
-    let damageToShip = Math.round(resistanceRatio * damageCoefficient ** 2 * (Math.random() + 1) * 50 * number / number2)
+    let damageToShip = Math.round(resistanceRatio * damageCoefficient ** 2 * (Math.random() + 1) * numberOfPirates * 1.5 * number / number2)
     let input = prompt("Shall we fight or run, Taipan? ")
     if (input === "f") {
       let numberSank = 0
