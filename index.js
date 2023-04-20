@@ -356,6 +356,8 @@ function transferCargoHandlerToWarehouse(product) {
         let inputAmount = parseInt(input)
         if (inputAmount > ship[product]) {
           console.log("You only have", ship[product].toString(), "Taipan.")
+        } else if (warehouse.vacant - inputAmount < 0) {
+          console.log("The warehouse would be full, Taipan!")      
         } else if (Number.isInteger(inputAmount)) {
           ship.hold += inputAmount
           warehouse.inUse += inputAmount
