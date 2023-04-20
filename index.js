@@ -72,7 +72,7 @@ function game() {
       eventPort()
     }
     prices.Type = "Regular"
-    if (Math.random() <= 0.05) {
+    if (Math.random() <= 0.1) {
       randomPrice()
       prices.Type = "Random"
     }
@@ -650,7 +650,7 @@ function damageToPirateShip() {
 
 function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCoefficient) {
   let resistanceRatio = gameAttributes.month / ship.cargoUnits * 1.5
-  let runRatio = 0.25 * 200 / (ship.cargoUnits + 5 * number)
+  let runRatio = 0.5 * 200 / (ship.cargoUnits + 5 * number)
   let rndGunKnockout = Math.random()
   let piratesArr = []
   for (let i = 0; i < number; i++) {
@@ -689,6 +689,9 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
         let numberRanAway = pirateGenerator(1 + Math.round(0.1 * number), 1 + Math.round(0.35 * number))
         console.log(numberRanAway + " buggers ran away, Taipan!")
         number -= numberRanAway
+        for (let i = 0; i < numberRanAway; i++) {
+          piratesArr.shift()
+        }
       }
       if (number <= 0) {
         console.log("We got them all, Taipan!")
@@ -701,22 +704,30 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
     } else {
       let numberRan = 0
       if (Math.random() < runRatio) {
-        numberRan = pirateGenerator(Math.round(number / 5), number)
+        numberRan = pirateGenerator(Math.round(number / 5), Math.round(number))
         if (numberRan === number) {
           console.log("We got away from them, Taipan!")
           break loop1
         } else if (numberRan > 0) {
           number -= numberRan
           console.log("Can't escape them, Taipan, but we got away from", numberRan, "of them!")
+          console.log(number, "remain, Taipan!")
+          for (let i = 0; i < numberRan; i++) {
+            piratesArr.shift()
+          }
           if (number <= 0) {
             console.log("We got away from them, Taipan!")
             break loop1
           }
         } else {
           console.log("Can't escape them, Taipan!")
+          console.log(number, "remain, Taipan!")
+
         }
       } else {
         console.log("Can't escape them, Taipan!")
+        console.log(number, "remain, Taipan!")
+
       }
     }
     console.log("They're firing on us, Taipan!")
@@ -730,10 +741,11 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       ship.health -= damageToShip
       console.log(ship)
     }
-    if (ship.health === 0) {
+    if (ship.health <= 0) {
       console.log("It's all over Taipan!!")
       console.log("We're going down, Taipan!!")
       retire()
+      break loop1
     }
   }
 }
