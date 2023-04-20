@@ -436,14 +436,14 @@ function retire() {
 
 function turnProgression() {
   if (gameAttributes.status === "Terminated") {
-    
+
   } else {
     console.log("Arriving at", player.location)
     gameAttributes.month += 1
     player.debt *= 1.2
     player.bank *= 1.05
     player.debt = Math.round(player.debt)
-    player.bank = Math.round(player.bank) 
+    player.bank = Math.round(player.bank)
   }
 }
 
@@ -471,7 +471,7 @@ function eventSea(status) {
 }
 
 function LiYuen() {
-  while (true) {
+  loop1: while (true) {
     let amount = Math.round((Math.random() + 0.1) * player.cash * 1.1 * Math.random() * gameAttributes.liYuenMultiplier)
     let input = prompt("Li Yuen asks " + amount + " in donation to the temple of Tin Hau, the Sea Goddess. Will you pay? ")
     if (input === "y") {
@@ -487,10 +487,10 @@ function LiYuen() {
             console.log("The difference will not be paid! Elder Brother Wu says, 'I would be wary of pirates if I were you, Taipan!'")
             gameAttributes.liYuenExtortionFactor = 0.8
             gameAttributes.liYuenFactor = 0.8
-            
-            break
+
+            break loop1
           } else {
-            
+
           }
         }
         gameAttributes.liYuenExtortionFactor = 0.1
@@ -510,7 +510,7 @@ function LiYuen() {
       gameAttributes.liYuenFactor = 0.8
       break
     } else {
-      
+
     }
   }
 }
@@ -530,7 +530,7 @@ function eventPort() {
   }
   if (getRobbed <= 0.15) {
     let amount = Math.round((Math.random() + 0.1) * player.cash * 0.9)
-    console.log("You were beaten and robbed", amount, "in cash, Taipan!")
+    console.log("Bad Joss! You were beaten and robbed", amount, "in cash, Taipan!")
     player.cash -= amount
   }
   if (opiumConfiscation <= opiumConfiscationChance()) {
@@ -687,7 +687,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
   const number2 = number
   console.log(number, "ships attacking, Taipan!")
   loop1: while (true) {
-    let damageToShip = Math.round(resistanceRatio * damageCoefficient ** 2 * (Math.random() + 1) * numberOfPirates * 1.5 * number / number2)
+    let damageToShip = Math.round(resistanceRatio * damageCoefficient * (Math.random() + 1) * numberOfPirates ** 0.75 * 1.5 * number / number2)
     let input = prompt("Shall we fight or run, Taipan? ")
     if (input === "f") {
       let numberSank = 0
