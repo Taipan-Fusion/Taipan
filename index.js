@@ -776,7 +776,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 }
 
 function storm() {
-  let chanceOfSinking = (100 - ship.health) / 200
+  let chanceOfSinking = (100 - ship.health) / 400
   console.log("Storm, Taipan!")
   if (Math.random() < chanceOfSinking) {
     console.log("We're going down, Taipan!")
