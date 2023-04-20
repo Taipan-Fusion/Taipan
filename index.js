@@ -252,7 +252,7 @@ function buyHandler(product) {
     let inputAmount = parseInt(input)
     if (inputAmount * prices[product] > player.cash) {
 
-    } else if (Number.isInteger(inputAmount)) {
+    } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
       ship[product] += inputAmount
       player.cash -= inputAmount * prices[product]
       ship.hold -= inputAmount
@@ -286,7 +286,7 @@ function sellHandler(product) {
     let inputAmount = parseInt(input)
     if (inputAmount > ship[product]) {
 
-    } else if (Number.isInteger(inputAmount)) {
+    } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
       ship[product] -= inputAmount
       player.cash += inputAmount * prices[product]
       ship.hold += inputAmount
@@ -322,7 +322,7 @@ function visitBank() {
       let inputAmount = parseInt(input)
       if (inputAmount > player.cash) {
         console.log("Taipan, you only have " + player.cash.toString(), "in your wallet.")
-      } else if (Number.isInteger(inputAmount)) {
+      } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
         player.cash -= inputAmount
         player.bank += inputAmount
         break
@@ -335,7 +335,7 @@ function visitBank() {
       let inputAmount = parseInt(input)
       if (inputAmount > player.bank) {
         console.log("Taipan, you only have " + player.bank.toString(), "in your bank.")
-      } else if (Number.isInteger(inputAmount)) {
+      } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
         player.cash += inputAmount
         player.bank -= inputAmount
         break
@@ -357,7 +357,7 @@ function transferCargoHandlerToWarehouse(product) {
         if (inputAmount > ship[product]) {
           console.log("You only have", ship[product].toString(), "Taipan.")
         } else if (warehouse.vacant - inputAmount < 0) {
-          console.log("The warehouse would be full, Taipan!")      
+          console.log("The warehouse would be full, Taipan!")
         } else if (Number.isInteger(inputAmount)) {
           ship.hold += inputAmount
           warehouse.inUse += inputAmount
@@ -648,7 +648,7 @@ function shipyard() {
     let inputAmount = parseInt(input)
     if (inputAmount > player.cash) {
       console.log("Taipan, you only have", player.cash.toString(), "cash.")
-    } else if (Number.isInteger(inputAmount)) {
+    } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
       ship.health += Math.round((100 - ship.health) * inputAmount / rndShipFix)
       break
     } else {
@@ -668,7 +668,7 @@ function pirates(type, number) {
 }
 
 function pirateHealthGenerator(pirateResistanceCoefficient) {
-  return Math.round((Math.random() + 0.5) * 20 * time() * pirateResistanceCoefficient)
+  return Math.round((Math.random() + 0.5) * 20 * (time() + 0.5) * pirateResistanceCoefficient)
 }
 
 function damageToPirateShip() {
@@ -801,7 +801,7 @@ function moneylender() {
       if (player.debt > 0) {
         let input = prompt("How much do you wish to repay him? ")
         let inputAmount = parseInt(input)
-        if (inputAmount > player.cash) {
+        if (inputAmount > player.cash || inputAmount < 0) {
           console.log("You can't do that!")
         } else {
           if (inputAmount > player.debt) {
@@ -817,10 +817,12 @@ function moneylender() {
       let inputAmount = parseInt(input)
       if (inputAmount > player.cash * 2) {
         console.log("He won't loan you so much, Taipan!")
-      } else {
+      } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
         player.cash += inputAmount
         player.debt += inputAmount
         break
+      } else {
+
       }
     }
     else {
