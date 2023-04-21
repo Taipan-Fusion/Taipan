@@ -316,7 +316,7 @@ function sell() {
 }
 
 function visitBank() {
-  loop1: while (true) {
+  while (true) {
     while (true) {
       let input = prompt("How much will you deposit? ")
       let inputAmount = parseInt(input)
@@ -349,7 +349,7 @@ function visitBank() {
 
 
 function transferCargoHandlerToWarehouse(product) {
-  while (true) {
+  loop1: while (true) {
     if (ship[product] > 0) {
       while (true) {
         input = prompt(`How much ${product} shall I move to the warehouse, Taipan? `)
@@ -358,18 +358,19 @@ function transferCargoHandlerToWarehouse(product) {
           console.log("You only have", ship[product].toString(), "Taipan.")
         } else if (warehouse.vacant - inputAmount < 0) {
           console.log("The warehouse would be full, Taipan!")
-        } else if (Number.isInteger(inputAmount)) {
+        } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
           ship.hold += inputAmount
           warehouse.inUse += inputAmount
           warehouse[product] += inputAmount
           warehouse.vacant -= inputAmount
           ship[product] -= inputAmount
-          break
+          break loop1
         } else {
 
         }
       }
     }
+    console.log("You don't have any cargo in your ship, Taipan.")
     break
   }
 }
@@ -382,7 +383,7 @@ function transferCargoHandlerToShip(product) {
         let inputAmount = parseInt(input)
         if (inputAmount > warehouse[product]) {
           console.log("You only have", warehouse[product].toString(), "Taipan.")
-        } else if (Number.isInteger(inputAmount)) {
+        } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
           ship.hold -= inputAmount
           warehouse.inUse -= inputAmount
           warehouse[product] -= inputAmount
@@ -798,32 +799,39 @@ function moneylender() {
   let input = prompt("Do you have business with Elder Brother Wu, the moneylender? ")
   while (input !== "e") {
     if (input === "y") {
-      if (player.debt > 0) {
-        let input = prompt("How much do you wish to repay him? ")
-        let inputAmount = parseInt(input)
-        if (inputAmount > player.cash || inputAmount < 0) {
-          console.log("You can't do that!")
-        } else {
-          if (inputAmount > player.debt) {
-            player.cash -= inputAmount
-            player.debt = 0
+      while (true) {
+        if (player.debt > 0) {
+          let input = prompt("How much do you wish to repay him? ")
+          let inputAmount = parseInt(input)
+          if (inputAmount > player.cash || inputAmount < 0) {
+            console.log("You can't do that, Taipan!")
           } else {
-            player.debt -= inputAmount
-            player.cash -= inputAmount
+            if (inputAmount > player.debt) {
+              player.cash -= inputAmount
+              player.debt = 0
+              break
+            } else {
+              player.debt -= inputAmount
+              player.cash -= inputAmount
+              break
+            }
           }
         }
       }
-      let input = prompt("How much do you wish to borrow? You can borrow up to " + player.cash * 2 + ". ")
-      let inputAmount = parseInt(input)
-      if (inputAmount > player.cash * 2) {
-        console.log("He won't loan you so much, Taipan!")
-      } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
-        player.cash += inputAmount
-        player.debt += inputAmount
-        break
-      } else {
-
+      while (true) {
+        let input = prompt("How much do you wish to borrow? You can borrow up to " + player.cash * 2 + ". ")
+        let inputAmount = parseInt(input)
+        if (inputAmount > player.cash * 2) {
+          console.log("He won't loan you so much, Taipan!")
+        } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
+          player.cash += inputAmount
+          player.debt += inputAmount
+          break
+        } else {
+          console.log("You can't do that, Taipan!")
+        }
       }
+      break
     }
     else {
       break
