@@ -370,7 +370,6 @@ function transferCargoHandlerToWarehouse(product) {
         }
       }
     }
-    console.log("You don't have any cargo in your ship, Taipan.")
     break
   }
 }
@@ -474,7 +473,7 @@ function eventSea(status) {
 }
 
 function LiYuen() {
-  let amount = Math.round((Math.random() + 0.1) * player.cash * 1.1 * Math.random() * gameAttributes.liYuenMultiplier)
+  let amount = Math.round((Math.random() + 0.1) * player.cash * 1.1 * gameAttributes.liYuenMultiplier)
   loop1: while (true) {
     let input = prompt("Li Yuen asks " + amount + " in donation to the temple of Tin Hau, the Sea Goddess. Will you pay? ")
     if (input === "y") {
