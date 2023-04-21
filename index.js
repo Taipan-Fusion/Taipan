@@ -462,7 +462,7 @@ function eventSea(status) {
     pirates("Li Yuen", number)
   } else {
     if (rndPirates <= 0.3 && status) {
-      number = pirateGenerator(Math.floor(gameAttributes.month / 6) + Math.floor(ship.cargoUnits / 100) + Math.round(ship.Opium / 100 + ship.Silk / 100), 5 + 2 * (Math.floor(gameAttributes.month / 6 + Math.floor(ship.cargoUnits / 100))))
+      number = pirateGenerator(Math.floor(gameAttributes.month / 6) + Math.floor(ship.cargoUnits / 100) + Math.round(ship.Opium / 100 + ship.Silk / 100), 5 + 2 * (Math.floor(gameAttributes.month / 6 + Math.floor(ship.cargoUnits / 75))))
       console.log(number.toString(), "hostile ships, Taipan!")
       pirates("Regular", number)
     }
@@ -621,7 +621,7 @@ function opiumConfiscationChance() {
 function randomPrice() {
   let arr = ["Opium", "Silk", "Arms", "General"]
   let arr2 = [1000, 100, 10, 1]
-  let randomIndex = pirateGenerator(0, 3)
+  let randomIndex = Math.floor(pirateGenerator(0, 3))
   let product = arr[randomIndex]
   let multiplier = arr2[randomIndex]
   //console.log(randomIndex, product)
@@ -672,11 +672,11 @@ function pirateHealthGenerator(pirateResistanceCoefficient) {
 }
 
 function damageToPirateShip() {
-  return Math.round((Math.random() + 0.3) * 25 * time())
+  return Math.round((Math.random() + 0.3) * 35 * time())
 }
 
 function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCoefficient) {
-  let resistanceRatio = gameAttributes.month / ship.cargoUnits * 1.5
+  let resistanceRatio = (5 + gameAttributes.month) / ship.cargoUnits
   let runRatio = 0.5 * 200 / (ship.cargoUnits + 5 * number)
   let rndGunKnockout = Math.random()
   let piratesArr = []
@@ -689,7 +689,6 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
   const number2 = number
   console.log(number, "ships attacking, Taipan!")
   loop1: while (true) {
-    let damageToShip = Math.round(resistanceRatio * damageCoefficient * (Math.random() + 1) * numberOfPirates ** 0.75 * 1.5 * number / number2)
     let input = prompt("Shall we fight or run, Taipan? ")
     if (input === "f") {
       let numberSank = 0
@@ -757,10 +756,12 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 
       }
     }
+    let damageToShip = Math.round(resistanceRatio * damageCoefficient * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2)
     console.log("They're firing on us, Taipan!")
     if (rndGunKnockout < gunKnockoutChance) {
       console.log("They hit a gun, Taipan!")
       ship.cannons--
+      ship.hold += 10
       console.log(ship)
       rndGunKnockout = Math.random()
     } else {
@@ -778,7 +779,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 }
 
 function storm() {
-  let chanceOfSinking = (100 - ship.health) / 400
+  let chanceOfSinking = (100 - ship.health) / 500
   console.log("Storm, Taipan!")
   if (Math.random() < chanceOfSinking) {
     console.log("We're going down, Taipan!")
