@@ -399,6 +399,10 @@ function transferCargoHandlerToShip(product) {
 }
 
 function transferCargo() {
+  if (ship.Opium === 0 && ship.Silk === 0 && ship.Arms === 0 && ship.General === 0 &&
+    warehouse.Opium === 0 && warehouse.Silk === 0 && warehouse.Arms === 0 && warehouse.General === 0) {
+    console.log("You have no cargo, Taipan.")
+  }
   transferCargoHandlerToWarehouse("Opium")
   transferCargoHandlerToWarehouse("Silk")
   transferCargoHandlerToWarehouse("Arms")
@@ -668,15 +672,15 @@ function pirates(type, number) {
 }
 
 function pirateHealthGenerator(pirateResistanceCoefficient) {
-  return Math.round((Math.random() + 0.5) * 20 * (time() + 0.5) * pirateResistanceCoefficient)
+  return Math.round((Math.random() + 0.5) * 20 * (2 * (time() + 0.6)) * pirateResistanceCoefficient)
 }
 
 function damageToPirateShip() {
-  return Math.round((Math.random() + 0.3) * 35 * time())
+  return Math.round((Math.random() + 0.3) * 35 * (1.5 * time() - 0.5))
 }
 
 function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCoefficient) {
-  let resistanceRatio = (5 + gameAttributes.month) / ship.cargoUnits
+  let resistanceRatio = (25 + gameAttributes.month) / (ship.cargoUnits ** 1.25)
   let runRatio = 0.5 * 200 / (ship.cargoUnits + 5 * number)
   let rndGunKnockout = Math.random()
   let piratesArr = []
@@ -704,7 +708,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
         if (number <= 0) {
           console.log("Sank", numberSank, "buggers, Taipan!")
           console.log("We got them all, Taipan!")
-          let booty = Math.round(numberOfPirates * pirateGenerator(5, 50) * pirateGenerator(2, 5) * (1 + gameAttributes.month / 12))
+          let booty = Math.round(numberOfPirates * pirateGenerator(1, 10) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
           player.cash += booty
           console.log("We got", booty, "in booty, Taipan!")
           break loop1
@@ -721,7 +725,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       }
       if (number <= 0) {
         console.log("We got them all, Taipan!")
-        let booty = Math.round(numberOfPirates * pirateGenerator(5, 50) * pirateGenerator(2, 5) * (1 + gameAttributes.month / 12))
+        let booty = Math.round(numberOfPirates * pirateGenerator(1, 10) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
         player.cash += booty
         console.log("We got", booty, "in booty, Taipan!")
         break loop1
@@ -756,7 +760,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 
       }
     }
-    let damageToShip = Math.round(resistanceRatio * damageCoefficient * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2)
+    let damageToShip = Math.round(resistanceRatio * (damageCoefficient + 0.5) * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2)
     console.log("They're firing on us, Taipan!")
     if (rndGunKnockout < gunKnockoutChance) {
       console.log("They hit a gun, Taipan!")
