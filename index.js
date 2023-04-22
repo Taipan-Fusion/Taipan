@@ -38,7 +38,7 @@ const gameAttributes = {
   month: 1,
   eventChanceSea: 0.5,
   eventChancePort: 0.25,
-  liYuenFactor: 0.8,
+  liYuenFactor: 0.5,
   liYuenExtortionFactor: 0.8,
   liYuenMultiplier: 1,
   status: "Running"
@@ -492,7 +492,7 @@ function LiYuen() {
           } else if (newInput === "n") {
             console.log("The difference will not be paid! Elder Brother Wu says, 'I would be wary of pirates if I were you, Taipan!'")
             gameAttributes.liYuenExtortionFactor = 0.8
-            gameAttributes.liYuenFactor = 0.8
+            gameAttributes.liYuenFactor = 0.5
 
             break loop1
           } else {
@@ -513,7 +513,7 @@ function LiYuen() {
       }
     } else if (input === "n") {
       gameAttributes.liYuenExtortionFactor = 0.8
-      gameAttributes.liYuenFactor = 0.8
+      gameAttributes.liYuenFactor = 0.5
       break
     } else {
 
@@ -531,7 +531,7 @@ function eventPort() {
   if (newShipChance <= 0.35 && player.cash >= 1000) {
     newShip()
   }
-  if (moreGunsChance <= 0.45 && player.cash >= 100) {
+  if (moreGunsChance <= 0.35 && player.cash >= 100) {
     moreGuns()
   }
   if (getRobbed <= 0.15) {
@@ -663,7 +663,7 @@ function shipyard() {
 
 function pirates(type, number) {
   if (type === "Li Yuen") {
-    gameAttributes.liYuenFactor = 0.8
+    gameAttributes.liYuenFactor = 0.5
     gameAttributes.liYuenExtortionFactor = 0.8
     combat(2, 0.2, number, 2)
   } else {
