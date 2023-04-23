@@ -438,6 +438,33 @@ function quitTrading() {
 function retire() {
   gameAttributes.status = "Terminated"
   console.log(player, ship, warehouse, gameAttributes)
+  finalStats()
+}
+
+function compareRange(variable, n1, n2) {
+  return n2 >= variable && variable >= n1
+}
+
+function finalStats() {
+  let time = gameAttributes.month
+  let years = Math.floor(time / 12)
+  let netWorth = player.cash + player.bank - player.debt
+  console.log("Net cash: " + netWorth)
+  console.log("Ship size: " + ship.cargoUnits + " units with " + ship.cannons + " guns")
+  console.log("You traded for " + years + " year(s)")
+  let score = Math.round(netWorth / 100 / time)
+  console.log("Your score is " + score)
+  if (score >= 50000) {
+    console.log("Ranking: Ma Tsu")
+  } else if (compareRange(score, 8000, 49999)) {
+    console.log("Ranking: Master Taipan")
+  } else if (compareRange(score, 1000, 7999)) {
+    console.log("Ranking: Taipan")
+  } else if (compareRange(score, 500, 999)) {
+    console.log("Ranking: Compradore")
+  } else {
+    console.log("Ranking: Galley Hand")
+  }
 }
 
 function turnProgression() {
