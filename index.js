@@ -13,7 +13,7 @@ const ship = {
 const player = {
   bank: 0,
   cash: 1000,
-  debt: 5000,
+  debt: 10000,
   location: "Hong Kong"
 }
 
@@ -726,7 +726,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       for (let i = 0; i < ship.cannons; i++) {
         let damageToPirateS = damageToPirateShip()
         piratesArr[0] -= damageToPirateS
-        console.log(piratesArr)
+        //console.log(piratesArr)
         if (piratesArr[0] <= 0) {
           piratesArr.shift()
           number--
