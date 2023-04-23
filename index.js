@@ -1,9 +1,9 @@
 const prompt = require('prompt-sync')();
 const ship = {
-  cannons: 50,
+  cannons: 5,
   health: 100,
-  cargoUnits: 1800,
-  hold: 1300,
+  cargoUnits: 150,
+  hold: 100,
   Opium: 0,
   Silk: 0,
   Arms: 0,
@@ -12,7 +12,7 @@ const ship = {
 
 const player = {
   bank: 0,
-  cash: 1000000000,
+  cash: 1000,
   debt: 5000,
   location: "Hong Kong",
   ships: []
@@ -43,7 +43,7 @@ const SHIPYARD = {
 }
 
 const gameAttributes = {
-  month: 240,
+  month: 1,
   eventChanceSea: 0.5,
   eventChancePort: 0.25,
   liYuenFactor: 0.5,
@@ -596,20 +596,16 @@ function eventSea(status) {
   let number;
   if (rndLiYuen <= gameAttributes.liYuenFactor && status) {
     number = pirateGenerator(1 + Math.floor(gameAttributes.month / 4) + Math.floor(ship.cargoUnits / 50), 10 + 2 * (Math.floor(gameAttributes.month / 4 + Math.floor(ship.cargoUnits / 50))))
-    number *= (2 + player.ships.length) * 0.5
-    number = Math.round(number)
     console.log(number.toString(), "ships from Li Yuen's private fleet, Taipan!")
     pirates("Li Yuen", number)
   } else {
     if (rndPirates <= 0.3 && status) {
       number = pirateGenerator(Math.floor(gameAttributes.month / 6) + Math.floor(ship.cargoUnits / 100) + Math.round(ship.Opium / 100 + ship.Silk / 100), 5 + 2 * (Math.floor(gameAttributes.month / 6 + Math.floor(ship.cargoUnits / 75))))
-      number *= (2.4 + player.ships.length) * 0.4
-      number = Math.round(number)
       console.log(number.toString(), "hostile ships, Taipan!")
       pirates("Regular", number)
     }
   }
-  if (rndStorm <= 0.3 && gameAttributes.status === "Running") {
+  if (rndStorm <= 0.3) {
     storm()
   }
 }
@@ -817,15 +813,6 @@ function damageToPirateShip() {
   return Math.round((Math.random() + 0.3) * 35 * (1.5 * time() - 0.5))
 }
 
-function fleetStats(attribute) {
-  let num = ship[attribute]
-  for (let index in player.ships) {
-    let elem = player.ships[index]
-    num += elem[attribute]
-  }
-  return num
-}
-
 function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCoefficient) {
   let resistanceRatio = (25 + gameAttributes.month) / (ship.cargoUnits ** 1.25)
   let runRatio = 0.5 * 200 / (ship.cargoUnits + 5 * number)
@@ -843,9 +830,10 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
     let input = prompt("Shall we fight or run, Taipan? ")
     if (input === "f") {
       let numberSank = 0
-      for (let i = 0; i < fleetStats("cannons"); i++) {
+      for (let i = 0; i < ship.cannons; i++) {
         let damageToPirateS = damageToPirateShip()
         piratesArr[0] -= damageToPirateS
+        console.log(piratesArr)
         if (piratesArr[0] <= 0) {
           piratesArr.shift()
           number--
@@ -906,7 +894,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 
       }
     }
-    let damageToShips = Math.round(resistanceRatio * (damageCoefficient + 0.5) * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2 * 1 / (1 + player.ships.length))
+    let damageToShip = Math.round(resistanceRatio * (damageCoefficient + 0.5) * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2)
     console.log("They're firing on us, Taipan!")
     if (rndGunKnockout < gunKnockoutChance) {
       console.log("They hit a gun, Taipan!")
@@ -915,22 +903,9 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       console.log(ship)
       rndGunKnockout = Math.random()
     } else {
-      console.log("We took " + damageToShips + " damage, Taipan!")
-      ship.health -= damageToShips
-      let shipsLost = 0
-      for (let index in player.ships) {
-        let elem = player.ships[index]
-        elem.health -= damageToShips
-        if (elem.health <= 0) {
-          shipsLost++
-          removeItemOnce(player.ships, elem)
-        }
-      }
-      if (shipsLost > 0) {
-        console.log("We lost " + shipsLost.toString() + " ship(s), Taipan!")
-      }
+      console.log("We took " + damageToShip + " damage, Taipan!")
+      ship.health -= damageToShip
       console.log(ship)
-      console.log(player.ships)
     }
     if (ship.health <= 0) {
       console.log("It's all over Taipan!!")
@@ -938,13 +913,6 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       retire()
       break loop1
     }
-  }
-}
-
-function removeItemOnce(arr, value) {
-  var index = arr.indexOf(value);
-  if (index > -1) {
-    arr.splice(index, 1);
   }
 }
 
