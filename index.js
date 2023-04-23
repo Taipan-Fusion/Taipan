@@ -12,7 +12,7 @@ const ship = {
 
 const player = {
   bank: 0,
-  cash: 1000000000,
+  cash: 100000000000,
   debt: 5000,
   location: "Hong Kong",
   ships: []
@@ -110,7 +110,7 @@ function game() {
     //console.log(rnd)
     let status = true
     if (rnd <= gameAttributes.liYuenFactor) {
-      number = pirateGenerator(1 + Math.floor(gameAttributes.month / 4) + Math.floor(ship.cargoUnits / 50), 10 + 2 * (Math.floor(gameAttributes.month / 4 + Math.floor(ship.cargoUnits / 50))))
+      number = numPirateShipsGenerator("Li Yuen")
       console.log(number.toString(), "ships from Li Yuen's private fleet, Taipan!")
       pirates("Li Yuen", number)
       gameAttributes.liYuenMultiplier = (Math.random() + 1) * 1.5
@@ -457,6 +457,7 @@ function timeRound(input) {
   return Math.round(input * 1.5 * time())
 }
 
+
 function shipGenerator() {
   SHIPYARD.firstRate = shipConstructor(pirateGenerator(timeRound(8), timeRound(12)), pirateGenerator(timeRound(175), timeRound(225)), priceGenerator(20000000))
   SHIPYARD.secondRate = shipConstructor(pirateGenerator(timeRound(5), timeRound(7)), pirateGenerator(timeRound(100), timeRound(174)), priceGenerator(10000000))
@@ -484,19 +485,25 @@ function shipDisplay() {
   console.log("\t price: " + SHIPYARD.fourthRate.price)
 }
 
+function cloneShip(ship) {
+  return {
+    ...ship
+  }
+}
+
 function purchaseShipHandler(product) {
   while (true) {
-    let shipObject = SHIPYARD[product]
-    let affordableNumber = Math.floor(player.cash / shipObject.price)
+    let affordableNumber = Math.floor(player.cash / SHIPYARD[product].price)
     let input = prompt(`How many ${product} ships do you want to buy? You can afford ${affordableNumber} ${product} ships. `)
     let inputAmount = parseInt(input)
-    if (inputAmount * shipObject.price > player.cash) {
+    if (inputAmount * SHIPYARD[product].price > player.cash) {
 
     } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
       for (let i = 0; i < inputAmount; i++) {
-        player.ships.push(shipObject)
+        let shipObject = SHIPYARD[product]
+        player.ships.push(cloneShip(shipObject))
       }
-      player.cash -= inputAmount * shipObject.price
+      player.cash -= inputAmount * SHIPYARD[product].price
       return false
     } else {
 
@@ -587,6 +594,17 @@ function turnProgression() {
   }
 }
 
+function numPirateShipsGenerator(type) {
+  if (type === "Li Yuen") {
+    return Math.round(pirateGenerator(1 + Math.floor(gameAttributes.month / 4) + Math.floor(ship.cargoUnits / 50),
+      10 + 2 * (Math.floor(gameAttributes.month / 4 + Math.floor(ship.cargoUnits / 50)))) * player.ships.length ** 0.9)
+  } else if (type === "Regular") {
+    return Math.round(pirateGenerator(Math.floor(gameAttributes.month / 6) + Math.floor(ship.cargoUnits / 100) + Math.round(ship.Opium / 100 + ship.Silk / 100),
+      5 + 2 * (Math.floor(gameAttributes.month / 6 + Math.floor(ship.cargoUnits / 75)))) * player.ships.length ** 0.85)
+
+  }
+}
+
 function eventSea(status) {
   let randomNumber = (Math.random() + 0.5) * 0.5
   gameAttributes.eventChanceSea = randomNumber
@@ -595,16 +613,12 @@ function eventSea(status) {
   let rndLiYuen = Math.random()
   let number;
   if (rndLiYuen <= gameAttributes.liYuenFactor && status) {
-    number = pirateGenerator(1 + Math.floor(gameAttributes.month / 4) + Math.floor(ship.cargoUnits / 50), 10 + 2 * (Math.floor(gameAttributes.month / 4 + Math.floor(ship.cargoUnits / 50))))
-    number *= (2 + player.ships.length) * 0.5
-    number = Math.round(number)
+    number = numPirateShipsGenerator("Li Yuen")
     console.log(number.toString(), "ships from Li Yuen's private fleet, Taipan!")
     pirates("Li Yuen", number)
   } else {
     if (rndPirates <= 0.3 && status) {
-      number = pirateGenerator(Math.floor(gameAttributes.month / 6) + Math.floor(ship.cargoUnits / 100) + Math.round(ship.Opium / 100 + ship.Silk / 100), 5 + 2 * (Math.floor(gameAttributes.month / 6 + Math.floor(ship.cargoUnits / 75))))
-      number *= (2.4 + player.ships.length) * 0.4
-      number = Math.round(number)
+      number = numPirateShipsGenerator("Regular")
       console.log(number.toString(), "hostile ships, Taipan!")
       pirates("Regular", number)
     }
@@ -817,6 +831,10 @@ function damageToPirateShip() {
   return Math.round((Math.random() + 0.3) * 35 * (1.5 * time() - 0.5))
 }
 
+function damageToDefenseShip() {
+  return Math.round((Math.random() + 0.3) * 10 * (1.5 * time()))
+}
+
 function fleetStats(attribute) {
   let num = ship[attribute]
   for (let index in player.ships) {
@@ -854,7 +872,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
         if (number <= 0) {
           console.log("Sank", numberSank, "buggers, Taipan!")
           console.log("We got them all, Taipan!")
-          let booty = Math.round(numberOfPirates * pirateGenerator(1, 10) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
+          let booty = Math.round(numberOfPirates ** 1.25 * pirateGenerator(2, 50) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
           player.cash += booty
           console.log("We got", booty, "in booty, Taipan!")
           break loop1
@@ -906,7 +924,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 
       }
     }
-    let damageToShips = Math.round(resistanceRatio * (damageCoefficient + 0.5) * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2 * 1 / (1 + player.ships.length))
+    let damageToShip = Math.round(resistanceRatio * (damageCoefficient + 0.5) * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2 * (1) / (1 + player.ships.length))
     console.log("They're firing on us, Taipan!")
     if (rndGunKnockout < gunKnockoutChance) {
       console.log("They hit a gun, Taipan!")
@@ -915,17 +933,29 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       console.log(ship)
       rndGunKnockout = Math.random()
     } else {
-      console.log("We took " + damageToShips + " damage, Taipan!")
-      ship.health -= damageToShips
+      console.log("We took " + damageToShip + " damage, Taipan!")
+      ship.health -= damageToShip
       let shipsLost = 0
-      for (let index in player.ships) {
-        let elem = player.ships[index]
-        elem.health -= damageToShips
-        if (elem.health <= 0) {
+      // for (let index in player.ships) {
+      //   let elem = player.ships[index]
+      //   let damage = Math.round(damageToDefenseShip() * (0.5 + Math.random()))
+      //   console.log(damage)
+      //   elem.health -= damage
+      //   if (elem.health <= 0) {
+      //     shipsLost++
+      //     removeItemOnce(player.ships, elem)
+      //   }
+      // }
+      player.ships = player.ships.map(item => {
+        let damage = Math.round(damageToDefenseShip() * (0.5 + Math.random()))
+        console.log(damage)
+        item.health -= damage
+        if (item.health <= 0) {
           shipsLost++
-          removeItemOnce(player.ships, elem)
+          removeItemOnce(player.ships, item)
         }
-      }
+        return item
+      })
       if (shipsLost > 0) {
         console.log("We lost " + shipsLost.toString() + " ship(s), Taipan!")
       }
