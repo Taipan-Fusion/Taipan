@@ -145,9 +145,6 @@ function priceDisplay() {
   prices.Silk = priceGenerator(100)
   prices.Arms = priceGenerator(10)
   prices.General = priceGenerator(1)
-  console.log("Taipan, prices per unit here are: \n"
-    + "Opium:", prices.Opium.toString() + "\t" + "Silk:", prices.Silk.toString() + "\n"
-  + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
 }
 
 function priceRandomDisplay(product) {
