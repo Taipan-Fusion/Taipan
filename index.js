@@ -14,7 +14,8 @@ const player = {
   bank: 0,
   cash: 1000,
   debt: 5000,
-  location: "Hong Kong"
+  location: "Hong Kong",
+  ships: []
 }
 
 const prices = {
@@ -32,6 +33,13 @@ const warehouse = {
   General: 0,
   inUse: 0,
   vacant: 10000
+}
+
+const SHIPYARD = {
+  firstRate: shipConstructor(10, 200, 500000000),
+  secondRate: shipConstructor(5, 100, 350000000),
+  thirdRate: shipConstructor(2, 50, 150000000),
+  fourthRate: shipConstructor(1, 25, 100000000)
 }
 
 const gameAttributes = {
@@ -54,6 +62,13 @@ const locationsMap = {
   "7": "Batavia"
 };
 
+function shipConstructor(guns, shipHealth, cost) {
+  return {
+    cannons: guns,
+    health: shipHealth,
+    price: cost
+  }
+}
 
 function game() {
   console.log("Welcome to Taipan!")
@@ -80,6 +95,9 @@ function game() {
       priceDisplay()
     } else {
       priceRandomDisplay()
+    }
+    if (player.cash + player.bank >= 100000000) {
+      shipGenerator()
     }
     generalPrompt()
     if (gameAttributes.status === "Terminated") {
@@ -128,7 +146,7 @@ A port will restock a random amount when taipan leaves the port. It will always 
     max = Math.floor(max);
     return Math.floor(Math.random() * time() * (max - min + 1)) + min;
   }
-  return getRandomInt(5, 25) * max
+  return Math.round(getRandomInt(5, 25) * max)
 }
 
 function pirateGenerator(min, max) {
@@ -145,9 +163,6 @@ function priceDisplay() {
   prices.Silk = priceGenerator(100)
   prices.Arms = priceGenerator(10)
   prices.General = priceGenerator(1)
-  console.log("Taipan, prices per unit here are: \n"
-    + "Opium:", prices.Opium.toString() + "\t" + "Silk:", prices.Silk.toString() + "\n"
-  + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
 }
 
 function priceRandomDisplay(product) {
@@ -169,9 +184,6 @@ function priceRandomDisplay(product) {
     prices.Opium = priceGenerator(1000)
     prices.Arms = priceGenerator(10)
   }
-  // console.log("Taipan, prices per unit here are: \n"
-  //   + "Opium:", prices.Opium.toString() + "\t" + "Silk:", prices.Silk.toString() + "\n"
-  // + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
 }
 
 function generalPrompt() {
@@ -182,30 +194,58 @@ function generalPrompt() {
     + "Arms:", prices.Arms.toString() + "\t" + "General:", prices.General.toString())
     if (player.location === "Hong Kong") {
       if (player.bank + player.cash >= 1000000) {
-        let input = prompt("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit trading, or Retire? ")
-        if (input === "b") {
-          buy()
-        } else if (input === "s") {
-          sell()
-        } else if (input === "v") {
-          visitBank()
-        } else if (input === "t") {
-          transferCargo()
-        } else if (input === "q") {
-          if (ship.hold < 0) {
-            console.log("Your ship will be overburdened, Taipan!")
-          } else {
-            quitTrading()
+        if (player.bank + player.cash >= 100000000) {
+          shipDisplay()
+          let input = prompt("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Purchase Ship, Quit Trading, or Retire? ")
+          if (input === "b") {
+            buy()
+          } else if (input === "s") {
+            sell()
+          } else if (input === "v") {
+            visitBank()
+          } else if (input === "t") {
+            transferCargo()
+          } else if (input === "p") {
+            purchaseShip()
+          } else if (input === "q") {
+            if (ship.hold < 0) {
+              console.log("Your ship will be overburdened, Taipan!")
+            } else {
+              quitTrading()
+              break
+            }
+          } else if (input === "r") {
+            retire()
             break
-          }
-        } else if (input === "r") {
-          retire()
-          break
-        } else {
+          } else {
 
+          }
+        } else {
+          let input = prompt("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit Trading, or Retire? ")
+          if (input === "b") {
+            buy()
+          } else if (input === "s") {
+            sell()
+          } else if (input === "v") {
+            visitBank()
+          } else if (input === "t") {
+            transferCargo()
+          } else if (input === "q") {
+            if (ship.hold < 0) {
+              console.log("Your ship will be overburdened, Taipan!")
+            } else {
+              quitTrading()
+              break
+            }
+          } else if (input === "r") {
+            retire()
+            break
+          } else {
+
+          }
         }
       } else {
-        let input = prompt("Shall I Buy, Sell, Visit Bank, Transfer Cargo, or Quit trading? ")
+        let input = prompt("Shall I Buy, Sell, Visit Bank, Transfer Cargo, or Quit Trading? ")
         if (input === "b") {
           buy()
         } else if (input === "s") {
@@ -226,7 +266,7 @@ function generalPrompt() {
         }
       }
     } else {
-      let input = prompt("Shall I Buy, Sell, or Quit trading? ")
+      let input = prompt("Shall I Buy, Sell, or Quit Trading? ")
       if (input === "b") {
         buy()
       } else if (input === "s") {
@@ -413,6 +453,73 @@ function transferCargo() {
   transferCargoHandlerToShip("General")
 }
 
+function timeRound(input) {
+  return Math.round(input * 1.5 * time())
+}
+
+function shipGenerator() {
+  SHIPYARD.firstRate = shipConstructor(pirateGenerator(timeRound(8), timeRound(12)), pirateGenerator(timeRound(175), timeRound(225)), priceGenerator(20000000))
+  SHIPYARD.secondRate = shipConstructor(pirateGenerator(timeRound(5), timeRound(7)), pirateGenerator(timeRound(100), timeRound(174)), priceGenerator(10000000))
+  SHIPYARD.thirdRate = shipConstructor(pirateGenerator(timeRound(3), timeRound(5)), pirateGenerator(timeRound(50), timeRound(59)), priceGenerator(5000000))
+  SHIPYARD.fourthRate = shipConstructor(pirateGenerator(timeRound(1), timeRound(2)), pirateGenerator(timeRound(20), timeRound(24)), priceGenerator(2000000))
+}
+
+function shipDisplay() {
+  console.log("Taipan, here are the ship options: ")
+  console.log("1: ")
+  console.log("\t cannons: " + SHIPYARD.firstRate.cannons)
+  console.log("\t health: " + SHIPYARD.firstRate.health)
+  console.log("\t price: " + SHIPYARD.firstRate.price)
+  console.log("2: ")
+  console.log("\t cannons: " + SHIPYARD.secondRate.cannons)
+  console.log("\t health: " + SHIPYARD.secondRate.health)
+  console.log("\t price: " + SHIPYARD.secondRate.price)
+  console.log("3: ")
+  console.log("\t cannons: " + SHIPYARD.thirdRate.cannons)
+  console.log("\t health: " + SHIPYARD.thirdRate.health)
+  console.log("\t price: " + SHIPYARD.thirdRate.price)
+  console.log("4: ")
+  console.log("\t cannons: " + SHIPYARD.fourthRate.cannons)
+  console.log("\t health: " + SHIPYARD.fourthRate.health)
+  console.log("\t price: " + SHIPYARD.fourthRate.price)
+}
+
+function purchaseShipHandler(product) {
+  while (true) {
+    let shipObject = SHIPYARD[product]
+    let affordableNumber = Math.floor(player.cash / shipObject.price)
+    let input = prompt(`How many ${product} ships do you want to buy? You can afford ${affordableNumber} ${product} ships. `)
+    let inputAmount = parseInt(input)
+    if (inputAmount * shipObject.price > player.cash) {
+
+    } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
+      for (let i = 0; i < inputAmount; i++) {
+        player.ships.push(shipObject)
+      }
+      player.cash -= inputAmount * shipObject.price
+      return false
+    } else {
+
+    }
+  }
+}
+
+function purchaseShip() {
+  let status = true
+  while (status) {
+    let input = prompt("What ship do you wish to buy, Taipan? ")
+    if (input === "1") {
+      status = purchaseShipHandler("firstRate")
+    } else if (input === "2") {
+      status = purchaseShipHandler("secondRate")
+    } else if (input === "3") {
+      status = purchaseShipHandler("thirdRate")
+    } else if (input === "4") {
+      status = purchaseShipHandler("fourthRate")
+    } else {
+    }
+  }
+}
 
 function handleLocationInput(input) {
   if (player.location === locationsMap[input]) {
