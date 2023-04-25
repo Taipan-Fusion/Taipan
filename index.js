@@ -732,7 +732,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
         if (number <= 0) {
           console.log("Sank", numberSank, "buggers, Taipan!")
           console.log("We got them all, Taipan!")
-          let booty = Math.round(numberOfPirates * pirateGenerator(1, 10) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
+          let booty = Math.round(numberOfPirates * pirateGenerator(5, 50) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
           player.cash += booty
           console.log("We got", booty, "in booty, Taipan!")
           break loop1
@@ -749,7 +749,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
       }
       if (number <= 0) {
         console.log("We got them all, Taipan!")
-        let booty = Math.round(numberOfPirates * pirateGenerator(1, 10) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
+        let booty = Math.round(numberOfPirates * pirateGenerator(5, 50) * pirateGenerator(1, 10) * (gameAttributes.month / 4) + 250)
         player.cash += booty
         console.log("We got", booty, "in booty, Taipan!")
         break loop1
@@ -807,7 +807,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 }
 
 function storm() {
-  let chanceOfSinking = (100 - ship.health) / 500
+  let chanceOfSinking = (100 - ship.health) / 1000
   console.log("Storm, Taipan!")
   if (Math.random() < chanceOfSinking) {
     console.log("We're going down, Taipan!")
@@ -831,7 +831,7 @@ function moneylender() {
         if (player.debt > 0) {
           let input = prompt("How much do you wish to repay him? ")
           let inputAmount = parseInt(input)
-          if (inputAmount > player.cash || inputAmount < 0) {
+          if (inputAmount > player.cash || inputAmount < 0 || Number.isInteger(inputAmount) === false) {
             console.log("You can't do that, Taipan!")
           } else {
             if (inputAmount > player.debt) {
