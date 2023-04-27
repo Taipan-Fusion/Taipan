@@ -662,9 +662,12 @@ function randomPrice() {
   console.log("Prices for " + product + " are wild!!!")
   let newPrice;
   if (Math.random() < 0.5) {
-    newPrice = getRandomInt(0, 4) * multiplier
+    newPrice = getRandomInt(0, 4) * (multiplier)
   } else {
-    newPrice = pirateGenerator(50, 1000) * multiplier
+    newPrice = pirateGenerator(50, 1000) * (multiplier)
+  }
+  if (newPrice === 0) {
+    newPrice = (newPrice + 1) * multiplier
   }
   prices[product] = newPrice
   console.log(product + " is at " + newPrice + "!!!")
