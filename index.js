@@ -130,6 +130,11 @@ A port will restock a random amount when taipan leaves the port. It will always 
   }
   return getRandomInt(5, 25) * max
 }
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+}
 
 function pirateGenerator(min, max) {
   function getRandomInt(min, max) {
@@ -414,7 +419,7 @@ function transferCargo() {
 function handleLocationInput(input) {
   if (player.location === locationsMap[input]) {
     console.log("You're already here, Taipan.")
-  } else if (Number.isInteger(parseInt(input))) {
+  } else if (Number.isInteger(parseInt(input)) && parseInt(input) <= 7 && parseInt(input) >= 1) {
     player.location = locationsMap[input]
     return "Done"
   } else {
@@ -610,7 +615,7 @@ function moreGuns() {
       break
     } else {
       if (input === "y") {
-        let numberOfGuns = pirateGenerator(1, 3)
+        let numberOfGuns = getRandomInt(1, 4)
         if (ship.hold - 10 < 10) {
           ship.hold -= 10
           ship.cannons += 1
@@ -618,7 +623,7 @@ function moreGuns() {
           break
         } else if (ship.hold - 20 < 10) {
           if (numberOfGuns === 3) {
-            let numberOfGuns2 = pirateGenerator(1, 2)
+            let numberOfGuns2 = getRandomInt(1, 3)
             ship.hold -= 10 * numberOfGuns2
             ship.cannons += numberOfGuns2
             player.cash -= amount * numberOfGuns2
@@ -649,7 +654,7 @@ function opiumConfiscationChance() {
 function randomPrice() {
   let arr = ["Opium", "Silk", "Arms", "General"]
   let arr2 = [1000, 100, 10, 1]
-  let randomIndex = Math.floor(pirateGenerator(0, 3))
+  let randomIndex = Math.floor(getRandomInt(0, 4))
   let product = arr[randomIndex]
   let multiplier = arr2[randomIndex]
   //console.log(randomIndex, product)
@@ -657,7 +662,7 @@ function randomPrice() {
   console.log("Prices for " + product + " are wild!!!")
   let newPrice;
   if (Math.random() < 0.5) {
-    newPrice = pirateGenerator(1, 4) * multiplier
+    newPrice = getRandomInt(0, 4) * multiplier
   } else {
     newPrice = pirateGenerator(50, 1000) * multiplier
   }
@@ -815,7 +820,7 @@ function storm() {
   } else {
     console.log("We survived, Taipan!")
     if (Math.random() < 0.35) {
-      let num = pirateGenerator(1, 7)
+      let num = getRandomInt(1, 8)
       let numString = num.toString()
       player.location = locationsMap[numString]
       console.log("We've been blown off course to", player.location)
