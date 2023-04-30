@@ -719,7 +719,7 @@ function damageToPirateShip() {
 }
 
 function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCoefficient) {
-  let resistanceRatio = (25 + gameAttributes.month) / (ship.cargoUnits ** 1.25)
+  let resistanceRatio = (25 + gameAttributes.month) / (ship.cargoUnits ** 1.11)
   let runRatio = 0.5 * 200 / (ship.cargoUnits + 5 * number)
   let rndGunKnockout = Math.random()
   let piratesArr = []
