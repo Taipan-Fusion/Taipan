@@ -16,7 +16,7 @@ const ship = {
 const player = {
   bank: 0,
   cash: 1000,
-  debt: 10000,
+  debt: 5000,
   location: "Hong Kong"
 }
 
