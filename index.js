@@ -69,7 +69,7 @@ function game() {
       if (Math.random() <= gameAttributes.liYuenExtortionFactor) {
         LiYuen()
       }
-      gameAttributes.liYuenExtortionFactor += 0.0175
+      gameAttributes.liYuenExtortionFactor += 0.01
       moneylender()
     }
     if (Math.random() <= gameAttributes.eventChancePort) {
@@ -111,7 +111,7 @@ function game() {
 }
 
 function time() {
-  return (gameAttributes.month * 0.0015) + 1
+  return (gameAttributes.month * 0.0005) + 1
 }
 
 function priceGenerator(max) {
@@ -507,7 +507,7 @@ function eventSea(status) {
       pirates("Regular", number)
     }
   }
-  if (rndStorm <= 0.3) {
+  if (rndStorm <= 0.3 && status === "Running") {
     storm()
   }
 }
@@ -711,7 +711,7 @@ function pirates(type, number) {
 }
 
 function pirateHealthGenerator(pirateResistanceCoefficient) {
-  return Math.round((Math.random() + 0.5) * 20 * (2 * (time() + 0.6)) * pirateResistanceCoefficient)
+  return Math.round((Math.random() + 0.5) * 10 * (2 * (time() + 0.6)) * (pirateResistanceCoefficient + 0.5))
 }
 
 function damageToPirateShip() {
@@ -799,7 +799,7 @@ function combat(damageCoefficient, gunKnockoutChance, number, pirateResistanceCo
 
       }
     }
-    let damageToShip = Math.round(resistanceRatio * (damageCoefficient + 0.5) * (Math.random() + 1) * numberOfPirates ** 0.7 * 3.5 * number / number2)
+    let damageToShip = Math.round(resistanceRatio * (damageCoefficient + 0.5) * (Math.random() + 1) * numberOfPirates ** 0.7 * 5 * number / number2)
     console.log("They're firing on us, Taipan!")
     if (rndGunKnockout < gunKnockoutChance) {
       console.log("They hit a gun, Taipan!")
