@@ -839,8 +839,9 @@ function storm() {
 }
 
 function moneylender() {
-  let input = prompt("Do you have business with Elder Brother Wu, the moneylender? ")
-  while (input !== "e") {
+  
+  while (true) {
+    let input = prompt("Do you have business with Elder Brother Wu, the moneylender? ")
     if (input === "y") {
       while (true) {
         if (player.debt > 0) {
@@ -877,7 +878,7 @@ function moneylender() {
       break
     }
     else {
-      break
+
     }
   }
 }
