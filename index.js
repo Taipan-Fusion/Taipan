@@ -111,7 +111,7 @@ function game() {
 }
 
 function time() {
-  return (gameAttributes.month * 0.0005) + 1
+  return (gameAttributes.month * 0.0001) + 1
 }
 
 function priceGenerator(max) {
