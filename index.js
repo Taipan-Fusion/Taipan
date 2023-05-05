@@ -536,14 +536,14 @@ function LiYuen() {
           }
         }
         gameAttributes.liYuenExtortionFactor = 0.1
-        gameAttributes.liYuenFactor = 0.05
+        gameAttributes.liYuenFactor = 0.025
         gameAttributes.liYuenMultiplier = 1
 
         break
       } else {
         player.cash -= amount
         gameAttributes.liYuenExtortionFactor = 0.05
-        gameAttributes.liYuenFactor = 0.025
+        gameAttributes.liYuenFactor = 0.01
         gameAttributes.liYuenMultiplier = 1
         break
       }
