@@ -638,7 +638,7 @@ function moreGuns() {
           } else {
             ship.hold -= numberOfGuns * 10
             ship.cannons += numberOfGuns
-            player -= amount * numberOfGuns
+            player.cash -= amount * numberOfGuns
             break
           }
         } else {
