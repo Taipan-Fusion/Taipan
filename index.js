@@ -691,6 +691,9 @@ function shipyard() {
     let inputAmount = parseInt(input)
     if (inputAmount > player.cash) {
       console.log("Taipan, you only have", player.cash.toString(), "cash.")
+    } else if (Number.isInteger(inputAmount) > rndShipFix) {
+      ship.health = 100
+      break
     } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
       ship.health += Math.round((100 - ship.health) * inputAmount / rndShipFix)
       break
