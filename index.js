@@ -1,5 +1,5 @@
 const prompt = require('prompt-sync')();
-let month = 1;
+let month = 0;
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 const ship = {
@@ -40,7 +40,7 @@ const warehouse = {
 const gameAttributes = {
   month: 1,
   yearTime: 1860,
-  monthLabel: months[month - 1],
+  monthLabel: months[month],
   eventChanceSea: 0.5,
   eventChancePort: 0.25,
   liYuenFactor: 0.5,
@@ -480,8 +480,8 @@ function turnProgression() {
     console.log("Arriving at", player.location)
     gameAttributes.month += 1
     month += 1
-    gameAttributes.monthLabel = months[(month - 1) % 12]
-    gameAttributes.yearTime = 1860 + Math.floor((month - 1) / 12)
+    gameAttributes.monthLabel = months[month % 12]
+    gameAttributes.yearTime = 1860 + Math.floor(month  / 12)
     player.debt *= 1.2
     player.bank *= 1.05
     player.debt = Math.round(player.debt)
