@@ -1,7 +1,7 @@
-import kotlin.random
+import kotlin.random.Random*
 
 class Game {
-    enum class Location(val name: String) {
+    enum class Location(val location: String) {
         HongKong  ("Hong Kong"),
         Shanghai  ("Shanghai"),
         Nagasaki  ("Nagasaki"),
@@ -23,7 +23,7 @@ class Game {
         var health:       Int = 100
         var cargoUnits:   Int = 150
         var hold:         Int = 100
-        val commodities:  Commodities
+        val commodities:  Commodities = Commodities(0, 0, 0, 0)
     }
 
     object Player {
@@ -34,12 +34,12 @@ class Game {
     }
 
     object Prices {
-        var commodities:  Commodities
-        var isRandom:     Boolean
+        var commodities:  Commodities = Commodities(0, 0, 0, 0)
+        var isRandom:     Boolean = false
     }
 
     object Warehouse {
-        var commodities:        Commodities
+        var commodities:        Commodities = Commodities(0, 0, 0, 0)
         var vacantCargoSpaces:  Int = 10000
         val totalCargoSpaces:   Int = 10000
     }
@@ -47,7 +47,7 @@ class Game {
     object LiYuen {
         var chanceOfAttack:       Double = 0.5
         var chanceOfExtortion:    Double = 0.8
-        var extortionMultiplier:  Double = 1
+        var extortionMultiplier:  Double = 1.0
 
         public fun becomePainInTheAss() {
             // TODO
@@ -68,7 +68,7 @@ class Game {
         get() = monthNames[month]
 
     val globalMultiplier: Double
-        get() = 1 + month/10000
+        get() = 1.0 + month / 10000
 
     /**************************************************************************/
 
