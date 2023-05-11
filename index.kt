@@ -11,7 +11,7 @@ class Game {
         Batavia   ("Batavia")
     }
 
-    class Commodities(
+    data class Commodities(
         var Opium:    Int,
         var Silk:     Int,
         var Arms:     Int,
