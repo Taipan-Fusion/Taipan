@@ -1,4 +1,5 @@
-import kotlin.random.Random*
+import kotlin.random.Random
+import kotlin.math.roundToInt*
 
 class Game {
     enum class Location(val location: String) {
@@ -69,6 +70,140 @@ class Game {
 
     val globalMultiplier: Double
         get() = 1.0 + month / 10000
+
+    /**************************************************************************/
+    
+    fun priceGenerator(max: Int): Int {
+        return ((5..25).random().toDouble() * max.toDouble() * globalMultiplier).roundToInt()
+    }
+
+    fun pirateGenerator(min: Int, max: Int): Int {
+        return ((min..max).random().toDouble() * globalMultiplier).roundToInt()
+    }
+
+    fun priceDisplay() {
+        Prices.commodities = Commodities(priceGenerator(1000), priceGenerator(100), priceGenerator(10), priceGenerator(1))
+    }
+
+    fun randomPriceDisplay(product: String) {
+        // TODO
+    }
+
+    fun generalPrompt() {
+
+    }
+
+    fun buyHandler(product: String) {
+        // TODO
+    }
+
+    fun buy() {
+        // TODO
+    }
+
+    fun sellHandler(product: String) {
+        // TODO
+    }
+
+    fun sell() {
+        // TODO
+    }
+
+    fun visitBank() {
+        // TODO
+    }
+
+    fun transferCargoHandlerToWarehouse(product: String) {
+
+    }
+
+    fun transferCargoHandlerToShip(product: String) {
+
+    }
+
+    fun transferCargo() {
+
+    }
+
+    fun handleLocationInput(input: String) {
+
+    }
+
+    fun quitTrading() {
+
+    }
+    
+    fun retire() {
+
+    }
+
+    fun compareRange(variable: Int, n1: Int, n2: Int) {
+
+    }
+
+    fun finalStats() {
+
+    }
+
+    fun turnProgression() {
+
+    }
+
+    fun eventAtSea() {
+
+    }
+
+    fun LiYuen() {
+
+    }
+
+    fun eventAtPort() {
+
+    }
+
+    fun newShip() {
+
+    }
+
+    fun moreGuns() {
+
+    }
+
+    fun opiumConfiscationChance() {
+        // Could rewrite to get format
+    }
+
+    fun randomPriceGenerator() {
+
+    }
+
+    fun shipyard() {
+
+    }
+
+    fun pirates(type: String, number: Int) {
+
+    }
+
+    fun pirateHealthGenerator(pirateResistanceCoefficient: Double) {
+
+    }
+
+    fun damageToPirateShip() {
+
+    }
+
+    fun combat(damageCoefficient: Double, gunKnockoutChance: Double, number: Double, pirateResistanceCoefficient: Double) {
+
+    }
+
+    fun storm() {
+
+    }
+    
+    fun moneylender() {
+
+    }
 
     /**************************************************************************/
 
