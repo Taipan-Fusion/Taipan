@@ -178,7 +178,21 @@ class Game {
     }
 
     fun shipyard() {
-
+        val shipIstTotScalar: Double = 1 + (1 - (100 - Ship.health) / 100.0)
+        val shipPrice: Int =
+                (Random.nextInt(1, Ship.cargoUnits) * shipIstTotScalar * globalMultiplier * (1..5).random())
+                        .roundToInt()
+        println("Captain McHenry of the Hong Kong Consolidated Repair Corporation walks over to your ship and says: <<")
+        if (Ship.health < 30) {
+            println("Matey! That ship of yours is 'bout to rot away like a peice of driftwood in Kolwoon bay! Dont worry, it's nothing I cant fix. For a price, that is!")
+        } else if (Ship.health < 50) {
+            println("That there ship's taken quite a bit of damage matey! You best get it fixed before you go out to sea again! I can get you sailing the friendly waves in no time! For a price, that is!")
+        } else {
+            println("What a mighty fine ship you have there, matey! Or, shall I say, had... It could really use some of what I call 'Tender Love n' Care'. 'Tis but a scratch, as they say, but I take any job, no matter how small. For a price, that is!")
+        }
+        println("I'll fix you up to full workin' order for " + shipPrice.toString() + " pound sterling>>")
+        println("Taipan, how much will you pay Captain McHenry? You have " + Player.cashHoldings.toString() + " pound sterling on hand.")
+        // TODO: Take user input and proceed accordingly
     }
 
     fun pirates(type: String, number: Int) {
@@ -216,23 +230,7 @@ class Game {
             if (Player.location == Location.HongKong) {
                 if (Ship.health < 100) {
                     // TODO Shipyard, put into shipyard function later
-                    //fixing whole ship will cost random from 1 to 200 * (1 + (usedcargo / totalcargo))
-                    val shipIstTotScalar:Double = 1 + (1 - (100 - Ship.health)/100.0)
-                    val shipPrice:Int = (Random.nextInt(1, Ship.cargoUnits) * shipIstTotScalar * globalMultiplier * (1..5).random()).roundToInt()
-                    println("Captain McHenry of the Hong Kong Consolidated Repair Corporation walks over to your ship and says: <<")
-                    if(Ship.health < 30){
-                        println("Matey! That ship of yours is 'bout to rot away like a peice of driftwood in Kolwoon bay! Dont worry, it's nothing I cant fix. For a price, that is!")
-                    } else if(Ship.health < 50){
-                        println("That there ship's taken quite a bit of damage matey! You best get it fixed before you go out to sea again! I can get you sailing the friendly waves in no time! For a price, that is!")
-                    } else {
-                        println("What a mighty fine ship you have there, matey! Or, shall I say, had... It could really use some of what I call 'Tender Love n' Care'. 'Tis but a scratch, as they say, but I take any job, no matter how small. For a price, that is!")   
-                    }
-                    //idk string concat. Ist das richtig? Ja
-                    println("I'll fix you up to full workin' order for " + shipPrice.toString() + " pound sterling>>")
-                    
-                    println("Taipan, how much will you pay Captain McHenry? You have " + Player.cashHoldings + " pound sterling on hand.")
-                    
-                    //
+                    shipyard()
                 }
 
                 if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
