@@ -90,8 +90,100 @@ class Game {
     }
 
     fun generalPrompt() {
+  while (true) {
+    println("Player---------------------------Player")
+    println("Bank: " + player.bank.toString())
+    println("Cash: " + player.cash.toString())
+    println("Debt: " + player.cash.toString())
+    println("Location: " + player.location.toString())
+    println("Date: " + gameAttributes.monthLabel + " of " + gameAttributes.yearTime.toString())
+    println("Ship---------------------------Ship")
+    println("Cannons: " + ship.cannons.toString())
+    println("Health: " + ship.health.toString())
+    println("Units: " + ship.cargoUnits.toString())
+    println("Hold: " + ship.hold.toString())
+    println("Opium: " + ship.Opium.toString())
+    println("Silk: " + ship.Silk.toString())
+    println("Arms: " + ship.Arms.toString())
+    println("General: " + ship.General.toString())
+    println("Warehouse---------------------------Warehouse")
+    println("Opium: " + warehouse.Opium.toString())
+    println("Silk: " + warehouse.Silk.toString())
+    println("Arms: " + warehouse.Arms.toString())
+    println("General: " + warehouse.General.toString())
+    println("In Use: " + warehouse.inUse.toString())
+    println("Vacant: " + warehouse.vacant.toString())
+    println("Prices-----------------------------Prices")
+    println("Taipan, prices per unit here are:")
+    println("Opium: " + prices.Opium.toString() + "\t" + "Silk: " + prices.Silk.toString())
+    println("Arms: " + prices.Arms.toString() + "\t" + "General: " + prices.General.toString())
+    if (player.location == "Hong Kong") {
+      if (player.bank + player.cash >= 1000000) {
+        print("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit Trading, or Retire? ")
+        val input: String? = readLine()
+        if (input === "b") {
+          buy()
+        } else if (input === "s") {
+          sell()
+        } else if (input === "v") {
+          visitBank()
+        } else if (input === "t") {
+          transferCargo()
+        } else if (input === "q") {
+          if (ship.hold < 0) {
+            println("Your ship will be overburdened, Taipan!")
+          } else {
+            quitTrading()
+            break
+          }
+        } else if (input === "r") {
+          retire()
+          break
+        } else {
 
+        }
+      } else {
+        print("Shall I Buy, Sell, Visit Bank, Transfer Cargo, or Quit Trading? ")
+        val input: String? = readLine()
+        if (input === "b") {
+          buy()
+        } else if (input === "s") {
+          sell()
+        } else if (input === "v") {
+          visitBank()
+        } else if (input === "t") {
+          transferCargo()
+        } else if (input === "q") {
+          if (ship.hold < 0) {
+            println("Your ship will be overburdened, Taipan!")
+          } else {
+            quitTrading()
+            break
+          }
+        } else {
+
+        }
+      }
+    } else {
+      print("Shall I Buy, Sell, or Quit Trading? ")
+      val input: String? = readLine()
+      if (input === "b") {
+        buy()
+      } else if (input === "s") {
+        sell()
+      } else if (input === "q") {
+        if (ship.hold < 0) {
+          println("Your ship will be overburdened, Taipan!")
+        } else {
+          quitTrading()
+          break
+        }
+      } else {
+
+      }
     }
+  }
+}
 
     fun buyHandler(product: String) {
         // TODO
