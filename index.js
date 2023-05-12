@@ -560,10 +560,10 @@ function eventPort() {
   let moreGunsChance = Math.random()
   let getRobbed = Math.random()
   let opiumConfiscation = Math.random()
-  if (newShipChance <= 0.35 && player.cash >= 1000) {
+  if (newShipChance <= 0.5 && player.cash >= 1000) {
     newShip()
   }
-  if (moreGunsChance <= 0.35 && player.cash >= 100) {
+  if (moreGunsChance <= 0.5 && player.cash >= 100) {
     moreGuns()
   }
   if (getRobbed <= 0.15) {
