@@ -322,7 +322,6 @@ function sell() {
 }
 
 function visitBank() {
-  while (true) {
     while (true) {
       let input = prompt("How much will you deposit? ")
       let inputAmount = parseInt(input)
@@ -349,10 +348,7 @@ function visitBank() {
 
       }
     }
-    break
-  }
 }
-
 
 function transferCargoHandlerToWarehouse(product) {
   loop1: while (true) {

@@ -1,5 +1,22 @@
 import kotlin.random.Random
-import kotlin.math.roundToInt*
+import kotlin.math.roundToInt
+
+/**
+ * Repeatedly takes user input until the handler returns false. That is, the handler returns whether to continue looping.
+ */
+fun inputLoop(prompt: String, handler: (String) -> Bool) {
+    while (true) {
+        print(prompt)
+        if (!handler(readLine())) {
+            break
+        }
+    }
+}
+
+fun input(prompt: String): String {
+    print(prompt)
+    return readLine()
+}
 
 class Game {
     enum class Location(val location: String) {
@@ -12,35 +29,58 @@ class Game {
         Batavia   ("Batavia")
     }
 
-    data class Commodities(
-        var Opium:    Int,
-        var Silk:     Int,
-        var Arms:     Int,
-        var General:  Int
-    )
+    enum class Commodity {
+        Opium, Silk, Arms, General;
+
+        companion object {
+            fun fromAbbreviation(input: String): Commodity? =
+                when (input) {
+                    "o" -> Opium
+                    "s" -> Silk
+                    "a" -> Arms
+                    "g" -> General
+                    else -> null
+                }
+        }
+    }
 
     object Ship {
         var cannons:      Int = 5
         var health:       Int = 100
         var cargoUnits:   Int = 150
         var hold:         Int = 100
-        val commodities:  Commodities = Commodities(0, 0, 0, 0)
+        val commodities:  Map<Commodity, Int> = mapOf(
+            Commodity.Opium to 0,
+            Commodity.Silk to 0,
+            Commodity.Arms to 0,
+            Commodity.General to 0
+        )
     }
 
     object Player {
-        var moneyInBank:  Int = 0
-        var cashHoldings: Int = 500
-        var debt:         Int = 5000
-        var location:     Location = Location.HongKong
+        var moneyInBank:    Int = 0
+        var cash:   Int = 500
+        var debt:           Int = 5000
+        var location:       Location = Location.HongKong
     }
 
     object Prices {
-        var commodities:  Commodities = Commodities(0, 0, 0, 0)
-        var isRandom:     Boolean = false
+        var commodities: Map<Commodity, Int> = mapOf(
+            Commodity.Opium to 0,
+            Commodity.Silk to 0,
+            Commodity.Arms to 0,
+            Commodity.General to 0
+        )
+        var isRandom: Boolean = false
     }
 
     object Warehouse {
-        var commodities:        Commodities = Commodities(0, 0, 0, 0)
+        var commodities: Map<Commodity, Int> = mapOf(
+            Commodity.Opium to 0,
+            Commodity.Silk to 0,
+            Commodity.Arms to 0,
+            Commodity.General to 0
+        )
         var vacantCargoSpaces:  Int = 10000
         val totalCargoSpaces:   Int = 10000
     }
@@ -65,24 +105,42 @@ class Game {
     var chanceOfPortEvent:  Double = 0.25
     var isRunning:          Boolean = true
 
+    // Originally gameAttributes.monthLabel
     val monthName: String
         get() = monthNames[month]
 
+    // Originally time()
     val globalMultiplier: Double
         get() = 1.0 + month / 10000
 
     /**************************************************************************/
     
     fun priceGenerator(max: Int): Int {
-        return ((5..25).random().toDouble() * max.toDouble() * globalMultiplier).roundToInt()
+        return (
+            (5..25)
+                .random()
+                .toDouble()
+            * max.toDouble()
+            * globalMultiplier
+        ).roundToInt()
     }
 
     fun pirateGenerator(min: Int, max: Int): Int {
-        return ((min..max).random().toDouble() * globalMultiplier).roundToInt()
+        return (
+            (min..max)
+                .random()
+                .toDouble()
+            * globalMultiplier
+        ).roundToInt()
     }
 
     fun priceDisplay() {
-        Prices.commodities = Commodities(priceGenerator(1000), priceGenerator(100), priceGenerator(10), priceGenerator(1))
+        Prices.commodities = mapOf(
+            Commodity.Opium to 1000,
+            Commodity.Silk to 100,
+            Commodity.Arms to 10,
+            Commodity.General to 1
+        )
     }
 
     fun randomPriceDisplay(product: String) {
@@ -90,127 +148,108 @@ class Game {
     }
 
     fun generalPrompt() {
-  while (true) {
-    println("Player---------------------------Player")
-    println("Bank: " + player.bank.toString())
-    println("Cash: " + player.cash.toString())
-    println("Debt: " + player.cash.toString())
-    println("Location: " + player.location.toString())
-    println("Date: " + gameAttributes.monthLabel + " of " + gameAttributes.yearTime.toString())
-    println("Ship---------------------------Ship")
-    println("Cannons: " + ship.cannons.toString())
-    println("Health: " + ship.health.toString())
-    println("Units: " + ship.cargoUnits.toString())
-    println("Hold: " + ship.hold.toString())
-    println("Opium: " + ship.Opium.toString())
-    println("Silk: " + ship.Silk.toString())
-    println("Arms: " + ship.Arms.toString())
-    println("General: " + ship.General.toString())
-    println("Warehouse---------------------------Warehouse")
-    println("Opium: " + warehouse.Opium.toString())
-    println("Silk: " + warehouse.Silk.toString())
-    println("Arms: " + warehouse.Arms.toString())
-    println("General: " + warehouse.General.toString())
-    println("In Use: " + warehouse.inUse.toString())
-    println("Vacant: " + warehouse.vacant.toString())
-    println("Prices-----------------------------Prices")
-    println("Taipan, prices per unit here are:")
-    println("Opium: " + prices.Opium.toString() + "\t" + "Silk: " + prices.Silk.toString())
-    println("Arms: " + prices.Arms.toString() + "\t" + "General: " + prices.General.toString())
-    if (player.location == "Hong Kong") {
-      if (player.bank + player.cash >= 1000000) {
-        print("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit Trading, or Retire? ")
-        val input: String? = readLine()
-        if (input === "b") {
-          buy()
-        } else if (input === "s") {
-          sell()
-        } else if (input === "v") {
-          visitBank()
-        } else if (input === "t") {
-          transferCargo()
-        } else if (input === "q") {
-          if (ship.hold < 0) {
-            println("Your ship will be overburdened, Taipan!")
-          } else {
-            quitTrading()
-            break
-          }
-        } else if (input === "r") {
-          retire()
-          break
-        } else {
+        while (true) {
+            println("Player---------------------------Player")
+            println("Bank: " + player.bank.toString())
+            println("Cash: " + player.cash.toString())
+            println("Debt: " + player.cash.toString())
+            println("Location: " + player.location.toString())
+            println("Date: " + gameAttributes.monthLabel + " of " + gameAttributes.yearTime.toString())
+            println("Ship---------------------------Ship")
+            println("Cannons: " + ship.cannons.toString())
+            println("Health: " + ship.health.toString())
+            println("Units: " + ship.cargoUnits.toString())
+            println("Hold: " + ship.hold.toString())
+            println("Opium: " + ship.Opium.toString())
+            println("Silk: " + ship.Silk.toString())
+            println("Arms: " + ship.Arms.toString())
+            println("General: " + ship.General.toString())
+            println("Warehouse---------------------------Warehouse")
+            println("Opium: " + warehouse.Opium.toString())
+            println("Silk: " + warehouse.Silk.toString())
+            println("Arms: " + warehouse.Arms.toString())
+            println("General: " + warehouse.General.toString())
+            println("In Use: " + warehouse.inUse.toString())
+            println("Vacant: " + warehouse.vacant.toString())
+            println("Prices-----------------------------Prices")
+            println("Taipan, prices per unit here are:")
+            println("Opium: " + prices.Opium.toString() + "\t" + "Silk: " + prices.Silk.toString())
+            println("Arms: " + prices.Arms.toString() + "\t" + "General: " + prices.General.toString())
 
+            val inHongKong = Player.location == Location.HongKong
+            when (input("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit Trading, or Retire? ")) {
+                "b" -> exchangeHandler(buying = true)
+                "s" -> exchangeHandler(buying = false)
+                "v" -> if (inHongKong) visitBank()
+                "t" -> if (inHongKong) transferCargo()
+                "q" -> if (ship.hold < 0) {
+                    println("Your ship will be overburdened, Taipan!")
+                } else {
+                    quitTrading()
+                    break
+                }
+                "r" -> if (inHongKong && player.bank + player.cash >= 1000000) {
+                    retire()
+                    break
+                }
+            }
         }
-      } else {
-        print("Shall I Buy, Sell, Visit Bank, Transfer Cargo, or Quit Trading? ")
-        val input: String? = readLine()
-        if (input === "b") {
-          buy()
-        } else if (input === "s") {
-          sell()
-        } else if (input === "v") {
-          visitBank()
-        } else if (input === "t") {
-          transferCargo()
-        } else if (input === "q") {
-          if (ship.hold < 0) {
-            println("Your ship will be overburdened, Taipan!")
-          } else {
-            quitTrading()
-            break
-          }
-        } else {
-
-        }
-      }
-    } else {
-      print("Shall I Buy, Sell, or Quit Trading? ")
-      val input: String? = readLine()
-      if (input === "b") {
-        buy()
-      } else if (input === "s") {
-        sell()
-      } else if (input === "q") {
-        if (ship.hold < 0) {
-          println("Your ship will be overburdened, Taipan!")
-        } else {
-          quitTrading()
-          break
-        }
-      } else {
-
-      }
-    }
-  }
-}
-
-    fun buyHandler(product: String) {
-        // TODO
     }
 
-    fun buy() {
-        // TODO
-    }
+    fun exchangeHandler(buying: Boolean) {
+        val product             = Commodity.fromAbbreviation(input("What do you wish to sell, Taipan? "))
+        val priceOfProduct      = Prices.commodities[product]
+        val directionMultiplier = if(buying) +1 else -1
+        val actionString        = if(buying) "buy" else "sell"
 
-    fun sellHandler(product: String) {
-        // TODO
-    }
+        inputLoop(
+            "How many units of ${::product.name} do you want to $actionString?"
+            + if(buying) "You can afford $numberOfProductsAffordable" else ""
+            + ".",
+        { numberOfProductsToTransferStr ->
+            val numberOfProductsAffordable = Math.floor(Player.cashHoldings / priceOfProduct)
 
-    fun sell() {
-        // TODO
+            try {
+                val numberOfProductsToTransfer = numberOfProductsToTransferStr.toInt()
+
+                if (numberOfProductsToTransfer >= 0) {
+                    Ship.commodities[product] += directionMultiplier * numberOfProductsToTransfer
+                    Player.cashHoldings -= directionMultiplier * numberOfProductsToTransfer * priceOfProduct
+                    Ship.hold -= directionMultiplier * numberOfProductsToTransfer
+                    return false
+                }
+            } catch (nfe: NumberFormatException) {}
+
+            return true
+        })
     }
 
     fun visitBank() {
-        // TODO
+        inputLoop("How much will you deposit?", { cashToDepositStr ->
+            val cashToDeposit = cashToDepositStr.toInt()
+            if (cashToDeposit > Player.cashHoldings) {
+                println("Taipan, you only have ${Player.cash} in your wallet.")
+                return true
+            } else if (cashToDeposit >= 0) {
+                Player.cash -= cashToDeposit
+                Player.moneyInBank += cashToDeposit
+                return false
+            }
+        })
+        inputLoop("How much will you withdraw?", { cashToWithdrawStr ->
+            val cashToWithdraw = cashToWithdrawStr.toInt()
+            if (cashToWithdraw > Player.moneyInBank) {
+                println("Taipan, you only have ${Player.moneyInBank} in your bank.")
+            } else if (cashToWithdraw >= 0) {
+                Player.cash += cashToWithdraw
+                Player.moneyInBank -= cashToWithdraw
+            }
+        })
     }
 
-    fun transferCargoHandlerToWarehouse(product: String) {
-
-    }
-
-    fun transferCargoHandlerToShip(product: String) {
-
+    fun transferCargoHandler(product: Commodity, toWarehouse: Boolean) {
+        val directionMultiplier =   if(toWarehouse) +1 else -1
+        val actionString =          if(toWarehouse) "to the warehouse" else "aboard ship"
     }
 
     fun transferCargo() {
