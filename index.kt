@@ -58,10 +58,10 @@ object Prices {
         Commodity.General to 1
     )
     var commodities = mutableMapOf(
-        Commodity.Opium to 3,
-        Commodity.Silk to 0,
-        Commodity.Arms to 0,
-        Commodity.General to 0
+        Commodity.Opium to 1000,
+        Commodity.Silk to 100,
+        Commodity.Arms to 10,
+        Commodity.General to 1
     )
     var isRandom: Boolean = false
 }
@@ -475,8 +475,40 @@ fun main() {
                      * TODO CLARIFY Money lender logic
                      * The original JS code contains a while(true) loop that never exits under some circumstances.
                      */
+                    if (Ship.debt > 0) {
+                        intInputLoop("How much do you wish to repay him?") { 
+                            repayAmount -> if (repayAmount > Ship.cash || repayAmount < 0) {
+                                println("You can't do that, Taipan!")
+                                true
+                            } else {
+                                if (repayAmount > Ship.debt) {
+                                    Ship.cash -= repayAmount
+                                    Ship.debt = 0
+                                } else {
+                                    Ship.cash -= repayAmount
+                                    Ship.debt -= repayAmount
+                                }
+                                false
+                            }        
+                        }
+                    }
+                    if (Ship.cash > 0) {
+                        intInputLoop("How much do wish to borrow?") {
+                            borrowAmount -> if (borrowAmount > Ship.cash) {
+                                println("He won't loan you so much, Taipan!")
+                                true
+                            } else if (borrowAmount < 0) {
+                                println("You can't do that, Taipan!")
+                                true
+                            } else {
+                                Ship.cash += borrowAmount
+                                Ship.debt += borrowAmount
+                                false
+                            }
+                        }
+                    }
                 }
-                true
+                false
             }
         }
 
@@ -631,7 +663,9 @@ fun main() {
         }
         // Other pirate attack
         if (Random.nextDouble() <= chanceOfPirateAttack && !isPirateFleetLiYuen) {
-        
+            combat(1.5, 0.1, pirateGenerator(
+        floor((month + 1) / 6.0 + floor(Ship.cargoUnits / 100.0)).roundToInt(),
+        (5 + 2 * floor((month + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt())), 1.5)
         }
         // Storm
         if (Random.nextDouble() <= 0.3 && isRunning) {
