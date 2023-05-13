@@ -4,8 +4,14 @@ import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
-enum class Location {
-    HongKong, Shanghai, Nagasaki, Saigon, Manila, Singapore, Batavia
+enum class Location (val id: Int) {
+    HongKong (1),
+    Shanghai (2),
+    Nagasaki (3),
+    Saigon (4),
+    Manila (5),
+    Singapore (6),
+    Batavia (7)
 }
 
 enum class Commodity {
@@ -419,7 +425,23 @@ fun main() {
                 "q" -> if (Ship.vacantCargoSpaces < 0) {
                     println("Your ship would be overburdened, Taipan!")
                 } else {
-                    // TODO Quit trading
+                    intInputLoop ("Taipan, do you wish to go to: \n"
+                        + "1) Hong Kong, 2) Shanghai, 3) Nagasaki, 4) Saigon, 5) Manila, 6) Singapore, 7) Batavia ?"
+                    ) { input ->
+                        when (val newLocation = Location
+                            .values()
+                            .find { it.id == input }
+                        ) {
+                            null -> true
+                            else -> if (newLocation == Ship.location) {
+                                println("You're already here, Taipan.")
+                                true
+                            } else {
+                                Ship.location = newLocation
+                                false
+                            }
+                        }
+                    }
                     break
                 }
                 "r" -> if (inHongKong && Ship.moneyInBank + Ship.cash >= 1000000) {
