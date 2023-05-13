@@ -29,7 +29,7 @@ object Ship {
     var cannons = 5
     var health = 100
     var cargoUnits = 150
-    var hold = 100
+    var vacantCargoSpaces = 100
     val commodities = mutableMapOf(
         Commodity.Opium to 0,
         Commodity.Silk to 0,
@@ -180,7 +180,7 @@ fun exchangeHandler(buying: Boolean) {
                 } else if (it >= 0) {
                     Ship.commodities[product] = Ship.commodities[product]!! + directionMultiplier * it
                     Ship.cash -= directionMultiplier * it * priceOfProduct
-                    Ship.hold -= directionMultiplier * it
+                    Ship.vacantCargoSpaces -= directionMultiplier * it
                     false
                 } else true
             }
@@ -193,15 +193,27 @@ fun exchangeHandler(buying: Boolean) {
 }
 
 /**
- * TODO transferCargoHandler()
+ * Asks the user how much of [product] they would like to move.
+ * If [toWarehouse] is true, products will be moved from the ship to the warehouse; otherwise, it will go the opposite direction.
  */
 fun transferCargoHandler(product: Commodity, toWarehouse: Boolean) {
     val directionMultiplier = if(toWarehouse) +1 else -1
     val actionString = if(toWarehouse) "to the warehouse" else "aboard ship"
+    val amountAvailableToMove = (if(toWarehouse) Ship.commodities else Warehouse.commodities)[product]!!
 
-    if (Ship.commodities[product]!! > 0) {
+    if (amountAvailableToMove > 0) {
         intInputLoop ("How much ${product.name} shall I move $actionString, Taipan?") {
-            true
+            if (it > amountAvailableToMove) {
+                println("You only have $amountAvailableToMove, Taipan.")
+            } else if (Warehouse.vacantCargoSpaces - it < 0) {
+                println("There's not enough space in the warehouse, Taipan!")
+            } else if (it >= 0) {
+                Ship.vacantCargoSpaces += directionMultiplier * it
+                Warehouse.vacantCargoSpaces -= directionMultiplier * it
+                Warehouse.commodities[product] = Warehouse.commodities[product]!! + directionMultiplier * it
+                Ship.commodities[product] = Ship.commodities[product]!! - directionMultiplier * it
+            }
+            false
         }
     }
 }
@@ -259,6 +271,7 @@ fun main() {
                 }
             }
 
+            // Decide whether to activate Li Yuen.
             // TODO TEST Li Yuen extortion
             if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
                 val amountRequested = round(
@@ -307,12 +320,11 @@ fun main() {
 
             LiYuen.chanceOfExtortion += 0.01
 
-            /* Money lender */
-
+            // Money lender
             boolInputLoop ("Do you have business with Elder Brother Wu, the moneylender?") {
                 if (it) {
                     /**
-                     * TODO Money lender logic
+                     * TODO CLARIFY Money lender logic
                      * The original JS code contains a while(true) loop that never exits under some circumstances.
                      */
                 }
@@ -334,7 +346,7 @@ fun main() {
             // TODO Price display
         }
 
-        // Main loop
+        // Trading loop.
         while (true) {
             // Display all known information.
             println("Player---------------------------Player")
@@ -347,7 +359,7 @@ fun main() {
             println("Cannons: ${Ship.cannons}")
             println("Health: ${Ship.health}")
             println("Units: ${Ship.cargoUnits}")
-            println("Hold: ${Ship.hold}")
+            println("Hold: ${Ship.vacantCargoSpaces}")
             for (commodity in Commodity.values()) {
                 println("${commodity.name}: ${Ship.commodities[commodity]}")
             }
@@ -363,12 +375,10 @@ fun main() {
                 println("${commodity.name}: ${Prices.commodities[commodity]}")
             }
 
-            /*
-            Prompt the user.
-             */
 
             val inHongKong = Ship.location == Location.HongKong
 
+            // Prompt the user.
             when (input("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit Trading, or Retire? ")) {
                 "b" -> exchangeHandler(buying = true)
                 "s" -> exchangeHandler(buying = false)
@@ -397,7 +407,7 @@ fun main() {
                 "t" -> if (inHongKong) {
                     // TODO Transfer cargo
                 }
-                "q" -> if (Ship.hold < 0) {
+                "q" -> if (Ship.vacantCargoSpaces < 0) {
                     println("Your ship would be overburdened, Taipan!")
                 } else {
                     // TODO Quit trading
@@ -415,6 +425,7 @@ fun main() {
         // TODO Sea event
         val rnd = Random.nextDouble()
 
+        // Adjust values for next location.
         println("Arriving at ${Ship.location}")
         ++month
         if (month == 0) ++year
