@@ -336,12 +336,15 @@ fun main(args: Array<String>) {
             }
         }
 
-        if (!isRunning) {
-            break
-        }
+        if (!isRunning) break
 
         // TODO Sea event
-        // TODO Turn progression
+
+        println("Arriving at ${Player.location}")
+        ++month
+        if (month == 0) ++year
+        Player.debt = (Player.debt * 1.2) as Int
+        Player.moneyInBank = (Player.moneyInBank * 1.05) as Int
     }
 
     println("Game terminated.")
