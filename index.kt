@@ -35,9 +35,6 @@ object Ship {
         Commodity.Arms to 0,
         Commodity.General to 0
     )
-}
-
-object Player {
     var moneyInBank = 0
     var cash = 500
     var debt = 5000
@@ -72,10 +69,6 @@ object LiYuen {
     var chanceOfAttack = 0.5
     var chanceOfExtortion = 0.8
     var extortionMultiplier = 1.0
-
-    fun becomePainInTheAss() {
-        // TODO
-    }
 }
 
 val monthNames = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
@@ -152,7 +145,7 @@ fun exchangeHandler(buying: Boolean) {
             val product = Commodity.fromAbbreviation(commodity)
             val priceOfProduct = Prices.commodities[product]!!
             val directionMultiplier = if(buying) +1 else -1
-            val numberOfProductsAffordable = Player.cash / priceOfProduct
+            val numberOfProductsAffordable = Ship.cash / priceOfProduct
 
             intInputLoop ("How many units of ${product.name} do you want to $actionString? ${(if(buying) "You can afford $numberOfProductsAffordable" else "") + "."}") {
                 // `it` is the number of products to buy/sell
@@ -170,7 +163,7 @@ fun exchangeHandler(buying: Boolean) {
                     true
                 } else if (it >= 0) {
                     Ship.commodities[product] = Ship.commodities[product]!! + directionMultiplier * it
-                    Player.cash -= directionMultiplier * it * priceOfProduct
+                    Ship.cash -= directionMultiplier * it * priceOfProduct
                     Ship.hold -= directionMultiplier * it
                     false
                 } else true
@@ -202,14 +195,12 @@ fun pirates(type: String, number: Int) {
 }
 
 fun main() {
-    exchangeHandler(true)
-    return
     println("Welcome to Taipan!")
 
     // This is the main loop, each iteration of which is a different port.
     while (isRunning) {
         // The shipyard and moneylender only bother you if you're in Hong Kong.
-        if (Player.location == Location.HongKong) {
+        if (Ship.location == Location.HongKong) {
             // If low on health, go to the shipyard.
             if (Ship.health < 100) {
                 val shipIstTotScalar: Double = 1 + (1 - (100 - Ship.health) / 100.0)
@@ -231,29 +222,29 @@ fun main() {
                         "What a mighty fine ship you have there, matey! Or, shall I say, had... It could really use some of what I call \"Tender Love n' Care\". 'Tis but a scratch, as they say, but I take any job, no matter how small. For a price, that is!"
                 )
                 println("I'll fix you up to full workin' order for $shipFixPrice pound sterling>>")
-                println("Taipan, how much will you pay Captain McHenry? You have ${Player.cash} pound sterling on hand.")
+                println("Taipan, how much will you pay Captain McHenry? You have ${Ship.cash} pound sterling on hand.")
 
                 intInputLoop (">> ") payCaptain@{ amountPaid ->
 
-                    if (amountPaid > Player.cash) {
-                        println("Taipan, you only have ${Player.cash} cash.")
+                    if (amountPaid > Ship.cash) {
+                        println("Taipan, you only have ${Ship.cash} cash.")
                         true
                     } else if (amountPaid > shipFixPrice) {
                         // If the player paid what the captain asked for, completely repair the ship
                         Ship.health = 100
-                        Player.cash -= amountPaid
+                        Ship.cash -= amountPaid
                         false
                     } else if (amountPaid >= 0) {
                         // If the player pays x% of what was asked, repair x% of the damaged ship
                         Ship.health += (100 - Ship.health) * amountPaid / shipFixPrice
-                        Player.cash -= amountPaid
+                        Ship.cash -= amountPaid
                         false
                     } else true
                 }
             }
 
             if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
-                LiYuen.becomePainInTheAss()
+                // TODO LiYuen
             }
 
             LiYuen.chanceOfExtortion += 0.01
@@ -294,10 +285,10 @@ fun main() {
         while (true) {
             // Display all known information.
             println("Player---------------------------Player")
-            println("Bank: ${Player.moneyInBank}")
-            println("Cash: ${Player.cash}")
-            println("Debt: ${Player.debt}")
-            println("Location: ${Player.location}")
+            println("Bank: ${Ship.moneyInBank}")
+            println("Cash: ${Ship.cash}")
+            println("Debt: ${Ship.debt}")
+            println("Location: ${Ship.location}")
             println("Date: $monthName of $year")
             println("Ship---------------------------Ship")
             println("Cannons: ${Ship.cannons}")
@@ -323,29 +314,29 @@ fun main() {
             Prompt the user.
              */
 
-            val inHongKong = Player.location == Location.HongKong
+            val inHongKong = Ship.location == Location.HongKong
 
             when (input("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit Trading, or Retire? ")) {
                 "b" -> exchangeHandler(buying = true)
                 "s" -> exchangeHandler(buying = false)
                 "v" -> if (inHongKong) {
                     intInputLoop ("How much will you deposit?") { cashToDeposit ->
-                        if (cashToDeposit > Player.cash) {
-                            println("Taipan, you only have ${Player.cash} in your wallet.")
+                        if (cashToDeposit > Ship.cash) {
+                            println("Taipan, you only have ${Ship.cash} in your wallet.")
                             true
                         } else if (cashToDeposit >= 0) {
-                            Player.cash -= cashToDeposit
-                            Player.moneyInBank += cashToDeposit
+                            Ship.cash -= cashToDeposit
+                            Ship.moneyInBank += cashToDeposit
                             false
                         } else false
                     }
                     intInputLoop ("How much will you withdraw?") { cashToWithdraw ->
-                        if (cashToWithdraw > Player.moneyInBank) {
-                            println("Taipan, you only have ${Player.moneyInBank} in your bank.")
+                        if (cashToWithdraw > Ship.moneyInBank) {
+                            println("Taipan, you only have ${Ship.moneyInBank} in your bank.")
                             true
                         } else if (cashToWithdraw >= 0) {
-                            Player.cash += cashToWithdraw
-                            Player.moneyInBank -= cashToWithdraw
+                            Ship.cash += cashToWithdraw
+                            Ship.moneyInBank -= cashToWithdraw
                             false
                         } else false
                     }
@@ -359,7 +350,7 @@ fun main() {
                     // TODO Quit trading
                     break
                 }
-                "r" -> if (inHongKong && Player.moneyInBank + Player.cash >= 1000000) {
+                "r" -> if (inHongKong && Ship.moneyInBank + Ship.cash >= 1000000) {
                     // TODO Retire
                     break
                 }
@@ -371,11 +362,11 @@ fun main() {
         // TODO Sea event
         val rnd = Random.nextDouble()
 
-        println("Arriving at ${Player.location}")
+        println("Arriving at ${Ship.location}")
         ++month
         if (month == 0) ++year
-        Player.debt = (Player.debt * 1.2) as Int
-        Player.moneyInBank = (Player.moneyInBank * 1.05) as Int
+        Ship.debt = (Ship.debt * 1.2) as Int
+        Ship.moneyInBank = (Ship.moneyInBank * 1.05) as Int
     }
 
     println("Game terminated.")
