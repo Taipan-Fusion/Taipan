@@ -346,8 +346,7 @@ fun main() {
             // TODO Price display
         }
 
-        // Trading loop.
-        while (true) {
+        tradingLoop@while (true) {
             // Display all known information.
             println("Player---------------------------Player")
             println("Bank: ${Ship.moneyInBank}")
@@ -374,7 +373,6 @@ fun main() {
             for (commodity in Commodity.values()) {
                 println("${commodity.name}: ${Prices.commodities[commodity]}")
             }
-
 
             val inHongKong = Ship.location == Location.HongKong
 
@@ -405,7 +403,18 @@ fun main() {
                     }
                 }
                 "t" -> if (inHongKong) {
-                    // TODO Transfer cargo
+                    if((Ship.commodities.values + Warehouse.commodities.values)
+                        .all { it == 0 }
+                    ) {
+                        println("You have no cargo, Taipan.")
+                    } else {
+                        for (commodity in Commodity.values()) {
+                            transferCargoHandler(commodity, toWarehouse = true)
+                        }
+                        for (commodity in Commodity.values()) {
+                            transferCargoHandler(commodity, toWarehouse = false)
+                        }
+                    }
                 }
                 "q" -> if (Ship.vacantCargoSpaces < 0) {
                     println("Your ship would be overburdened, Taipan!")
