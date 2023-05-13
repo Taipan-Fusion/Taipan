@@ -342,30 +342,33 @@ fun main() {
             }
         }
 
+        // TODO TEST Port event
         if (Random.nextDouble() <= chanceOfPortEvent) {
-            // TODO TEST Port event
-            //Options: Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
-            val type = Random.nextInt(1,3)
             val severity = Random.nextDouble(10.0, 70.0)
-            when (type) {
+
+            // Which event?
+            when (Random.nextInt(1,3)) {
+                // Robbed
                 1 -> {
                     println("Taipan! Robbers raided the ship while you were away and took ${Ship.cash * severity} pound sterling!")
                     Ship.cash = (Ship.cash - Ship.cash * severity).toInt()
                 }
+                // Opium confiscated from ship
                 2 -> {
                     if (Ship.commodities[Commodity.Opium]!! > 10) {
                         println("Taipan! The police got to the ship while you were out trading and confiscated ${Ship.commodities[Commodity.Opium]!! * severity} units of opium!")
                         Ship.commodities[Commodity.Opium] = (Ship.commodities[Commodity.Opium]!! - Ship.commodities[Commodity.Opium]!! * severity).toInt()
                     } else {
-                        println("Taipan! The police got to the ship while you were out trading, looking for opium. We didnt have enough to arouse suspicion, maybe you should buy some!")
+                        println("Taipan! The police got to the ship while you were out trading, looking for opium. We didn't have enough to arouse suspicion, maybe you should buy some!")
                     }
                 }
+                // Opium confiscated from warehouse
                 3 -> {
                     if (Warehouse.commodities[Commodity.Opium]!! > 5){
                         println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated ${Warehouse.commodities[Commodity.Opium]!! * severity} units of opium!")
                         Warehouse.commodities[Commodity.Opium] = (Warehouse.commodities[Commodity.Opium]!! - Warehouse.commodities[Commodity.Opium]!! * severity).toInt()
                     } else {
-                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didnt have enough opium there to arouse suspicion, so they left without hubbub")
+                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub")
                     }
 
                 }
