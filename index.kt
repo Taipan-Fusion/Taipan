@@ -46,7 +46,7 @@ object Player {
 
 object Prices {
     var commodities = mutableMapOf(
-        Commodity.Opium to 0,
+        Commodity.Opium to 3,
         Commodity.Silk to 0,
         Commodity.Arms to 0,
         Commodity.General to 0
@@ -128,6 +128,9 @@ fun randomPriceGenerator() {
 
 }
 
+/**
+ * Tested.
+ */
 fun exchangeHandler(buying: Boolean) {
     val actionString = if (buying) "buy" else "sell"
 
@@ -139,14 +142,21 @@ fun exchangeHandler(buying: Boolean) {
             val numberOfProductsAffordable = Player.cash / priceOfProduct
 
             inputLoop (
-                "How many units of ${product.name} do you want to $actionString?"
-                        + if(buying) "You can afford $numberOfProductsAffordable" else ""
-                        + "."
+                "How many units of ${product.name} do you want to $actionString? ${(if(buying) "You can afford $numberOfProductsAffordable" else "") + "."}"
             ) howMany@{ numberOfProductsToTransferStr ->
                 try {
                     val numberOfProductsToTransfer = numberOfProductsToTransferStr.toInt()
 
-                    if (numberOfProductsToTransfer >= 0) {
+                    if (
+                        (buying && numberOfProductsToTransfer > numberOfProductsAffordable)
+                        || (!buying && numberOfProductsToTransfer > Ship.commodities[product]!!)
+                    ) {
+                        println(
+                            if (buying) "You can't afford that!"
+                            else "You don't have that much ${product.name}!"
+                        )
+                        return@howMany true
+                    } else if (numberOfProductsToTransfer >= 0) {
                         Ship.commodities[product] = Ship.commodities[product]!! + directionMultiplier * numberOfProductsToTransfer
                         Player.cash -= directionMultiplier * numberOfProductsToTransfer * priceOfProduct
                         Ship.hold -= directionMultiplier * numberOfProductsToTransfer
@@ -155,13 +165,13 @@ fun exchangeHandler(buying: Boolean) {
                     return@howMany false
                 } catch (_: NumberFormatException) {}
 
-                return@howMany true
+                true
             }
 
             return@whichCommodity false
         } catch (_: Commodity.UnknownAbbreviationException) {}
 
-        return@whichCommodity true
+        true
     }
 }
 
@@ -176,27 +186,35 @@ fun pirates(type: String, number: Int) {
 
 }
 
-/**************************************************************************/
-
-fun main(args: Array<String>) {
+fun main() {
+    exchangeHandler(false)
+    return
     println("Welcome to Taipan!")
 
+    // This is the main loop, each iteration of which is a different port.
     while (isRunning) {
+        // The shipyard and moneylender only bother you if you're in Hong Kong.
         if (Player.location == Location.HongKong) {
+            // If low on health, go to the shipyard.
             if (Ship.health < 100) {
-                /* Shipyard */
                 val shipIstTotScalar: Double = 1 + (1 - (100 - Ship.health) / 100.0)
                 val shipFixPrice: Int =
-                    (Random.nextInt(1, Ship.cargoUnits) * shipIstTotScalar * globalMultiplier * (1..5).random())
-                        .roundToInt()
+                    (
+                        Random.nextInt(1, Ship.cargoUnits)
+                        * shipIstTotScalar
+                        * globalMultiplier
+                        * (1..5).random()
+                    ).roundToInt()
+
                 println("Captain McHenry of the Hong Kong Consolidated Repair Corporation walks over to your ship and says: <<")
-                if (Ship.health < 30) {
-                    println("Matey! That ship of yours is 'bout to rot away like a piece of driftwood in Kolwoon Bay! Don't worry, it's nothing I can't fix. For a price, that is!")
-                } else if (Ship.health < 50) {
-                    println("That there ship's taken quite a bit of damage, matey! You best get it fixed before you go out to sea again! I can get you sailing the friendly waves in no time! For a price, that is!")
-                } else {
-                    println("What a mighty fine ship you have there, matey! Or, shall I say, had... It could really use some of what I call \"Tender Love n' Care\". 'Tis but a scratch, as they say, but I take any job, no matter how small. For a price, that is!")
-                }
+                println(
+                    if (Ship.health < 30)
+                        "Matey! That ship of yours is 'bout to rot away like a piece of driftwood in Kolwoon Bay! Don't worry, it's nothing I can't fix. For a price, that is!"
+                    else if (Ship.health < 50)
+                        "That there ship's taken quite a bit of damage, matey! You best get it fixed before you go out to sea again! I can get you sailing the friendly waves in no time! For a price, that is!"
+                    else
+                        "What a mighty fine ship you have there, matey! Or, shall I say, had... It could really use some of what I call \"Tender Love n' Care\". 'Tis but a scratch, as they say, but I take any job, no matter how small. For a price, that is!"
+                )
                 println("I'll fix you up to full workin' order for $shipFixPrice pound sterling>>")
                 println("Taipan, how much will you pay Captain McHenry? You have ${Player.cash} pound sterling on hand.")
 
@@ -339,6 +357,7 @@ fun main(args: Array<String>) {
         if (!isRunning) break
 
         // TODO Sea event
+        val rnd = Random.nextDouble()
 
         println("Arriving at ${Player.location}")
         ++month
