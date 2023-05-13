@@ -340,6 +340,9 @@ fun main() {
 
         if (Random.nextDouble() <= chanceOfPortEvent) {
             // TODO Port event
+            //Options: Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from wharehouse
+            //roll 2d10 to decide type and severity
+            
         }
 
         Prices.isRandom = false
