@@ -1,5 +1,6 @@
 package taipan
 
+import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -102,6 +103,7 @@ fun inputLoop(prompt: String, handler: (String) -> Boolean) {
 
 /**
  * Repeatedly takes user input until the user types an integer AND [handler] returns false.
+ * Behaves similarly to `inputLoop()`.
  */
 fun intInputLoop(prompt: String, handler: (Int) -> Boolean) {
     inputLoop (prompt) {
@@ -109,6 +111,20 @@ fun intInputLoop(prompt: String, handler: (Int) -> Boolean) {
             handler(it.toInt())
         } catch (_: NumberFormatException) {
             true
+        }
+    }
+}
+
+/**
+ * Repeatedly takes user input until the user types y/n AND [handler] returns false.
+ * Behaves similarly to `inputLoop()`.
+ */
+fun boolInputLoop(prompt: String, handler: (Boolean) -> Boolean) {
+    inputLoop (prompt) {
+        when (it) {
+            "y" -> handler(true)
+            "n" -> handler(false)
+            else -> true
         }
     }
 }
@@ -243,8 +259,13 @@ fun main() {
                 }
             }
 
+            // TODO Li Yuen extortion
             if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
-                // TODO LiYuen
+                val amountRequested = round(
+                    1.1 * LiYuen.extortionMultiplier
+                    * Ship.cash
+                    * (Random.nextDouble() + 0.1)
+                )
             }
 
             LiYuen.chanceOfExtortion += 0.01
