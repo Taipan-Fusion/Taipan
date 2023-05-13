@@ -38,7 +38,7 @@ enum class Commodity {
                 "s" -> Silk
                 "a" -> Arms
                 "g" -> General
-                else -> throw UnknownAbbreviationException("fuck you")
+                else -> throw UnknownAbbreviationException("Invalid input")
             }
     }
 
@@ -215,9 +215,9 @@ fun exchangeHandler(buying: Boolean) {
             val numberOfProductsAffordable  = Player.cash / priceOfProduct
 
             inputLoop (
-                "How many units of ${product.name} do you want to $actionString?"
-                        + if(buying) "You can afford $numberOfProductsAffordable" else ""
-                        + "."
+                "How many units of ${product.name} do you want to $actionString? "
+                        + if(buying) "You can afford $numberOfProductsAffordable ${product.name}. " else ""
+                        + ""
             ) { numberOfProductsToTransferStr ->
                 var contHowMany = true
 
@@ -243,7 +243,7 @@ fun exchangeHandler(buying: Boolean) {
 }
 
 fun visitBank() {
-    inputLoop("How much will you deposit?") { cashToDepositStr ->
+    inputLoop("How much will you deposit? ") { cashToDepositStr ->
         val cashToDeposit = cashToDepositStr.toInt()
         if (cashToDeposit > Player.cash) {
             println("Taipan, you only have ${Player.cash} in your wallet.")
@@ -254,7 +254,7 @@ fun visitBank() {
             false
         } else false
     }
-    inputLoop("How much will you withdraw?") { cashToWithdrawStr ->
+    inputLoop("How much will you withdraw? ") { cashToWithdrawStr ->
         val cashToWithdraw = cashToWithdrawStr.toInt()
         if (cashToWithdraw > Player.moneyInBank) {
             println("Taipan, you only have ${Player.moneyInBank} in your bank.")
@@ -406,8 +406,10 @@ fun main(args: Array<String>) {
         } else {
             // TODO Price display
         }
+        
+        priceDisplay() // Will move to specific place; here for testing purposes 
 
-        // TODO General prompt
+        generalPrompt()
 
         if (!isRunning) {
             break
