@@ -84,6 +84,7 @@ var year = 1860
 var chanceOfSeaEvent = 0.5
 var chanceOfPortEvent = 0.25
 var isRunning = true
+var chanceOfPirateAttack = 0.3
 
 // Originally gameAttributes.monthLabel
 val monthName: String
@@ -92,6 +93,9 @@ val monthName: String
 // Originally time()
 val globalMultiplier: Double
     get() = 1.0 + month / 10000
+
+val chanceOfSinking: Double
+    get() = (100.0 - Ship.health) / 1000.0
 
 fun input(prompt: String): String {
     print("$prompt ")
@@ -481,8 +485,30 @@ fun main() {
         if (!isRunning) break
 
         // TODO Sea event
-        val rnd = Random.nextDouble()
-
+        var isPirateFleetLiYuen = false
+        // Pirate attack by Li Yuen
+        if (Random.nextDouble() <= LiYuen.chanceOfAttack) {
+            isPirateFleetLiYuen = true
+        }
+        // Other pirate attack
+        if (Random.nextDouble() <= chanceOfPirateAttack && !isPirateFleetLiYuen) {
+        
+        }
+        // Storm
+        if (Random.nextDouble() <= 0.3 && isRunning) {
+            if (Random.nextDouble() <= chanceOfSinking) {
+                println("We're going down, Taipan!")
+                isRunning = false
+            } else {
+                println("We survived, Taipan!")
+                // Storm moves ship to different location
+                if (Random.nextDouble() < 0.35) {
+                    Ship.location = Location.values()[(0..6).random()]
+                    println("We've been blown off course to ${Ship.location}")
+                }
+            }
+        }
+        
         // Adjust values for next location.
         println("Arriving at ${Ship.location}")
         ++month

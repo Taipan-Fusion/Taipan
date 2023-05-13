@@ -322,32 +322,32 @@ function sell() {
 }
 
 function visitBank() {
-    while (true) {
-      let input = prompt("How much will you deposit? ")
-      let inputAmount = parseInt(input)
-      if (inputAmount > player.cash) {
-        console.log("Taipan, you only have " + player.cash.toString(), "in your wallet.")
-      } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
-        player.cash -= inputAmount
-        player.bank += inputAmount
-        break
-      } else {
+  while (true) {
+    let input = prompt("How much will you deposit? ")
+    let inputAmount = parseInt(input)
+    if (inputAmount > player.cash) {
+      console.log("Taipan, you only have " + player.cash.toString(), "in your wallet.")
+    } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
+      player.cash -= inputAmount
+      player.bank += inputAmount
+      break
+    } else {
 
-      }
     }
-    while (true) {
-      let input = prompt("How much will you withdraw? ")
-      let inputAmount = parseInt(input)
-      if (inputAmount > player.bank) {
-        console.log("Taipan, you only have " + player.bank.toString(), "in your bank.")
-      } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
-        player.cash += inputAmount
-        player.bank -= inputAmount
-        break
-      } else {
+  }
+  while (true) {
+    let input = prompt("How much will you withdraw? ")
+    let inputAmount = parseInt(input)
+    if (inputAmount > player.bank) {
+      console.log("Taipan, you only have " + player.bank.toString(), "in your bank.")
+    } else if (Number.isInteger(inputAmount) && inputAmount >= 0) {
+      player.cash += inputAmount
+      player.bank -= inputAmount
+      break
+    } else {
 
-      }
     }
+  }
 }
 
 function transferCargoHandlerToWarehouse(product) {
@@ -454,9 +454,9 @@ function finalStats() {
   console.log("Your score is " + score)
   if (score >= 50000) {
     console.log("Ranking: Ma Tsu")
-  } else if (score >= 8000 && score <= 49999)) {
+  } else if (score >= 8000 && score <= 49999) {
     console.log("Ranking: Master Taipan")
-  } else if (score >= 1000 && score <= 7999)) {
+  } else if (score >= 1000 && score <= 7999) {
     console.log("Ranking: Taipan")
   } else if (score >= 500 && score <= 599) {
     console.log("Ranking: Compradore")
@@ -473,7 +473,7 @@ function turnProgression() {
     gameAttributes.month += 1
     month += 1
     gameAttributes.monthLabel = months[month % 12]
-    gameAttributes.yearTime = 1860 + Math.floor(month  / 12)
+    gameAttributes.yearTime = 1860 + Math.floor(month / 12)
     player.debt *= 1.2
     player.bank *= 1.05
     player.debt = Math.round(player.debt)
@@ -836,7 +836,7 @@ function storm() {
 }
 
 function moneylender() {
-  
+
   while (true) {
     let input = prompt("Do you have business with Elder Brother Wu, the moneylender? ")
     if (input === "y") {
@@ -877,7 +877,7 @@ function moneylender() {
     else if (input === "n") {
       break
     } else {
-      
+
     }
   }
 }
