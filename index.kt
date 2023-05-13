@@ -5,7 +5,6 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.math.pow
 import kotlin.math.floor
-import kotlin.collections.addAll
 
 enum class Location (val id: Int) {
     HongKong (1),
@@ -52,6 +51,12 @@ object Ship {
 }
 
 object Prices {
+    val randomMultipliers = mapOf(
+        Commodity.Opium to 1000,
+        Commodity.Silk to 100,
+        Commodity.Arms to 10,
+        Commodity.General to 1
+    )
     var commodities = mutableMapOf(
         Commodity.Opium to 3,
         Commodity.Silk to 0,
@@ -231,85 +236,119 @@ fun transferCargoHandler(product: Commodity, toWarehouse: Boolean) {
     }
 }
 
-fun combat(damageC: Double, gunKnockoutChance: Double, number: Int, pirateResistanceC: Double) {
-    var resistanceRatio: Double = (25 + month) / (Ship.cargoUnits.toDouble().pow(1.11)) // Resistance to pirate attacks
-    var runRatio: Double = 0.5 * 200 / (Ship.cargoUnits + 5 * number) // Chance of successfully running
-    val pirateList: MutableList<Int> = mutableListOf()
-    for (i in 1..number) {
-        val pirateShip: Int = ((Random.nextDouble(0.0, 1.0) + 0.5) * 20 * (globalMultiplier + 0.6) * (pirateResistanceC + 0.5)).roundToInt()
-        pirateList.add(pirateList.size - 1, pirateShip)
+fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pirateResistanceC: Double) {
+    val pirateList = MutableList(numberOfPirates) {
+        (
+            20
+            * (Random.nextDouble() + 0.5)
+            * (globalMultiplier + 0.6)
+            * (pirateResistanceC + 0.5)
+        ).roundToInt()
     }
     var num = pirateList.size
-    var numberOfPirates = number
-    println("${number} ships attacking, Taipan!")
-    when (input("Shall we fight or run, Taipan? ")) { 
-        "f" -> {
-            var numberSank: Int = 0
-            // Taipan is firing on the pirates
-            for (i in 1..Ship.cannons) {
-                var damageToPirateShip: Int = ((Random.nextDouble(0.0, 1.0) + 0.3) * 35 * (1.5 * globalMultiplier - 0.5)).roundToInt()
-                pirateList[pirateList.size - 1] = pirateList[pirateList.size - 1] - damageToPirateShip
-                if (pirateList[pirateList.size - 1] <= 0) {
-                    pirateList.removeAt(pirateList.size - 1)
-                    num--
-                    numberSank++
+
+    println("$numberOfPirates ships attacking, Taipan!")
+    inputLoop ("Shall we fight or run, Taipan? ") {
+        when (it) {
+            "f" -> {
+                var numberSank = 0
+                // Taipan is firing on the pirates
+                for (i in 1..Ship.cannons) {
+                    val damageToPirateShip: Int =
+                        (
+                            (Random.nextDouble(0.0, 1.0) + 0.3)
+                            * 35
+                            * (1.5 * globalMultiplier - 0.5)
+                        ).roundToInt()
+
+                    pirateList[pirateList.lastIndex] -= damageToPirateShip
+
+                    if (pirateList[pirateList.lastIndex] <= 0) {
+                        pirateList.removeLast()
+                        num--
+                        numberSank++
+                    }
+
+                    if (pirateList.isEmpty()) {
+                        println("Sank $numberSank buggers, Taipan!")
+                        println("We got them all, Taipan!")
+                        val booty: Int =
+                            (
+                                numberOfPirates
+                                    * Random.nextInt(5, 50)
+                                    * Random.nextInt(1, 10)
+                                    * (month + 1) / 4
+                                + 250
+                            )
+                        Ship.cash += booty
+                        println("We got $booty in booty, Taipan!")
+                        break
+                    }
                 }
+                println("Sank $numberSank buggers, Taipan!")
+
+                if (numberSank >= floor(0.5 * num)) {
+                    val numberRanAway = pirateGenerator(1 + (0.1 * num).roundToInt(), 1 + (0.35 * num).roundToInt())
+                    println("$numberRanAway buggers ran away, Taipan!")
+                    num -= numberRanAway
+                    for (i in 1..numberRanAway) {
+                        pirateList.removeLast()
+                    }
+                }
+
                 if (pirateList.size <= 0) {
-                    println("Sank ${numberSank} buggers, Taipan!")
+                    println("Sank $numberSank buggers, Taipan!")
                     println("We got them all, Taipan!")
-                    var booty: Int = (numberOfPirates * Random.nextInt(5, 50).toInt() * Random.nextInt(1, 10).toInt() * (month + 1) / 4 + 250)
+                    val booty: Int =
+                        (
+                            numberOfPirates
+                            * Random.nextInt(5, 50)
+                            * Random.nextInt(1, 10)
+                            * (month + 1) / 4 + 250
+                        )
                     Ship.cash += booty
-                    println("We got ${booty} in booty, Taipan!")
-                    break
+                    println("We got $booty in booty, Taipan!")
                 }
-            }
-            println("Sank ${numberSank} buggers, Taipan!")
-            
-            if (numberSank >= floor(0.5 * num)) {
-                var numberRanAway = pirateGenerator(1 + (0.1 * num).roundToInt(), 1 + (0.35 * num).roundToInt())
-                println("${numberRanAway} buggers ran away, Taipan!")
-                num -= numberRanAway
-                for (i in 1..numberRanAway) {
-                    pirateList.removeLast()
-                }
+                false
             }
 
-            if (pirateList.size <= 0) {
-                println("Sank ${numberSank} buggers, Taipan!")
-                println("We got them all, Taipan!")
-                var booty: Int =
-                        (numberOfPirates *
-                                Random.nextInt(5, 50).toInt() *
-                                Random.nextInt(1, 10).toInt() *
-                                (month + 1) / 4 + 250)
-                Ship.cash += booty
-                println("We got ${booty} in booty, Taipan!")
-            }
-        } 
-        "r" -> {
-            var numberRanCounter = 0
-            if (Random.nextDouble() <= runRatio) {
-                numberRanCounter = pirateGenerator(num / 5, num)
-                if (numberRanCounter == num) {
-                    println("We got away from them, Taipan!")
-                } else if (numberRanCounter > 0) {
-                    num -= numberRanCounter
-                    println("Can't escape them, Taipan, but we managed to lose ${numberRanCounter} of them!")
-                    for (i in 1..numberRanCounter) {
-                        pirateList.removeLast()
+            "r" -> {
+                // Attempt to run away
+                if (Random.nextDouble() <= 0.5 * 200 / (Ship.cargoUnits + 5 * numberOfPirates)) {
+                    val numberRanCounter = pirateGenerator(num / 5, num)
+                    if (numberRanCounter == num) {
+                        println("We got away from them, Taipan!")
+                    } else if (numberRanCounter > 0) {
+                        num -= numberRanCounter
+                        println("Can't escape them, Taipan, but we managed to lose $numberRanCounter of them!")
+                        for (i in 1..numberRanCounter) {
+                            pirateList.removeLast()
+                        }
+                    } else {
+                        println("Can't escape them, Taipan!")
+                        println("$numberOfPirates remain, Taipan!")
                     }
                 } else {
                     println("Can't escape them, Taipan!")
-                    println("${number} remain, Taipan!")
+                    println("$numberOfPirates remain, Taipan!")
                 }
-            } else {
-                println("Can't escape them, Taipan!")
-                println("${number} remain, Taipan!")
+                false
             }
+            else -> true
         }
      }
 
-     var damageToPlayerShip: Int = (resistanceRatio * (damageC + 0.5) * (Random.nextDouble() + 1) * numberOfPirates.toDouble().pow(0.7) * 5 * num / number).roundToInt()
+     val damageToPlayerShip: Int =
+         (
+             (25 + month) / Ship.cargoUnits.toDouble().pow(1.11)
+             * (damageC + 0.5)
+             * (Random.nextDouble() + 1)
+             * numberOfPirates
+                 .toDouble()
+                 .pow(0.7)
+             * 5
+             * num / numberOfPirates
+         ).roundToInt()
      println("They're firing on us, Taipan!")
      if (Random.nextDouble() < gunKnockoutChance) {
         println("They hit a gun, Taipan!")
@@ -320,7 +359,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, number: Int, pirateResist
         println("Health: ${Ship.health}")
         println("Units: ${Ship.cargoUnits}")
      } else {
-        println("We took ${damageToPlayerShip} damage, Taipan!")
+        println("We took $damageToPlayerShip damage, Taipan!")
         Ship.health -= damageToPlayerShip
      }
      if (Ship.health <= 0) {
@@ -383,18 +422,18 @@ fun main() {
             // Decide whether to activate Li Yuen.
             // TODO TEST Li Yuen extortion
             if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
-                val amountRequested = round(
+                val amountRequested = (
                     1.1 * LiYuen.extortionMultiplier
                     * Ship.cash
                     * (Random.nextDouble() + 0.1)
-                ) as Int
+                ).roundToInt()
                 boolInputLoop ("Li Yuen asks $amountRequested in donation to the temple of Tin Hau, the Sea Goddess. Will you pay?") willYouPay@{
                     if (it) {
                         if (amountRequested > Ship.cash) {
                             var iWouldBeWaryOfPirates = false
 
-                            boolInputLoop ("Taipan! You do not have enough cash! Do you want Elder Brother Wu to make up the difference?") doYouWantWu@{
-                                if (it) {
+                            boolInputLoop ("Taipan! You do not have enough cash! Do you want Elder Brother Wu to make up the difference?") doYouWantWu@{ makeUpDifference ->
+                                if (makeUpDifference) {
                                     Ship.debt += amountRequested - Ship.cash
                                     Ship.cash = 0
                                     println("Elder Brother Wu has given Li Yuen the difference, which will be added to your debt.")
@@ -613,8 +652,8 @@ fun main() {
         println("Arriving at ${Ship.location}")
         ++month
         if (month == 0) ++year
-        Ship.debt = (Ship.debt * 1.2) as Int
-        Ship.moneyInBank = (Ship.moneyInBank * 1.05) as Int
+        Ship.debt = (Ship.debt * 1.2).toInt()
+        Ship.moneyInBank = (Ship.moneyInBank * 1.05).toInt()
     }
 
     println("Game terminated.")
