@@ -93,6 +93,11 @@ val monthName: String
 val globalMultiplier: Double
     get() = 1.0 + month / 10000
 
+fun input(prompt: String): String {
+    print("$prompt ")
+    return readLine()!!
+}
+
 /**
  * Repeatedly takes user input until [handler] returns false. That is, [handler] should return whether to continue looping.
  */
@@ -102,9 +107,17 @@ fun inputLoop(prompt: String, handler: (String) -> Boolean) {
     }
 }
 
-fun input(prompt: String): String {
-    print("$prompt ")
-    return readLine()!!
+/**
+ * Repeatedly takes user input until the user types an integer AND [handler] returns false.
+ */
+fun intInputLoop(prompt: String, handler: (Int) -> Boolean) {
+    inputLoop (prompt) {
+        try {
+            handler(it.toInt())
+        } catch (_: NumberFormatException) {
+            true
+        }
+    }
 }
 
 fun priceGenerator(max: Int): Int =
@@ -129,7 +142,7 @@ fun randomPriceGenerator() {
 }
 
 /**
- * Tested.
+ * Asks the user what and how much they would like to buy ([buying] = true) or sell ([buying] = false).
  */
 fun exchangeHandler(buying: Boolean) {
     val actionString = if (buying) "buy" else "sell"
@@ -141,31 +154,26 @@ fun exchangeHandler(buying: Boolean) {
             val directionMultiplier = if(buying) +1 else -1
             val numberOfProductsAffordable = Player.cash / priceOfProduct
 
-            inputLoop (
-                "How many units of ${product.name} do you want to $actionString? ${(if(buying) "You can afford $numberOfProductsAffordable" else "") + "."}"
-            ) howMany@{ numberOfProductsToTransferStr ->
-                try {
-                    val numberOfProductsToTransfer = numberOfProductsToTransferStr.toInt()
+            intInputLoop ("How many units of ${product.name} do you want to $actionString? ${(if(buying) "You can afford $numberOfProductsAffordable" else "") + "."}") {
+                // `it` is the number of products to buy/sell
 
-                    if (
-                        (buying && numberOfProductsToTransfer > numberOfProductsAffordable)
-                        || (!buying && numberOfProductsToTransfer > Ship.commodities[product]!!)
-                    ) {
-                        println(
-                            if (buying) "You can't afford that!"
-                            else "You don't have that much ${product.name}!"
-                        )
-                        return@howMany true
-                    } else if (numberOfProductsToTransfer >= 0) {
-                        Ship.commodities[product] = Ship.commodities[product]!! + directionMultiplier * numberOfProductsToTransfer
-                        Player.cash -= directionMultiplier * numberOfProductsToTransfer * priceOfProduct
-                        Ship.hold -= directionMultiplier * numberOfProductsToTransfer
-                    }
-
-                    return@howMany false
-                } catch (_: NumberFormatException) {}
-
-                true
+                if (
+                    // Buying more than the player can afford
+                    (buying && it > numberOfProductsAffordable)
+                    // Or selling more than the player has
+                    || (!buying && it > Ship.commodities[product]!!)
+                ) {
+                    println(
+                        if (buying) "You can't afford that!"
+                        else "You don't have that much ${product.name}!"
+                    )
+                    true
+                } else if (it >= 0) {
+                    Ship.commodities[product] = Ship.commodities[product]!! + directionMultiplier * it
+                    Player.cash -= directionMultiplier * it * priceOfProduct
+                    Ship.hold -= directionMultiplier * it
+                    false
+                } else true
             }
 
             return@whichCommodity false
@@ -175,11 +183,18 @@ fun exchangeHandler(buying: Boolean) {
     }
 }
 
+/**
+ * TODO transferCargoHandler()
+ */
 fun transferCargoHandler(product: Commodity, toWarehouse: Boolean) {
     val directionMultiplier = if(toWarehouse) +1 else -1
     val actionString = if(toWarehouse) "to the warehouse" else "aboard ship"
 
-    // TODO
+    if (Ship.commodities[product]!! > 0) {
+        intInputLoop ("How much ${product.name} shall I move $actionString, Taipan?") {
+            true
+        }
+    }
 }
 
 fun pirates(type: String, number: Int) {
@@ -187,6 +202,10 @@ fun pirates(type: String, number: Int) {
 }
 
 fun main() {
+    exchangeHandler(true)
+    return
+    println("Welcome to Taipan!")
+
     // This is the main loop, each iteration of which is a different port.
     while (isRunning) {
         // The shipyard and moneylender only bother you if you're in Hong Kong.
@@ -214,8 +233,7 @@ fun main() {
                 println("I'll fix you up to full workin' order for $shipFixPrice pound sterling>>")
                 println("Taipan, how much will you pay Captain McHenry? You have ${Player.cash} pound sterling on hand.")
 
-                inputLoop (">> ") payCaptain@{
-                    val amountPaid = it.toInt()
+                intInputLoop (">> ") payCaptain@{ amountPaid ->
 
                     if (amountPaid > Player.cash) {
                         println("Taipan, you only have ${Player.cash} cash.")
@@ -311,8 +329,7 @@ fun main() {
                 "b" -> exchangeHandler(buying = true)
                 "s" -> exchangeHandler(buying = false)
                 "v" -> if (inHongKong) {
-                    inputLoop("How much will you deposit?") { cashToDepositStr ->
-                        val cashToDeposit = cashToDepositStr.toInt()
+                    intInputLoop ("How much will you deposit?") { cashToDeposit ->
                         if (cashToDeposit > Player.cash) {
                             println("Taipan, you only have ${Player.cash} in your wallet.")
                             true
@@ -322,8 +339,7 @@ fun main() {
                             false
                         } else false
                     }
-                    inputLoop("How much will you withdraw?") { cashToWithdrawStr ->
-                        val cashToWithdraw = cashToWithdrawStr.toInt()
+                    intInputLoop ("How much will you withdraw?") { cashToWithdraw ->
                         if (cashToWithdraw > Player.moneyInBank) {
                             println("Taipan, you only have ${Player.moneyInBank} in your bank.")
                             true
