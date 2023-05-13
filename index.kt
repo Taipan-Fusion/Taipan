@@ -226,7 +226,22 @@ fun main(args: Array<String>) {
 
             LiYuen.chanceOfExtortion += 0.01
 
-            // TODO Money lender
+            /* Money lender */
+
+            inputLoop ("Do you have business with Elder Brother Wu, the moneylender?") {
+                when (it) {
+                    "y" -> {
+                        /**
+                         * TODO Money lender logic
+                         * The original JS code contains a while(true) loop that never exits under some circumstances.
+                         */
+
+                        false
+                    }
+                    "n" -> false
+                    else -> true
+                }
+            }
         }
 
         if (Random.nextDouble() <= chanceOfPortEvent) {
