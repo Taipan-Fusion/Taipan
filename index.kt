@@ -259,32 +259,64 @@ fun main() {
                 }
             }
 
-            // TODO Li Yuen extortion
+            // TODO TEST Li Yuen extortion
             if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
                 val amountRequested = round(
                     1.1 * LiYuen.extortionMultiplier
                     * Ship.cash
                     * (Random.nextDouble() + 0.1)
-                )
+                ) as Int
+                boolInputLoop ("Li Yuen asks $amountRequested in donation to the temple of Tin Hau, the Sea Goddess. Will you pay?") willYouPay@{
+                    if (it) {
+                        if (amountRequested > Ship.cash) {
+                            var iWouldBeWaryOfPirates = false
+
+                            boolInputLoop ("Taipan! You do not have enough cash! Do you want Elder Brother Wu to make up the difference?") doYouWantWu@{
+                                if (it) {
+                                    Ship.debt += amountRequested - Ship.cash
+                                    Ship.cash = 0
+                                    println("Elder Brother Wu has given Li Yuen the difference, which will be added to your debt.")
+                                } else {
+                                    println("The difference will not be paid! Elder Brother Wu says, 'I would be wary of pirates if I were you, Taipan!'")
+                                    LiYuen.chanceOfExtortion = 0.8
+                                    LiYuen.chanceOfAttack = 0.5
+                                    iWouldBeWaryOfPirates = true
+                                }
+                                false
+                            }
+
+                            if (iWouldBeWaryOfPirates) return@willYouPay false
+
+                            LiYuen.chanceOfExtortion = 0.1
+                            LiYuen.chanceOfAttack = 0.025
+                            LiYuen.extortionMultiplier = 1.0
+                        } else {
+                            Ship.cash -= amountRequested
+                            LiYuen.chanceOfExtortion = 0.05
+                            LiYuen.chanceOfAttack = 0.01
+                            LiYuen.extortionMultiplier = 1.0
+                        }
+                    } else {
+                        LiYuen.chanceOfExtortion = 0.8
+                        LiYuen.chanceOfAttack = 0.5
+                    }
+
+                    false
+                }
             }
 
             LiYuen.chanceOfExtortion += 0.01
 
             /* Money lender */
 
-            inputLoop ("Do you have business with Elder Brother Wu, the moneylender?") {
-                when (it) {
-                    "y" -> {
-                        /**
-                         * TODO Money lender logic
-                         * The original JS code contains a while(true) loop that never exits under some circumstances.
-                         */
-
-                        false
-                    }
-                    "n" -> false
-                    else -> true
+            boolInputLoop ("Do you have business with Elder Brother Wu, the moneylender?") {
+                if (it) {
+                    /**
+                     * TODO Money lender logic
+                     * The original JS code contains a while(true) loop that never exits under some circumstances.
+                     */
                 }
+                true
             }
         }
 
