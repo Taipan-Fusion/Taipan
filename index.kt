@@ -3,6 +3,9 @@ package taipan
 import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.random.Random
+import kotlin.math.pow
+import kotlin.math.floor
+import kotlin.collections.addAll
 
 enum class Location (val id: Int) {
     HongKong (1),
@@ -228,8 +231,48 @@ fun transferCargoHandler(product: Commodity, toWarehouse: Boolean) {
     }
 }
 
-fun pirates(type: String, number: Int) {
+fun combat(damageC: Double, gunKnockoutChance: Double, number: Int, pirateResistanceC: Double) {
+    var resistanceRatio: Double = (25 + month) / (Ship.cargoUnits.toDouble().pow(1.11)) // Resistance to pirate attacks
+    var runRatio: Double = 0.5 * 200 / (Ship.cargoUnits + 5 * number) // Chance of successfully running
+    val pirateList: MutableList<Int> = mutableListOf()
+    for (i in 1..number) {
+        val pirateShip: Int = ((Random.nextDouble(0.0, 1.0) + 0.5) * 20 * (globalMultiplier + 0.6) * (pirateResistanceC + 0.5)).roundToInt()
+        pirateList.add(pirateList.size - 1, pirateShip)
+    }
+    var num = pirateList.size
+    var numberOfPirates = number
+    println("${number} ships attacking, Taipan!")
+    when (input("Shall we fight or run, Taipan? ")) { 
+        "f" -> {
+            var numberSank: Int = 0
+            // Taipan is firing on the pirates
+            for (i in 1..Ship.cannons) {
+                var damageToPirateShip: Int = ((Random.nextDouble(0.0, 1.0) + 0.3) * 35 * (1.5 * globalMultiplier - 0.5)).roundToInt()
+                pirateList[pirateList.size - 1] = pirateList[pirateList.size - 1] - damageToPirateShip
+                if (pirateList[pirateList.size - 1] <= 0) {
+                    pirateList.removeAt(pirateList.size - 1)
+                    num--
+                    numberSank++
+                }
+                if (pirateList.size <= 0) {
+                    println("Sank ${numberSank} buugers, Taipan!")
+                    println("We got them all, Taipan!")
+                    var booty: Int = (numberOfPirates * Random.nextInt(5, 50).toInt() * Random.nextInt(1, 10).toInt() * (month + 1) / 4 + 250)
+                    Ship.cash += booty
+                    println("We got ${booty} in booty, Taipan!")
+                    break
+                }
+            }
+            println("Sank ${numberSank} buggers, Taipan!")
+            if (numberSank >= floor(0.5 * number)) {
+                var numberRanAway = pirateGenerator(1 + (0.1 * number).roundToInt(), 1 + (0.35 * number).roundToInt())
+            }
+            
+        } 
+        "r" -> {
 
+        }
+     }
 }
 
 fun main() {
