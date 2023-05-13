@@ -471,10 +471,6 @@ fun main() {
             // Money lender
             boolInputLoop ("Do you have business with Elder Brother Wu, the moneylender?") {
                 if (it) {
-                    /**
-                     * TODO CLARIFY Money lender logic
-                     * The original JS code contains a while(true) loop that never exits under some circumstances.
-                     */
                     if (Ship.debt > 0) {
                         intInputLoop("How much do you wish to repay him?") { 
                             repayAmount -> if (repayAmount > Ship.cash || repayAmount < 0) {
