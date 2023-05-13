@@ -443,10 +443,6 @@ function retire() {
   finalStats()
 }
 
-function compareRange(variable, n1, n2) {
-  return n2 >= variable && variable >= n1
-}
-
 function finalStats() {
   let time = gameAttributes.month
   let years = Math.floor(time / 12)
@@ -458,11 +454,11 @@ function finalStats() {
   console.log("Your score is " + score)
   if (score >= 50000) {
     console.log("Ranking: Ma Tsu")
-  } else if (compareRange(score, 8000, 49999)) {
+  } else if (score >= 8000 && score <= 49999)) {
     console.log("Ranking: Master Taipan")
-  } else if (compareRange(score, 1000, 7999)) {
+  } else if (score >= 1000 && score <= 7999)) {
     console.log("Ranking: Taipan")
-  } else if (compareRange(score, 500, 999)) {
+  } else if (score >= 500 && score <= 599) {
     console.log("Ranking: Compradore")
   } else {
     console.log("Ranking: Galley Hand")
