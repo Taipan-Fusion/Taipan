@@ -255,7 +255,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, number: Int, pirateResist
                     numberSank++
                 }
                 if (pirateList.size <= 0) {
-                    println("Sank ${numberSank} buugers, Taipan!")
+                    println("Sank ${numberSank} buggers, Taipan!")
                     println("We got them all, Taipan!")
                     var booty: Int = (numberOfPirates * Random.nextInt(5, 50).toInt() * Random.nextInt(1, 10).toInt() * (month + 1) / 4 + 250)
                     Ship.cash += booty
@@ -264,14 +264,70 @@ fun combat(damageC: Double, gunKnockoutChance: Double, number: Int, pirateResist
                 }
             }
             println("Sank ${numberSank} buggers, Taipan!")
-            if (numberSank >= floor(0.5 * number)) {
-                var numberRanAway = pirateGenerator(1 + (0.1 * number).roundToInt(), 1 + (0.35 * number).roundToInt())
-            }
             
+            if (numberSank >= floor(0.5 * num)) {
+                var numberRanAway = pirateGenerator(1 + (0.1 * num).roundToInt(), 1 + (0.35 * num).roundToInt())
+                println("${numberRanAway} buggers ran away, Taipan!")
+                num -= numberRanAway
+                for (i in 1..numberRanAway) {
+                    pirateList.removeLast()
+                }
+            }
+
+            if (pirateList.size <= 0) {
+                println("Sank ${numberSank} buggers, Taipan!")
+                println("We got them all, Taipan!")
+                var booty: Int =
+                        (numberOfPirates *
+                                Random.nextInt(5, 50).toInt() *
+                                Random.nextInt(1, 10).toInt() *
+                                (month + 1) / 4 + 250)
+                Ship.cash += booty
+                println("We got ${booty} in booty, Taipan!")
+            }
         } 
         "r" -> {
-
+            var numberRanCounter = 0
+            if (Random.nextDouble() <= runRatio) {
+                numberRanCounter = pirateGenerator(num / 5, num)
+                if (numberRanCounter == num) {
+                    println("We got away from them, Taipan!")
+                } else if (numberRanCounter > 0) {
+                    num -= numberRanCounter
+                    println("Can't escape them, Taipan, but we managed to lose ${numberRanCounter} of them!")
+                    for (i in 1..numberRanCounter) {
+                        pirateList.removeLast()
+                    }
+                } else {
+                    println("Can't escape them, Taipan!")
+                    println("${number} remain, Taipan!")
+                }
+            } else {
+                println("Can't escape them, Taipan!")
+                println("${number} remain, Taipan!")
+            }
         }
+     }
+
+     var damageToPlayerShip: Int = (resistanceRatio * (damageC + 0.5) * (Random.nextDouble() + 1) * numberOfPirates.toDouble().pow(0.7) * 5 * num / number).roundToInt()
+     println("They're firing on us, Taipan!")
+     if (Random.nextDouble() < gunKnockoutChance) {
+        println("They hit a gun, Taipan!")
+        Ship.cannons--
+        Ship.vacantCargoSpaces += 10
+        println("Ship---------------------------Ship")
+        println("Cannons: ${Ship.cannons}")
+        println("Health: ${Ship.health}")
+        println("Units: ${Ship.cargoUnits}")
+     } else {
+        println("We took ${damageToPlayerShip} damage, Taipan!")
+        Ship.health -= damageToPlayerShip
+     }
+     if (Ship.health <= 0) {
+        println("The buggers got us, Taipan!!")
+        println("It's all over, Taipan!!")
+        println("We're going down, Taipan!!")
+        isRunning = false
      }
 }
 
@@ -385,37 +441,35 @@ fun main() {
             }
         }
 
-        // TODO TEST Port event
         if (Random.nextDouble() <= chanceOfPortEvent) {
+            // TODO Port event testing
+            //Options: Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
+            val type = Random.nextInt(1,3)
             val severity = Random.nextDouble(10.0, 70.0)
-
-            // Which event?
-            when (Random.nextInt(1,3)) {
-                // Robbed
-                1 -> {
-                    println("Taipan! Robbers raided the ship while you were away and took ${Ship.cash * severity} pound sterling!")
+            when (type) {
+                1 ->
+                {println("Taipan! Robbers raided the ship while you were away and took ${Ship.cash * severity} pound sterling!")
                     Ship.cash = (Ship.cash - Ship.cash * severity).toInt()
                 }
-                // Opium confiscated from ship
                 2 -> {
-                    if (Ship.commodities[Commodity.Opium]!! > 10) {
-                        println("Taipan! The police got to the ship while you were out trading and confiscated ${Ship.commodities[Commodity.Opium]!! * severity} units of opium!")
-                        Ship.commodities[Commodity.Opium] = (Ship.commodities[Commodity.Opium]!! - Ship.commodities[Commodity.Opium]!! * severity).toInt()
-                    } else {
-                        println("Taipan! The police got to the ship while you were out trading, looking for opium. We didn't have enough to arouse suspicion, maybe you should buy some!")
-                    }
+                        if (Ship.commodities[Commodity.Opium]!! > 10){
+                            println("Tapian! The police got to the ship while you were out trading and confiscated ${Ship.commodities[Commodity.Opium]!! * severity} units of opium!")
+                            Ship.commodities[Commodity.Opium] = (Ship.commodities[Commodity.Opium]!! - Ship.commodities[Commodity.Opium]!! * severity).toInt()
+                        } else {
+                            println("Taipan! The police got to the ship while you were out trading, looking for opium. We didnt have enough to arouse suspicion, maybe you should buy some!")
+                        }
                 }
-                // Opium confiscated from warehouse
                 3 -> {
                     if (Warehouse.commodities[Commodity.Opium]!! > 5){
-                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated ${Warehouse.commodities[Commodity.Opium]!! * severity} units of opium!")
+                        println("Tapian! The police raided our warehouse down in Kwun Tong overnight and confiscated ${Warehouse.commodities[Commodity.Opium]!! * severity} units of opium!")
                         Warehouse.commodities[Commodity.Opium] = (Warehouse.commodities[Commodity.Opium]!! - Warehouse.commodities[Commodity.Opium]!! * severity).toInt()
                     } else {
-                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub")
+                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didnt have enough opium there to arouse suspicion, so they left without hubbub")
                     }
 
                 }
             }
+            
         }
 
         Prices.isRandom = false
@@ -534,6 +588,7 @@ fun main() {
         // Pirate attack by Li Yuen
         if (Random.nextDouble() <= LiYuen.chanceOfAttack) {
             isPirateFleetLiYuen = true
+            combat(2.0, 0.2, pirateGenerator(floor((month + 1) / 4.0 + floor(Ship.cargoUnits / 50.0)).roundToInt(), (10 + 2 * floor((month + 1) / 4.0 + Ship.cargoUnits / 50.0).roundToInt())), 2.0)
         }
         // Other pirate attack
         if (Random.nextDouble() <= chanceOfPirateAttack && !isPirateFleetLiYuen) {
