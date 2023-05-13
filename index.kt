@@ -187,10 +187,6 @@ fun pirates(type: String, number: Int) {
 }
 
 fun main() {
-    exchangeHandler(false)
-    return
-    println("Welcome to Taipan!")
-
     // This is the main loop, each iteration of which is a different port.
     while (isRunning) {
         // The shipyard and moneylender only bother you if you're in Hong Kong.
