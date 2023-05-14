@@ -752,8 +752,7 @@ fun main() {
         // Adjust values for next location.
         println("Arriving at ${Ship.location}")
         ++month
-        if (month == 12) {
-            month = 0
+        if (month % 12 == 0) {
             ++years
         }
         Finance.debt = (Finance.debt * 1.2).toInt()
