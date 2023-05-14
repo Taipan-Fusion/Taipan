@@ -496,6 +496,30 @@ fun main() {
             val amountOfOpiumLost = (Ship.commodities[Commodity.Opium]!! * severity).roundToInt()
             val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
             if (Random.nextDouble() <= 0.5) {
+                val shipCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.35).roundToInt()
+                if (Ship.health < 100) {
+                    boolInputLoop("Would you like to trade your damaged ship for $shipCost cash?") {
+                        if (it) {
+                            Ship.cannons++
+                            Ship.vacantCargoSpaces -= 10
+                            Finance.cash -= shipCost
+                            Ship.health = 100
+                        }
+                        false
+                    }
+                } else {
+                    boolInputLoop("Would you like to trade your ship for $shipCost cash?") {
+                        if (it) {
+                            Ship.cannons++
+                            Ship.vacantCargoSpaces -= 10
+                            Finance.cash -= shipCost
+                            Ship.health = 100
+                        }
+                        false
+                    }
+                }
+            }
+            if (Random.nextDouble() <= 0.5) {
                 val gunCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.5 * 0.3).roundToInt()
                 boolInputLoop("Would you like another gun for $gunCost cash?") {
                     if (it) {
@@ -510,28 +534,7 @@ fun main() {
                     false
                  }
             }
-            if (Random.nextDouble() <= 0.5) {
-                val shipCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.35).roundToInt()
-                if (Ship.health < 100) {
-                    boolInputLoop("Would you like to trade your damaged ship for $shipCost cash?") {
-                        if (it) {
-                            Ship.cannons++
-                            Ship.vacantCargoSpaces -= 10
-                            Finance.cash -= shipCost
-                        }
-                        false
-                    }
-                } else {
-                    boolInputLoop("Would you like to trade your ship for $shipCost cash?") {
-                        if (it) {
-                            Ship.cannons++
-                            Ship.vacantCargoSpaces -= 10
-                            Finance.cash -= shipCost
-                        }
-                        false
-                    }
-                }
-            }
+            
             if (Random.nextDouble() <= (Ship.commodities[Commodity.Opium]!! + Warehouse.commodities[Commodity.Opium]!!) / (Ship.vacantCargoSpaces + Warehouse.vacantCargoSpaces)) {
                 when (Random.nextInt(1,3)) {
                     1 -> {
