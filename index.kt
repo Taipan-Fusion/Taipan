@@ -518,7 +518,7 @@ fun main() {
             val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
             if (Random.nextDouble() <= 0.5) {
                 val shipCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.35).roundToInt()
-                boolInputLoop ("Would you like to trade your ${if(Ship.health < 100) "damaged" else ""} ship for $shipCost cash?") {
+                boolInputLoop ("Would you like to trade your ${if(Ship.health < 100) "damaged " else ""}ship for $shipCost cash?") {
                     if (it) {
                         Ship.cannons++
                         Ship.vacantCargoSpaces -= 10
