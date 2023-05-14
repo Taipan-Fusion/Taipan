@@ -86,16 +86,37 @@ object Finance {
     var debt = 5000
 }
 
-val monthNames = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
-var month = 0
-var years = 1860
+object Time {
+    private val monthNames = listOf(
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    )
 
-val monthName: String
-    get() = monthNames[month]
+    var monthsPassed = 0
+
+    val yearsPassed: Int
+        get() = monthsPassed / 12
+
+    val currentYear: Int
+        get() = 1860 + yearsPassed
+
+    val monthName: String
+        get() = monthNames[monthsPassed % 12]
+}
 
 // Originally time()
 val globalMultiplier: Double
-    get() = 1.0 + month / 10000
+    get() = 1.0 + Time.monthsPassed / 10000
 
 fun input(prompt: String): String {
     print("$prompt ")
@@ -276,7 +297,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                     if (pirateList.isEmpty()) {
                         println("We got them all, Taipan!")
                         val booty =
-                                (numberOfPirates * Random.nextInt(5, 50) * Random.nextInt(1, 10) * (month + 1) / 4 +
+                                (numberOfPirates * Random.nextInt(5, 50) * Random.nextInt(1, 10) * (Time.monthsPassed + 1) / 4 +
                                         250)
                         Finance.cash += booty
                         println("We got $booty in booty, Taipan!")
@@ -317,7 +338,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
 
         val damageToPlayerShip: Int =
             (
-                (25 + month) / Ship.cargoUnits.toDouble().pow(1.11)
+                (25 + Time.monthsPassed) / Ship.cargoUnits.toDouble().pow(1.11)
                 * (damageC + 0.5)
                 * (Random.nextDouble() + 1)
                 * numberOfPirates.toDouble().pow(0.7)
@@ -583,7 +604,7 @@ fun main() {
             println("Cash: ${Finance.cash}")
             println("Debt: ${Finance.debt}")
             println("Location: ${Ship.location}")
-            println("Date: $monthName of $years")
+            println("Date: ${Time.monthName} ${Time.currentYear}")
             println("Ship---------------------------Ship")
             println("Cannons: ${Ship.cannons}")
             println("Health: ${Ship.health}")
@@ -699,8 +720,8 @@ fun main() {
         // Pirate attack by Li Yuen
         if (isPirateFleetLiYuen) {
             val number: Int = pirateGenerator(
-                floor((month + 1) / 4.0 + floor(Ship.cargoUnits / 50.0)).roundToInt(),
-                (10 + 2 * floor((month + 1) / 4.0 + Ship.cargoUnits / 50.0).roundToInt())
+                floor((Time.monthsPassed + 1) / 4.0 + floor(Ship.cargoUnits / 50.0)).roundToInt(),
+                (10 + 2 * floor((Time.monthsPassed + 1) / 4.0 + Ship.cargoUnits / 50.0).roundToInt())
             )
 
             println("Li Yuen's pirates, Taipan!")
@@ -721,8 +742,8 @@ fun main() {
         // Other pirate attack
         if (Random.nextDouble() <= Probabilities.pirateAttack && !isPirateFleetLiYuen) {
             val number: Int = pirateGenerator(
-                floor((month + 1) / 6.0 + floor(Ship.cargoUnits / 100.0)).roundToInt(),
-                (5 + 2 * floor((month + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt() + floor(Ship.commodities[Commodity.Opium]!!.toDouble() * 0.1 * Random.nextDouble()).roundToInt())
+                floor((Time.monthsPassed + 1) / 6.0 + floor(Ship.cargoUnits / 100.0)).roundToInt(),
+                (5 + 2 * floor((Time.monthsPassed + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt() + floor(Ship.commodities[Commodity.Opium]!!.toDouble() * 0.1 * Random.nextDouble()).roundToInt())
             )
             println("$number hostile ships approaching, Taipan!")
             combat(1.5, 0.1, number, 1.5)
@@ -748,21 +769,18 @@ fun main() {
         
         // Adjust values for next location.
         println("Arriving at ${Ship.location}")
-        ++month
-        if (month % 12 == 0) {
-            ++years
-        }
+        ++Time.monthsPassed
         Finance.debt = (Finance.debt * 1.2).toInt()
         Finance.moneyInBank = (Finance.moneyInBank * 1.05).toInt()
     }
 
     val netWorth = Finance.cash + Finance.moneyInBank - Finance.debt
-    val score = netWorth / (years * 12 + month) / 100
+    val score = netWorth / Time.monthsPassed / 100
 
     println("FINAL STATS")
     println("Net cash: $netWorth")
     println("Ship size: ${Ship.cargoUnits} units with ${Ship.cannons} guns")
-    println("You traded for $years year(s)")
+    println("You traded for ${Time.yearsPassed} year(s)")
     println("Your score is $score")
     println("Rank: ${
         if (score >= 50000) "Ma Tsu"
