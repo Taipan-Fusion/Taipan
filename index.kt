@@ -219,32 +219,6 @@ fun exchangeHandler(buying: Boolean) {
 }
 
 /**
- * Asks the user how much of [product] they would like to move.
- * If [toWarehouse] is true, products will be moved from the ship to the warehouse; otherwise, it will go the opposite direction.
- */
-fun transferCargoHandler(product: Commodity, toWarehouse: Boolean) {
-    val directionMultiplier = if(toWarehouse) +1 else -1
-    val actionString = if(toWarehouse) "to the warehouse" else "aboard ship"
-    val amountAvailableToMove = (if(toWarehouse) Ship.commodities else Warehouse.commodities)[product]!!
-
-    if (amountAvailableToMove > 0) {
-        intInputLoop ("How much ${product.name} shall I move $actionString, Taipan?") {
-            if (it > amountAvailableToMove) {
-                println("You only have $amountAvailableToMove, Taipan.")
-            } else if (Warehouse.vacantCargoSpaces - it < 0) {
-                println("There's not enough space in the warehouse, Taipan!")
-            } else if (it >= 0) {
-                Ship.vacantCargoSpaces += directionMultiplier * it
-                Warehouse.vacantCargoSpaces -= directionMultiplier * it
-                Warehouse.commodities[product] = Warehouse.commodities[product]!! + directionMultiplier * it
-                Ship.commodities[product] = Ship.commodities[product]!! - directionMultiplier * it
-            }
-            false
-        }
-    }
-}
-
-/**
  * Returns `false` if the ship went down during combat.
  * Always check the output of this function and terminate the main loop if `false`.
  */
@@ -667,11 +641,31 @@ fun main() {
                     ) {
                         println("You have no cargo, Taipan.")
                     } else {
-                        for (commodity in Commodity.values()) {
-                            transferCargoHandler(commodity, toWarehouse = true)
-                        }
-                        for (commodity in Commodity.values()) {
-                            transferCargoHandler(commodity, toWarehouse = false)
+                        for (toWarehouse in listOf(true, false)) {
+                            for (commodity in Commodity.values()) {
+                                val directionMultiplier = if (toWarehouse) +1 else -1
+                                val actionString = if (toWarehouse) "to the warehouse" else "aboard ship"
+                                val amountAvailableToMove =
+                                    (if (toWarehouse) Ship.commodities else Warehouse.commodities)[commodity]!!
+
+                                if (amountAvailableToMove > 0) {
+                                    intInputLoop("How much ${commodity.name} shall I move $actionString, Taipan?") {
+                                        if (it > amountAvailableToMove) {
+                                            println("You only have $amountAvailableToMove, Taipan.")
+                                        } else if (Warehouse.vacantCargoSpaces - it < 0) {
+                                            println("There's not enough space in the warehouse, Taipan!")
+                                        } else if (it >= 0) {
+                                            Ship.vacantCargoSpaces += directionMultiplier * it
+                                            Warehouse.vacantCargoSpaces -= directionMultiplier * it
+                                            Warehouse.commodities[commodity] =
+                                                Warehouse.commodities[commodity]!! + directionMultiplier * it
+                                            Ship.commodities[commodity] =
+                                                Ship.commodities[commodity]!! - directionMultiplier * it
+                                        }
+                                        false
+                                    }
+                                }
+                            }
                         }
                     }
                 }
