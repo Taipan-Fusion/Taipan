@@ -83,7 +83,7 @@ object LiYuen {
 
 val monthNames = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 var month = 0
-var year = 1860
+var years = 0
 var chanceOfSeaEvent = 0.5
 var chanceOfPortEvent = 0.25
 var chanceOfPirateAttack = 0.3
@@ -615,7 +615,7 @@ fun main() {
             println("Cash: ${Ship.cash}")
             println("Debt: ${Ship.debt}")
             println("Location: ${Ship.location}")
-            println("Date: $monthName of $year")
+            println("Date: $monthName of $years")
             println("Ship---------------------------Ship")
             println("Cannons: ${Ship.cannons}")
             println("Health: ${Ship.health}")
@@ -706,7 +706,7 @@ fun main() {
             }
         }
 
-        var isPirateFleetLiYuen = Random.nextDouble() <= LiYuen.chanceOfAttack
+        val isPirateFleetLiYuen = Random.nextDouble() <= LiYuen.chanceOfAttack
 
         // Pirate attack by Li Yuen
         if (isPirateFleetLiYuen) {
@@ -761,11 +761,27 @@ fun main() {
         // Adjust values for next location.
         println("Arriving at ${Ship.location}")
         ++month
-        if (month == 0) ++year
+        if (month == 12) {
+            month = 0
+            ++years
+        }
         Ship.debt = (Ship.debt * 1.2).toInt()
         Ship.moneyInBank = (Ship.moneyInBank * 1.05).toInt()
     }
 
-    // TODO Retire/game terminated
-    println("Game terminated.")
+    val netWorth = Ship.cash + Ship.moneyInBank - Ship.debt
+    val score = netWorth / (years * 12 + month) / 100
+
+    println("FINAL STATS")
+    println("Net cash: $netWorth")
+    println("Ship size: ${Ship.cargoUnits} units with ${Ship.cannons} guns")
+    println("You traded for $years year(s)")
+    println("Your score is $score")
+    println("Rank: ${
+        if (score >= 50000) "Ma Tsu"
+        else if (score >= 8000) "Master Taipan"
+        else if (score >= 1000) "Taipan"
+        else if (score >= 500) "Compradore"
+        else "Galley Hand"
+    }")
 }
