@@ -1,3 +1,5 @@
+@file:Suppress("unused", "unused")
+
 package taipan
 
 import kotlin.math.roundToInt
@@ -67,7 +69,7 @@ object Warehouse {
         Commodity.General to 0
     )
     var vacantCargoSpaces = 10000
-    const val totalCargoSpaces = 10000
+    private const val totalCargoSpaces = 10000
 
     val occupiedCargoSpaces: Int
         get() = totalCargoSpaces - vacantCargoSpaces
@@ -264,7 +266,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
             when (it) {
                 "f" -> {
                     var numberSank = 0
-                    var preventMoreThanOneBooty: Boolean = true
+                    var preventMoreThanOneBooty = true
                     // Taipan is firing on the pirates
                     for (i in 1..Ship.cannons) {
                         val damageToPirateShip: Int =
@@ -527,7 +529,7 @@ fun main() {
             val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
             if (Random.nextDouble() <= 0.5) {
                 val gunCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.5 * 0.3).roundToInt()
-                boolInputLoop("Would you like another gun for ${gunCost} cash?") {
+                boolInputLoop("Would you like another gun for $gunCost cash?") {
                     if (it) {
                         if (Ship.vacantCargoSpaces < 10) {
                             println("Your ship will be overburdened, Taipan!")
@@ -543,7 +545,7 @@ fun main() {
             if (Random.nextDouble() <= 0.5) {
                 val shipCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.35).roundToInt()
                 if (Ship.health < 100) {
-                    boolInputLoop("Would you like to trade your damaged ship for ${shipCost} cash?") {
+                    boolInputLoop("Would you like to trade your damaged ship for $shipCost cash?") {
                         if (it) {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
@@ -552,7 +554,7 @@ fun main() {
                         false
                     }
                 } else {
-                    boolInputLoop("Would you like to trade your ship for ${shipCost} cash?") {
+                    boolInputLoop("Would you like to trade your ship for $shipCost cash?") {
                         if (it) {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
@@ -592,13 +594,11 @@ fun main() {
         Prices.isRandom = false
 
         if (Random.nextDouble() <= 0.98) {
-            // TODO Regular price
             Prices.commodities[Commodity.Opium] = priceGenerator(1000, 2)
             Prices.commodities[Commodity.Silk] = priceGenerator(100, 2)
             Prices.commodities[Commodity.Arms] = priceGenerator(10, 1)
             Prices.commodities[Commodity.General] = priceGenerator(1, 1)
         } else {
-            // TODO Random price
             Prices.commodities[Commodity.Opium] = randomPriceGenerator(1000)
             Prices.commodities[Commodity.Silk] = randomPriceGenerator(100)
             Prices.commodities[Commodity.Arms] = randomPriceGenerator(10)
@@ -706,10 +706,10 @@ fun main() {
             }
         }
 
-        // TODO Sea event
-        var isPirateFleetLiYuen = false
+        var isPirateFleetLiYuen = Random.nextDouble() <= LiYuen.chanceOfAttack
+
         // Pirate attack by Li Yuen
-        if (Random.nextDouble() <= LiYuen.chanceOfAttack) {
+        if (isPirateFleetLiYuen) {
             val number: Int = pirateGenerator(
                 floor((month + 1) / 4.0 + floor(Ship.cargoUnits / 50.0)).roundToInt(),
                 (10 + 2 * floor((month + 1) / 4.0 + Ship.cargoUnits / 50.0).roundToInt())
@@ -717,7 +717,6 @@ fun main() {
 
             println("Li Yuen's pirates, Taipan!")
             println("$number ships of Li Yuen's pirate fleet!")
-            isPirateFleetLiYuen = true
 
             if (!combat(
                 2.0,
