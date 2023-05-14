@@ -1,6 +1,5 @@
 package taipan
 
-import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.math.pow
@@ -51,23 +50,17 @@ object Ship {
 }
 
 object Prices {
-    val randomMultipliers = mapOf(
-        Commodity.Opium to 1000,
-        Commodity.Silk to 100,
-        Commodity.Arms to 10,
-        Commodity.General to 1
-    )
     var commodities = mutableMapOf(
         Commodity.Opium to 1000,
         Commodity.Silk to 100,
         Commodity.Arms to 10,
         Commodity.General to 1
     )
-    var isRandom: Boolean = false
+    var isRandom = false
 }
 
 object Warehouse {
-    var commodities: MutableMap<Commodity, Int> = mutableMapOf(
+    var commodities = mutableMapOf(
         Commodity.Opium to 0,
         Commodity.Silk to 0,
         Commodity.Arms to 0,
@@ -94,7 +87,6 @@ var chanceOfPortEvent = 0.25
 var chanceOfPirateAttack = 0.3
 var chanceOfStorm = 0.11
 
-// Originally gameAttributes.monthLabel
 val monthName: String
     get() = monthNames[month]
 
@@ -257,12 +249,14 @@ fun transferCargoHandler(product: Commodity, toWarehouse: Boolean) {
 fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pirateResistanceC: Double): Boolean {
     val pirateList =
         MutableList(numberOfPirates) {
-            (20 *
-                            (Random.nextDouble() + 0.5) *
-                            (globalMultiplier + 0.6) *
-                            (pirateResistanceC + 0.5))
-                    .roundToInt()
+            (
+                20
+                * (Random.nextDouble() + 0.5)
+                * (globalMultiplier + 0.6)
+                * (pirateResistanceC + 0.5)
+            ).roundToInt()
         }
+
     combatloop@while (true) {
         var num = pirateList.size
         println("$num ships attacking, Taipan!")
@@ -298,7 +292,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                         println("We got $booty in booty, Taipan!")
                         preventMoreThanOneBooty = false
                     }
-                    if (numberSank >= floor(0.5 * num) && !pirateList.isEmpty()) {
+                    if (numberSank >= floor(0.5 * num) && pirateList.isNotEmpty()) {
                         val numberRanAway =
                                 pirateGenerator(1 + (0.1 * num).roundToInt(), 1 + floor((0.35 * num)).roundToInt())
                         println("$numberRanAway buggers ran away, Taipan!")
@@ -345,18 +339,20 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                 else -> true
             }
         }
+
         if (pirateList.size <= 0) {
             break@combatloop
         }
-        println("${pirateList}")
+        println("$pirateList")
         val damageToPlayerShip: Int =
-                ((25 + month) / Ship.cargoUnits.toDouble().pow(1.11) *
-                                (damageC + 0.5) *
-                                (Random.nextDouble() + 1) *
-                                numberOfPirates.toDouble().pow(0.7) *
-                                5 *
-                                num / numberOfPirates)
-                        .roundToInt()
+            (
+                (25 + month) / Ship.cargoUnits.toDouble().pow(1.11)
+                * (damageC + 0.5)
+                * (Random.nextDouble() + 1)
+                * numberOfPirates.toDouble().pow(0.7)
+                * 5
+               * num / numberOfPirates
+            ).roundToInt()
 
         println("They're firing on us, Taipan!")
 
@@ -368,10 +364,12 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
             println("We took $damageToPlayerShip damage, Taipan!")
             Ship.health -= damageToPlayerShip
         }
+
         println("Ship---------------------------Ship")
         println("Cannons: ${Ship.cannons}")
         println("Health: ${Ship.health}")
         println("Units: ${Ship.cargoUnits}")
+
         if (Ship.health <= 0) {
             println("The buggers got us, Taipan!!")
             println("It's all over, Taipan!!")
@@ -379,13 +377,14 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
             return false
         }
     }
+
     return true
 }
 
 fun main() {
     println("Welcome to Taipan!")
 
-    // This is the main loop, each iteration of which is a different port.
+    // Each iteration is a different port.
     mainLoop@while (true) {
         // The shipyard and moneylender only bother you if you're in Hong Kong.
         if (Ship.location == Location.HongKong) {
@@ -409,10 +408,9 @@ fun main() {
                     else
                         "What a mighty fine ship you have there, matey! Or, shall I say, had... It could really use some of what I call \"Tender Love n' Care\". 'Tis but a scratch, as they say, but I take any job, no matter how small. For a price, that is!"
                 )
-                println("I'll fix you up to full workin' order for $shipFixPrice pound sterling>>")
-                println("Taipan, how much will you pay Captain McHenry? You have ${Ship.cash} pound sterling on hand.")
+                println("I'll fix you up to full workin' order for $shipFixPrice pound sterling.")
 
-                intInputLoop (">> ") payCaptain@{ amountPaid ->
+                intInputLoop ("Taipan, how much will you pay Captain McHenry? You have ${Ship.cash} pound sterling on hand.") payCaptain@{ amountPaid ->
 
                     if (amountPaid > Ship.cash) {
                         println("Taipan, you only have ${Ship.cash} cash.")
@@ -529,7 +527,7 @@ fun main() {
             val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
             if (Random.nextDouble() <= 0.5) {
                 val gunCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.5 * 0.3).roundToInt()
-                boolInputLoop("Would you like another gun for ${gunCost} cash?") { 
+                boolInputLoop("Would you like another gun for ${gunCost} cash?") {
                     if (it) {
                         if (Ship.vacantCargoSpaces < 10) {
                             println("Your ship will be overburdened, Taipan!")
@@ -567,21 +565,21 @@ fun main() {
             if (Random.nextDouble() <= (Ship.commodities[Commodity.Opium]!! + Warehouse.commodities[Commodity.Opium]!!) / (Ship.vacantCargoSpaces + Warehouse.vacantCargoSpaces)) {
                 when (Random.nextInt(1,3)) {
                     1 -> {
-                        println("Taipan! Robbers raided the ship while you were away and took ${amount} pound sterling!")
-                        Ship.cash = (Ship.cash - amount).toInt()
+                        println("Taipan! Robbers raided the ship while you were away and took $amount pound sterling!")
+                        Ship.cash -= amount
                     }
                     2 -> {
                         if (Ship.commodities[Commodity.Opium]!! > 0.25 * Ship.vacantCargoSpaces) {
-                            println("Taipan! The police got to the ship while you were out trading and confiscated ${amountOfOpiumLost} units of opium!")
-                            Ship.commodities[Commodity.Opium] = (Ship.commodities[Commodity.Opium]!! - amountOfOpiumLost).toInt()
+                            println("Taipan! The police got to the ship while you were out trading and confiscated $amountOfOpiumLost units of opium!")
+                            Ship.commodities[Commodity.Opium] = Ship.commodities[Commodity.Opium]!! - amountOfOpiumLost
                         } else {
                             println("Taipan! The police got to the ship while you were out trading, looking for opium. We didn't have enough to arouse suspicion; maybe you should buy some!")
                         }
                     }
                     3 -> {
                         if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.vacantCargoSpaces) {
-                            println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated ${amountOfWarehouseOpiumLost} units of opium!")
-                            Warehouse.commodities[Commodity.Opium] = (Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost).toInt()
+                            println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated $amountOfWarehouseOpiumLost units of opium!")
+                            Warehouse.commodities[Commodity.Opium] = Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost
                         } else {
                             println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
                         }
@@ -712,12 +710,15 @@ fun main() {
         var isPirateFleetLiYuen = false
         // Pirate attack by Li Yuen
         if (Random.nextDouble() <= LiYuen.chanceOfAttack) {
-            var number: Int = pirateGenerator(
-                            floor((month + 1) / 4.0 + floor(Ship.cargoUnits / 50.0)).roundToInt(),
-                            (10 + 2 * floor((month + 1) / 4.0 + Ship.cargoUnits / 50.0).roundToInt()))
+            val number: Int = pirateGenerator(
+                floor((month + 1) / 4.0 + floor(Ship.cargoUnits / 50.0)).roundToInt(),
+                (10 + 2 * floor((month + 1) / 4.0 + Ship.cargoUnits / 50.0).roundToInt())
+            )
+
             println("Li Yuen's pirates, Taipan!")
-            println("${number} ships of Li Yuen's pirate fleet!")
+            println("$number ships of Li Yuen's pirate fleet!")
             isPirateFleetLiYuen = true
+
             if (!combat(
                 2.0,
                 0.2,
@@ -729,13 +730,14 @@ fun main() {
             LiYuen.chanceOfAttack = 0.5
             LiYuen.chanceOfExtortion = 0.8
         }
+
         // Other pirate attack
         if (Random.nextDouble() <= chanceOfPirateAttack && !isPirateFleetLiYuen) {
-            var number: Int = pirateGenerator(
+            val number: Int = pirateGenerator(
                 floor((month + 1) / 6.0 + floor(Ship.cargoUnits / 100.0)).roundToInt(),
                 (5 + 2 * floor((month + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt() + floor(Ship.commodities[Commodity.Opium]!!.toDouble() * 0.1 * Random.nextDouble()).roundToInt())
             )
-            println("${number} hostile ships approaching, Taipan!")
+            println("$number hostile ships approaching, Taipan!")
             combat(1.5, 0.1, number, 1.5)
             chanceOfPirateAttack = (Random.nextDouble() + 0.05 + Ship.commodities[Commodity.Opium]!!.toDouble() / Ship.vacantCargoSpaces.toDouble()) * 0.25
         }
