@@ -87,7 +87,7 @@ object Finance {
 
 val monthNames = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 var month = 0
-var years = 0
+var years = 1860
 
 val monthName: String
     get() = monthNames[month]
