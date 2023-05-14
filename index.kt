@@ -616,7 +616,7 @@ fun main() {
             val inHongKong = Ship.location == Location.HongKong
 
             // Prompt the user.
-            when (input("Shall I Buy, Sell, Visit Bank, Transfer Cargo, Quit Trading, or Retire?")) {
+            when (input("Shall I Buy, Sell, ${if (Ship.location == Location.HongKong) "Visit Bank, Transfer Cargo, Quit Trading, or Retire?" else "Quit Trading?"}")) {
                 "b" -> exchangeHandler(buying = true)
                 "s" -> exchangeHandler(buying = false)
                 "v" -> if (inHongKong) {
