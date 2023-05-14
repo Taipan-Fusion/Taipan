@@ -92,6 +92,7 @@ var year = 1860
 var chanceOfSeaEvent = 0.5
 var chanceOfPortEvent = 0.25
 var chanceOfPirateAttack = 0.3
+var chanceOfStorm = 0.11
 
 // Originally gameAttributes.monthLabel
 val monthName: String
@@ -509,30 +510,70 @@ fun main() {
 
         // TODO TEST Port event
         if (Random.nextDouble() <= chanceOfPortEvent) {
-            //Options: Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
-            val severity = Random.nextDouble(10.0, 70.0)
-            when (Random.nextInt(1,3)) {
-                1 -> {
-                    println("Taipan! Robbers raided the ship while you were away and took ${Ship.cash * severity} pound sterling!")
-                    Ship.cash = (Ship.cash - Ship.cash * severity).toInt()
-                }
-                2 -> {
-                    if (Ship.commodities[Commodity.Opium]!! > 10) {
-                        println("Taipan! The police got to the ship while you were out trading and confiscated ${Ship.commodities[Commodity.Opium]!! * severity} units of opium!")
-                        Ship.commodities[Commodity.Opium] = (Ship.commodities[Commodity.Opium]!! - Ship.commodities[Commodity.Opium]!! * severity).toInt()
-                    } else {
-                        println("Taipan! The police got to the ship while you were out trading, looking for opium. We didn't have enough to arouse suspicion, maybe you should buy some!")
+            //Options: More guns, A new ship, Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
+            val severity = Random.nextDouble(0.01, 1.0)
+            val amount = (Ship.cash * severity).roundToInt()
+            val amountOfOpiumLost = (Ship.commodities[Commodity.Opium]!! * severity).roundToInt()
+            val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
+            if (Random.nextDouble() <= 0.5) {
+                val gunCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.5 * 0.3).roundToInt()
+                boolInputLoop("Would you like another gun for ${gunCost}?") { 
+                    if (it) {
+                        if (Ship.vacantCargoSpaces < 10) {
+                            println("Your ship will be overburdened, Taipan!")
+                        } else {
+                            Ship.cannons++
+                            Ship.vacantCargoSpaces -= 10
+                        }
                     }
-                }
-                3 -> {
-                    if (Warehouse.commodities[Commodity.Opium]!! > 5) {
-                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated ${Warehouse.commodities[Commodity.Opium]!! * severity} units of opium!")
-                        Warehouse.commodities[Commodity.Opium] = (Warehouse.commodities[Commodity.Opium]!! - Warehouse.commodities[Commodity.Opium]!! * severity).toInt()
-                    } else {
-                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub")
+                    false
+                 }
+            }
+            if (Random.nextDouble() <= 0.5) {
+                val shipCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.35).roundToInt()
+                if (Ship.health < 100) {
+                    boolInputLoop("Would you like to trade your damaged ship for ${shipCost}?") {
+                        if (it) {
+                            Ship.cannons++
+                            Ship.vacantCargoSpaces -= 10
+                        }
+                        false
+                    }
+                } else {
+                    boolInputLoop("Would you like to trade your ship for ${shipCost}?") {
+                        if (it) {
+                            Ship.cannons++
+                            Ship.vacantCargoSpaces -= 10
+                        }
+                        false
                     }
                 }
             }
+            if (Random.nextDouble() <= (Ship.commodities[Commodity.Opium]!! + Warehouse.commodities[Commodity.Opium]!!) / (Ship.vacantCargoSpaces + Warehouse.vacantCargoSpaces)) {
+                when (Random.nextInt(1,3)) {
+                    1 -> {
+                        println("Taipan! Robbers raided the ship while you were away and took ${amount} pound sterling!")
+                        Ship.cash = (Ship.cash - amount).toInt()
+                    }
+                    2 -> {
+                        if (Ship.commodities[Commodity.Opium]!! > 0.25 * Ship.vacantCargoSpaces) {
+                            println("Taipan! The police got to the ship while you were out trading and confiscated ${amountOfOpiumLost} units of opium!")
+                            Ship.commodities[Commodity.Opium] = (Ship.commodities[Commodity.Opium]!! - amountOfOpiumLost).toInt()
+                        } else {
+                            println("Taipan! The police got to the ship while you were out trading, looking for opium. We didn't have enough to arouse suspicion; maybe you should buy some!")
+                        }
+                    }
+                    3 -> {
+                        if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.vacantCargoSpaces) {
+                            println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated ${amountOfWarehouseOpiumLost} units of opium!")
+                            Warehouse.commodities[Commodity.Opium] = (Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost).toInt()
+                        } else {
+                            println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
+                        }
+                    }
+                }
+            }
+            chanceOfPortEvent = (Random.nextDouble() + 0.5) * 0.5
         }
 
         Prices.isRandom = false
@@ -661,19 +702,22 @@ fun main() {
             )){
                 break@mainLoop
             }
+            LiYuen.chanceOfAttack = 0.5
+            LiYuen.chanceOfExtortion = 0.8
         }
         // Other pirate attack
         if (Random.nextDouble() <= chanceOfPirateAttack && !isPirateFleetLiYuen) {
             var number: Int = pirateGenerator(
                 floor((month + 1) / 6.0 + floor(Ship.cargoUnits / 100.0)).roundToInt(),
-                (5 + 2 * floor((month + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt())
+                (5 + 2 * floor((month + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt() + floor(Ship.commodities[Commodity.Opium]!!.toDouble() * 0.1 * Random.nextDouble()).roundToInt())
             )
             println("${number} hostile ships approaching, Taipan!")
             combat(1.5, 0.1, number, 1.5)
+            chanceOfPirateAttack = (Random.nextDouble() + 0.05 + Ship.commodities[Commodity.Opium]!!.toDouble() / Ship.vacantCargoSpaces.toDouble()) * 0.25
         }
 
         // Storm
-        if (Random.nextDouble() <= 0.3) {
+        if (Random.nextDouble() <= chanceOfStorm) {
             println("Storm, Taipan!")
             if (Random.nextDouble() <= (100.0 - Ship.health) / 1000.0) {
                 println("We're going down, Taipan!")
@@ -685,6 +729,7 @@ fun main() {
                     Ship.location = Location.values().random()
                     println("We've been blown off course to ${Ship.location}")
                 }
+                chanceOfStorm = (Random.nextDouble() + 0.05) * 0.5
             }
         }
         
