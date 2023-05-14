@@ -1,5 +1,3 @@
-@file:Suppress("unused", "unused")
-
 package taipan
 
 import kotlin.math.roundToInt
@@ -45,20 +43,7 @@ object Ship {
         Commodity.Arms to 0,
         Commodity.General to 0
     )
-    var moneyInBank = 0
-    var cash = 500
-    var debt = 5000
     var location = Location.HongKong
-}
-
-object Prices {
-    var commodities = mutableMapOf(
-        Commodity.Opium to 1000,
-        Commodity.Silk to 100,
-        Commodity.Arms to 10,
-        Commodity.General to 1
-    )
-    var isRandom = false
 }
 
 object Warehouse {
@@ -81,13 +66,28 @@ object LiYuen {
     var extortionMultiplier = 1.0
 }
 
+object Probabilities {
+    var portEvent = 0.25
+    var pirateAttack = 0.3
+    var storm = 0.11
+}
+
+object Finance {
+    val prices = mutableMapOf(
+        Commodity.Opium to 1000,
+        Commodity.Silk to 100,
+        Commodity.Arms to 10,
+        Commodity.General to 1
+    )
+
+    var moneyInBank = 0
+    var cash = 500
+    var debt = 5000
+}
+
 val monthNames = listOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 var month = 0
 var years = 0
-var chanceOfSeaEvent = 0.5
-var chanceOfPortEvent = 0.25
-var chanceOfPirateAttack = 0.3
-var chanceOfStorm = 0.11
 
 val monthName: String
     get() = monthNames[month]
@@ -185,9 +185,9 @@ fun exchangeHandler(buying: Boolean) {
     inputLoop ("What do you wish to $actionString, Taipan?") whichCommodity@{ commodity ->
         try {
             val product = Commodity.fromAbbreviation(commodity)
-            val priceOfProduct = Prices.commodities[product]!!
+            val priceOfProduct = Finance.prices[product]!!
             val directionMultiplier = if(buying) +1 else -1
-            val numberOfProductsAffordable = Ship.cash / priceOfProduct
+            val numberOfProductsAffordable = Finance.cash / priceOfProduct
 
             intInputLoop ("How many units of ${product.name} do you want to $actionString?${(if(buying) " You can afford $numberOfProductsAffordable." else "") + ""}") {
                 // `it` is the number of products to buy/sell
@@ -205,7 +205,7 @@ fun exchangeHandler(buying: Boolean) {
                     true
                 } else if (it >= 0) {
                     Ship.commodities[product] = Ship.commodities[product]!! + directionMultiplier * it
-                    Ship.cash -= directionMultiplier * it * priceOfProduct
+                    Finance.cash -= directionMultiplier * it * priceOfProduct
                     Ship.vacantCargoSpaces -= directionMultiplier * it
                     false
                 } else true
@@ -259,7 +259,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
             ).roundToInt()
         }
 
-    combatloop@while (true) {
+    combatLoop@while (true) {
         var num = pirateList.size
         println("$num ships attacking, Taipan!")
         inputLoop("Shall we fight or run, Taipan? ") {
@@ -290,7 +290,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                         val booty: Int =
                                 (numberOfPirates * Random.nextInt(5, 50) * Random.nextInt(1, 10) * (month + 1) / 4 +
                                         250)
-                        Ship.cash += booty
+                        Finance.cash += booty
                         println("We got $booty in booty, Taipan!")
                         preventMoreThanOneBooty = false
                     }
@@ -308,7 +308,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                         val booty: Int =
                                 (numberOfPirates * Random.nextInt(5, 50) * Random.nextInt(1, 10) * (month + 1) / 4 +
                                         250)
-                        Ship.cash += booty
+                        Finance.cash += booty
                         println("We got $booty in booty, Taipan!")
                     }
 
@@ -343,7 +343,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
         }
 
         if (pirateList.size <= 0) {
-            break@combatloop
+            break@combatLoop
         }
         println("$pirateList")
         val damageToPlayerShip: Int =
@@ -412,20 +412,20 @@ fun main() {
                 )
                 println("I'll fix you up to full workin' order for $shipFixPrice pound sterling.")
 
-                intInputLoop ("Taipan, how much will you pay Captain McHenry? You have ${Ship.cash} pound sterling on hand.") payCaptain@{ amountPaid ->
+                intInputLoop ("Taipan, how much will you pay Captain McHenry? You have ${Finance.cash} pound sterling on hand.") payCaptain@{ amountPaid ->
 
-                    if (amountPaid > Ship.cash) {
-                        println("Taipan, you only have ${Ship.cash} cash.")
+                    if (amountPaid > Finance.cash) {
+                        println("Taipan, you only have ${Finance.cash} cash.")
                         true
                     } else if (amountPaid > shipFixPrice) {
                         // If the player paid what the captain asked for, completely repair the ship
                         Ship.health = 100
-                        Ship.cash -= amountPaid
+                        Finance.cash -= amountPaid
                         false
                     } else if (amountPaid >= 0) {
                         // If the player pays x% of what was asked, repair x% of the damaged ship
                         Ship.health += (100 - Ship.health) * amountPaid / shipFixPrice
-                        Ship.cash -= amountPaid
+                        Finance.cash -= amountPaid
                         false
                     } else true
                 }
@@ -436,18 +436,18 @@ fun main() {
             if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
                 val amountRequested = (
                     1.1 * LiYuen.extortionMultiplier
-                    * Ship.cash
+                    * Finance.cash
                     * (Random.nextDouble() + 0.1)
                 ).roundToInt()
                 boolInputLoop ("Li Yuen asks $amountRequested in donation to the temple of Tin Hau, the Sea Goddess. Will you pay?") willYouPay@{
                     if (it) {
-                        if (amountRequested > Ship.cash) {
+                        if (amountRequested > Finance.cash) {
                             var iWouldBeWaryOfPirates = false
 
                             boolInputLoop ("Taipan! You do not have enough cash! Do you want Elder Brother Wu to make up the difference?") doYouWantWu@{ makeUpDifference ->
                                 if (makeUpDifference) {
-                                    Ship.debt += amountRequested - Ship.cash
-                                    Ship.cash = 0
+                                    Finance.debt += amountRequested - Finance.cash
+                                    Finance.cash = 0
                                     println("Elder Brother Wu has given Li Yuen the difference, which will be added to your debt.")
                                 } else {
                                     println("The difference will not be paid! Elder Brother Wu says, 'I would be wary of pirates if I were you, Taipan!'")
@@ -464,7 +464,7 @@ fun main() {
                             LiYuen.chanceOfAttack = 0.025
                             LiYuen.extortionMultiplier = 1.0
                         } else {
-                            Ship.cash -= amountRequested
+                            Finance.cash -= amountRequested
                             LiYuen.chanceOfExtortion = 0.05
                             LiYuen.chanceOfAttack = 0.01
                             LiYuen.extortionMultiplier = 1.0
@@ -483,34 +483,34 @@ fun main() {
             // Money lender
             boolInputLoop ("Do you have business with Elder Brother Wu, the moneylender?") {
                 if (it) {
-                    if (Ship.debt > 0) {
+                    if (Finance.debt > 0) {
                         intInputLoop("How much do you wish to repay him?") { 
-                            repayAmount -> if (repayAmount > Ship.cash || repayAmount < 0) {
+                            repayAmount -> if (repayAmount > Finance.cash || repayAmount < 0) {
                                 println("You can't do that, Taipan!")
                                 true
                             } else {
-                                if (repayAmount > Ship.debt) {
-                                    Ship.cash -= repayAmount
-                                    Ship.debt = 0
+                                if (repayAmount > Finance.debt) {
+                                    Finance.cash -= repayAmount
+                                    Finance.debt = 0
                                 } else {
-                                    Ship.cash -= repayAmount
-                                    Ship.debt -= repayAmount
+                                    Finance.cash -= repayAmount
+                                    Finance.debt -= repayAmount
                                 }
                                 false
                             }        
                         }
                     }
-                    if (Ship.cash > 0) {
+                    if (Finance.cash > 0) {
                         intInputLoop("How much do wish to borrow?") {
-                            borrowAmount -> if (borrowAmount > Ship.cash) {
+                            borrowAmount -> if (borrowAmount > Finance.cash) {
                                 println("He won't loan you so much, Taipan!")
                                 true
                             } else if (borrowAmount < 0) {
                                 println("You can't do that, Taipan!")
                                 true
                             } else {
-                                Ship.cash += borrowAmount
-                                Ship.debt += borrowAmount
+                                Finance.cash += borrowAmount
+                                Finance.debt += borrowAmount
                                 false
                             }
                         }
@@ -521,14 +521,14 @@ fun main() {
         }
 
         // TODO TEST Port event
-        if (Random.nextDouble() <= chanceOfPortEvent) {
+        if (Random.nextDouble() <= Probabilities.portEvent) {
             //Options: More guns, A new ship, Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
             val severity = Random.nextDouble(0.01, 1.0)
-            val amount = (Ship.cash * severity).roundToInt()
+            val amount = (Finance.cash * severity).roundToInt()
             val amountOfOpiumLost = (Ship.commodities[Commodity.Opium]!! * severity).roundToInt()
             val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
             if (Random.nextDouble() <= 0.5) {
-                val gunCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.5 * 0.3).roundToInt()
+                val gunCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.5 * 0.3).roundToInt()
                 boolInputLoop("Would you like another gun for $gunCost cash?") {
                     if (it) {
                         if (Ship.vacantCargoSpaces < 10) {
@@ -536,20 +536,20 @@ fun main() {
                         } else {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
-                            Ship.cash -= gunCost
+                            Finance.cash -= gunCost
                         }
                     }
                     false
                  }
             }
             if (Random.nextDouble() <= 0.5) {
-                val shipCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.35).roundToInt()
+                val shipCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.35).roundToInt()
                 if (Ship.health < 100) {
                     boolInputLoop("Would you like to trade your damaged ship for $shipCost cash?") {
                         if (it) {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
-                            Ship.cash -= shipCost
+                            Finance.cash -= shipCost
                         }
                         false
                     }
@@ -558,7 +558,7 @@ fun main() {
                         if (it) {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
-                            Ship.cash -= shipCost
+                            Finance.cash -= shipCost
                         }
                         false
                     }
@@ -568,7 +568,7 @@ fun main() {
                 when (Random.nextInt(1,3)) {
                     1 -> {
                         println("Taipan! Robbers raided the ship while you were away and took $amount pound sterling!")
-                        Ship.cash -= amount
+                        Finance.cash -= amount
                     }
                     2 -> {
                         if (Ship.commodities[Commodity.Opium]!! > 0.25 * Ship.vacantCargoSpaces) {
@@ -588,22 +588,19 @@ fun main() {
                     }
                 }
             }
-            chanceOfPortEvent = (Random.nextDouble() + 0.5) * 0.5
+            Probabilities.portEvent = (Random.nextDouble() + 0.5) * 0.5
         }
 
-        Prices.isRandom = false
-
         if (Random.nextDouble() <= 0.98) {
-            Prices.commodities[Commodity.Opium] = priceGenerator(1000, 2)
-            Prices.commodities[Commodity.Silk] = priceGenerator(100, 2)
-            Prices.commodities[Commodity.Arms] = priceGenerator(10, 1)
-            Prices.commodities[Commodity.General] = priceGenerator(1, 1)
+            Finance.prices[Commodity.Opium] = priceGenerator(1000, 2)
+            Finance.prices[Commodity.Silk] = priceGenerator(100, 2)
+            Finance.prices[Commodity.Arms] = priceGenerator(10, 1)
+            Finance.prices[Commodity.General] = priceGenerator(1, 1)
         } else {
-            Prices.commodities[Commodity.Opium] = randomPriceGenerator(1000)
-            Prices.commodities[Commodity.Silk] = randomPriceGenerator(100)
-            Prices.commodities[Commodity.Arms] = randomPriceGenerator(10)
-            Prices.commodities[Commodity.General] = randomPriceGenerator(1)
-            Prices.isRandom = true
+            Finance.prices[Commodity.Opium] = randomPriceGenerator(1000)
+            Finance.prices[Commodity.Silk] = randomPriceGenerator(100)
+            Finance.prices[Commodity.Arms] = randomPriceGenerator(10)
+            Finance.prices[Commodity.General] = randomPriceGenerator(1)
             println("Taipan!!!")
             println("Prices are wild!!!")
         }
@@ -611,9 +608,9 @@ fun main() {
         tradingLoop@while (true) {
             // Display all known information.
             println("Player---------------------------Player")
-            println("Bank: ${Ship.moneyInBank}")
-            println("Cash: ${Ship.cash}")
-            println("Debt: ${Ship.debt}")
+            println("Bank: ${Finance.moneyInBank}")
+            println("Cash: ${Finance.cash}")
+            println("Debt: ${Finance.debt}")
             println("Location: ${Ship.location}")
             println("Date: $monthName of $years")
             println("Ship---------------------------Ship")
@@ -633,7 +630,7 @@ fun main() {
             println("Prices-----------------------------Prices")
             println("Taipan, prices per unit here are:")
             for (commodity in Commodity.values()) {
-                println("${commodity.name}: ${Prices.commodities[commodity]}")
+                println("${commodity.name}: ${Finance.prices[commodity]}")
             }
 
             val inHongKong = Ship.location == Location.HongKong
@@ -644,22 +641,22 @@ fun main() {
                 "s" -> exchangeHandler(buying = false)
                 "v" -> if (inHongKong) {
                     intInputLoop ("How much will you deposit?") { cashToDeposit ->
-                        if (cashToDeposit > Ship.cash) {
-                            println("Taipan, you only have ${Ship.cash} in your wallet.")
+                        if (cashToDeposit > Finance.cash) {
+                            println("Taipan, you only have ${Finance.cash} in your wallet.")
                             true
                         } else if (cashToDeposit >= 0) {
-                            Ship.cash -= cashToDeposit
-                            Ship.moneyInBank += cashToDeposit
+                            Finance.cash -= cashToDeposit
+                            Finance.moneyInBank += cashToDeposit
                             false
                         } else false
                     }
                     intInputLoop ("How much will you withdraw?") { cashToWithdraw ->
-                        if (cashToWithdraw > Ship.moneyInBank) {
-                            println("Taipan, you only have ${Ship.moneyInBank} in your bank.")
+                        if (cashToWithdraw > Finance.moneyInBank) {
+                            println("Taipan, you only have ${Finance.moneyInBank} in your bank.")
                             true
                         } else if (cashToWithdraw >= 0) {
-                            Ship.cash += cashToWithdraw
-                            Ship.moneyInBank -= cashToWithdraw
+                            Finance.cash += cashToWithdraw
+                            Finance.moneyInBank -= cashToWithdraw
                             false
                         } else false
                     }
@@ -700,7 +697,7 @@ fun main() {
                     }
                     break
                 }
-                "r" -> if (inHongKong && Ship.moneyInBank + Ship.cash >= 1000000) {
+                "r" -> if (inHongKong && Finance.moneyInBank + Finance.cash >= 1000000) {
                     break@mainLoop
                 }
             }
@@ -731,18 +728,18 @@ fun main() {
         }
 
         // Other pirate attack
-        if (Random.nextDouble() <= chanceOfPirateAttack && !isPirateFleetLiYuen) {
+        if (Random.nextDouble() <= Probabilities.pirateAttack && !isPirateFleetLiYuen) {
             val number: Int = pirateGenerator(
                 floor((month + 1) / 6.0 + floor(Ship.cargoUnits / 100.0)).roundToInt(),
                 (5 + 2 * floor((month + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt() + floor(Ship.commodities[Commodity.Opium]!!.toDouble() * 0.1 * Random.nextDouble()).roundToInt())
             )
             println("$number hostile ships approaching, Taipan!")
             combat(1.5, 0.1, number, 1.5)
-            chanceOfPirateAttack = (Random.nextDouble() + 0.05 + Ship.commodities[Commodity.Opium]!!.toDouble() / Ship.vacantCargoSpaces.toDouble()) * 0.25
+            Probabilities.pirateAttack = (Random.nextDouble() + 0.05 + Ship.commodities[Commodity.Opium]!!.toDouble() / Ship.vacantCargoSpaces.toDouble()) * 0.25
         }
 
         // Storm
-        if (Random.nextDouble() <= chanceOfStorm) {
+        if (Random.nextDouble() <= Probabilities.storm) {
             println("Storm, Taipan!")
             if (Random.nextDouble() <= (100.0 - Ship.health) / 1000.0) {
                 println("We're going down, Taipan!")
@@ -754,7 +751,7 @@ fun main() {
                     Ship.location = Location.values().random()
                     println("We've been blown off course to ${Ship.location}")
                 }
-                chanceOfStorm = (Random.nextDouble() + 0.05) * 0.5
+                Probabilities.storm = (Random.nextDouble() + 0.05) * 0.5
             }
         }
         
@@ -765,11 +762,11 @@ fun main() {
             month = 0
             ++years
         }
-        Ship.debt = (Ship.debt * 1.2).toInt()
-        Ship.moneyInBank = (Ship.moneyInBank * 1.05).toInt()
+        Finance.debt = (Finance.debt * 1.2).toInt()
+        Finance.moneyInBank = (Finance.moneyInBank * 1.05).toInt()
     }
 
-    val netWorth = Ship.cash + Ship.moneyInBank - Ship.debt
+    val netWorth = Finance.cash + Finance.moneyInBank - Finance.debt
     val score = netWorth / (years * 12 + month) / 100
 
     println("FINAL STATS")
