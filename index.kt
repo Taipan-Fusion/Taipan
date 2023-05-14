@@ -146,11 +146,12 @@ fun boolInputLoop(prompt: String, handler: (Boolean) -> Boolean) {
 
 fun priceGenerator(max: Int, mul: Int): Int =
     (
-        ((10 * mul)..(50 * mul))
+        ((5 * mul)..(25 * mul))
             .random()
             .toDouble()
         * max.toDouble()
         * globalMultiplier
+        * 1 / mul
     ).roundToInt()
 
 fun pirateGenerator(min: Int, max: Int): Int =
@@ -194,7 +195,7 @@ fun exchangeHandler(buying: Boolean) {
             val directionMultiplier = if(buying) +1 else -1
             val numberOfProductsAffordable = Ship.cash / priceOfProduct
 
-            intInputLoop ("How many units of ${product.name} do you want to $actionString? ${(if(buying) "You can afford $numberOfProductsAffordable" else "") + "."}") {
+            intInputLoop ("How many units of ${product.name} do you want to $actionString?${(if(buying) " You can afford $numberOfProductsAffordable." else "") + ""}") {
                 // `it` is the number of products to buy/sell
 
                 if (
@@ -269,19 +270,13 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
             when (it) {
                 "f" -> {
                     var numberSank = 0
+                    var preventMoreThanOneBooty: Boolean = true
                     // Taipan is firing on the pirates
                     for (i in 1..Ship.cannons) {
                         val damageToPirateShip: Int =
                                 ((Random.nextDouble(0.0, 1.0) + 0.3) * 50 * (1.5 * globalMultiplier - 0.5))
                                         .roundToInt()
                         if (pirateList.isEmpty()) {
-                            println("Sank $numberSank buggers, Taipan!")
-                            println("We got them all, Taipan!")
-                            val booty: Int =
-                                    (numberOfPirates * Random.nextInt(5, 50) * Random.nextInt(1, 10) * (month + 1) / 4 +
-                                            250)
-                            Ship.cash += booty
-                            println("We got $booty in booty, Taipan!")
                             break
                         }
 
@@ -294,13 +289,14 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                         }
                     }
                     println("Sank $numberSank buggers, Taipan!")
-                    if (pirateList.size <= 0) {
+                    if (pirateList.size <= 0 && preventMoreThanOneBooty) {
                         println("We got them all, Taipan!")
                         val booty: Int =
                                 (numberOfPirates * Random.nextInt(5, 50) * Random.nextInt(1, 10) * (month + 1) / 4 +
                                         250)
                         Ship.cash += booty
                         println("We got $booty in booty, Taipan!")
+                        preventMoreThanOneBooty = false
                     }
                     if (numberSank >= floor(0.5 * num) && !pirateList.isEmpty()) {
                         val numberRanAway =
@@ -311,7 +307,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                             pirateList.removeLast()
                         }
                     }
-                    if (pirateList.size <= 0) {
+                    if (pirateList.size <= 0 && preventMoreThanOneBooty) {
                         println("We got them all, Taipan!")
                         val booty: Int =
                                 (numberOfPirates * Random.nextInt(5, 50) * Random.nextInt(1, 10) * (month + 1) / 4 +
@@ -533,13 +529,14 @@ fun main() {
             val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
             if (Random.nextDouble() <= 0.5) {
                 val gunCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.5 * 0.3).roundToInt()
-                boolInputLoop("Would you like another gun for ${gunCost}?") { 
+                boolInputLoop("Would you like another gun for ${gunCost} cash?") { 
                     if (it) {
                         if (Ship.vacantCargoSpaces < 10) {
                             println("Your ship will be overburdened, Taipan!")
                         } else {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
+                            Ship.cash -= gunCost
                         }
                     }
                     false
@@ -548,18 +545,20 @@ fun main() {
             if (Random.nextDouble() <= 0.5) {
                 val shipCost = ((Random.nextDouble() + 0.1) * Ship.cash * 0.35).roundToInt()
                 if (Ship.health < 100) {
-                    boolInputLoop("Would you like to trade your damaged ship for ${shipCost}?") {
+                    boolInputLoop("Would you like to trade your damaged ship for ${shipCost} cash?") {
                         if (it) {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
+                            Ship.cash -= shipCost
                         }
                         false
                     }
                 } else {
-                    boolInputLoop("Would you like to trade your ship for ${shipCost}?") {
+                    boolInputLoop("Would you like to trade your ship for ${shipCost} cash?") {
                         if (it) {
                             Ship.cannons++
                             Ship.vacantCargoSpaces -= 10
+                            Ship.cash -= shipCost
                         }
                         false
                     }
@@ -594,12 +593,21 @@ fun main() {
 
         Prices.isRandom = false
 
-        if (Random.nextDouble() <= 0.1) {
-            // TODO Random price
-            Prices.isRandom = true
-            // TODO Random price display
+        if (Random.nextDouble() <= 0.98) {
+            // TODO Regular price
+            Prices.commodities[Commodity.Opium] = priceGenerator(1000, 2)
+            Prices.commodities[Commodity.Silk] = priceGenerator(100, 2)
+            Prices.commodities[Commodity.Arms] = priceGenerator(10, 1)
+            Prices.commodities[Commodity.General] = priceGenerator(1, 1)
         } else {
-            // TODO Price display
+            // TODO Random price
+            Prices.commodities[Commodity.Opium] = randomPriceGenerator(1000)
+            Prices.commodities[Commodity.Silk] = randomPriceGenerator(100)
+            Prices.commodities[Commodity.Arms] = randomPriceGenerator(10)
+            Prices.commodities[Commodity.General] = randomPriceGenerator(1)
+            Prices.isRandom = true
+            println("Taipan!!!")
+            println("Prices are wild!!!")
         }
 
         tradingLoop@while (true) {
