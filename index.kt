@@ -144,9 +144,9 @@ fun boolInputLoop(prompt: String, handler: (Boolean) -> Boolean) {
     }
 }
 
-fun priceGenerator(max: Int): Int =
+fun priceGenerator(max: Int, mul: Int): Int =
     (
-        (5..25)
+        ((10 * mul)..(50 * mul))
             .random()
             .toDouble()
         * max.toDouble()
@@ -161,8 +161,24 @@ fun pirateGenerator(min: Int, max: Int): Int =
         * globalMultiplier
     ).roundToInt()
 
-fun randomPriceGenerator() {
-
+fun randomPriceGenerator(max: Int) : Int {
+    if (Random.nextDouble() <= 0.5) {
+        return (
+            (1..4)
+            .random()
+            .toDouble()
+            * max.toDouble()
+            * globalMultiplier
+        ).roundToInt()
+    } else {
+        return (
+            (50..1000)
+            .random()
+            .toDouble()
+            * max.toDouble()
+            * globalMultiplier
+        ).roundToInt()
+    }
 }
 
 /**
