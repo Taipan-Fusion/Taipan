@@ -520,8 +520,8 @@ fun main() {
                 val shipCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.35).roundToInt()
                 boolInputLoop ("Would you like to trade your ${if(Ship.health < 100) "damaged " else ""}ship for $shipCost cash?") {
                     if (it) {
-                        Ship.cannons++
-                        Ship.vacantCargoSpaces -= 10
+                        Ship.cargoUnits += 50
+                        Ship.vacantCargoSpaces += 50
                         Finance.cash -= shipCost
                         Ship.health = 100
                     }
