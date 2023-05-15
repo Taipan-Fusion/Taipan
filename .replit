@@ -1,6 +1,6 @@
 
 hidden = [".config", "package-lock.json"]
-run = "node index.js"
+run = "kotlinc index.kt -include-runtime -d index.jar && java -jar index.jar"
 
 [[hints]]
 regex = "Error \\[ERR_REQUIRE_ESM\\]"
