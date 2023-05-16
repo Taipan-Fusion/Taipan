@@ -82,7 +82,7 @@ object Finance {
     )
 
     var moneyInBank = 0
-    var cash = 500000000
+    var cash = 500
     var debt = 5000
 }
 
