@@ -311,6 +311,9 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                         val numberRanCounter = pirateGenerator(pirateList.size / 5, pirateList.size)
                         if (numberRanCounter == pirateList.size) {
                             println("We got away from them, Taipan!")
+                            for (i in 1..numberRanCounter) {
+                                pirateList.removeLast()
+                            }
                         } else if (numberRanCounter > 0) {
                             println("Can't escape them, Taipan, but we managed to lose $numberRanCounter of them!")
                             for (i in 1..numberRanCounter) {
@@ -763,7 +766,7 @@ fun main() {
     }
 
     val netWorth = Finance.cash + Finance.moneyInBank - Finance.debt
-    val score = netWorth / Time.monthsPassed / 100
+    val score = netWorth / (Time.monthsPassed + 1) / 100
 
     println("FINAL STATS")
     println("Net cash: $netWorth")
