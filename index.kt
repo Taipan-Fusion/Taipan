@@ -82,7 +82,7 @@ object Finance {
     )
 
     var moneyInBank = 0
-    var cash = 500
+    var cash = 500000000
     var debt = 5000
 }
 
@@ -658,7 +658,7 @@ fun main() {
                                     intInputLoop("How much ${commodity.name} shall I move $actionString, Taipan?") {
                                         if (it > amountAvailableToMove) {
                                             println("You only have $amountAvailableToMove, Taipan.")
-                                        } else if (Warehouse.vacantCargoSpaces - it < 0) {
+                                        } else if (Warehouse.vacantCargoSpaces - it < 0 && toWarehouse ) {
                                             println("There's not enough space in the warehouse, Taipan!")
                                         } else if (it >= 0) {
                                             Ship.vacantCargoSpaces += directionMultiplier * it
