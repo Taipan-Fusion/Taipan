@@ -321,11 +321,11 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                             }
                         } else {
                             println("Can't escape them, Taipan!")
-                            println("$numberOfPirates remain, Taipan!")
+                            println("${pirateList.size} remain, Taipan!")
                         }
                     } else {
                         println("Can't escape them, Taipan!")
-                        println("$numberOfPirates remain, Taipan!")
+                        println("${pirateList.size} remain, Taipan!")
                     }
                     false
                 }
