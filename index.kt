@@ -557,6 +557,7 @@ fun main() {
                         if (Ship.commodities[Commodity.Opium]!! > 0.25 * Ship.vacantCargoSpaces) {
                             println("Taipan! The police got to the ship while you were out trading and confiscated $amountOfOpiumLost units of opium!")
                             Ship.commodities[Commodity.Opium] = Ship.commodities[Commodity.Opium]!! - amountOfOpiumLost
+                            Ship.vacantCargoSpaces += amountOfOpiumLost
                         } else {
                             println("Taipan! The police got to the ship while you were out trading, looking for opium. We didn't have enough to arouse suspicion; maybe you should buy some!")
                         }
@@ -565,6 +566,7 @@ fun main() {
                         if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.vacantCargoSpaces) {
                             println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated $amountOfWarehouseOpiumLost units of opium!")
                             Warehouse.commodities[Commodity.Opium] = Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost
+                            Warehouse.vacantCargoSpaces += amountOfWarehouseOpiumLost
                         } else {
                             println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
                         }
