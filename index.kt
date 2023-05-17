@@ -81,9 +81,9 @@ object Finance {
         Commodity.General to 1
     )
 
-    var moneyInBank = 0
-    var cash = 500
-    var debt = 5000
+    var moneyInBank = 0L
+    var cash = 500L
+    var debt = 5000L
 }
 
 object Time {
@@ -264,7 +264,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
 
                     // Taipan is firing on the pirates
                     for (i in 1..Ship.cannons) {
-                        val damageToPirateShip: Int =
+                        val damageToPirateShip =
                                 ((Random.nextDouble(0.0, 1.0) + 0.3) * 50 * (1.5 * globalMultiplier - 0.5))
                                         .roundToInt()
                         if (pirateList.isEmpty()) {
@@ -339,7 +339,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
 
         println("$pirateList")
 
-        val damageToPlayerShip: Int =
+        val damageToPlayerShip =
             (
                 (25 + Time.monthsPassed) / Ship.cargoUnits.toDouble().pow(1.11)
                 * (damageC + 0.5)
@@ -386,7 +386,7 @@ fun main() {
             // If low on health, go to the shipyard.
             if (Ship.health < 100) {
                 val shipIstTotScalar: Double = 1 + (1 - (100 - Ship.health) / 100.0)
-                val shipFixPrice: Int =
+                val shipFixPrice =
                     (
                         Random.nextInt(1, Ship.cargoUnits)
                         * shipIstTotScalar
@@ -712,7 +712,7 @@ fun main() {
 
         // Pirate attack by Li Yuen
         if (isPirateFleetLiYuen) {
-            val number: Int = pirateGenerator(
+            val number = pirateGenerator(
                 floor((Time.monthsPassed + 1) / 4.0 + floor(Ship.cargoUnits / 50.0)).roundToInt(),
                 (10 + 2 * floor((Time.monthsPassed + 1) / 4.0 + Ship.cargoUnits / 50.0).roundToInt())
             )
@@ -734,7 +734,7 @@ fun main() {
 
         // Other pirate attack
         if (Random.nextDouble() <= Probabilities.pirateAttack && !isPirateFleetLiYuen) {
-            val number: Int = pirateGenerator(
+            val number = pirateGenerator(
                 floor((Time.monthsPassed + 1) / 6.0 + floor(Ship.cargoUnits / 100.0)).roundToInt(),
                 (5 + 2 * floor((Time.monthsPassed + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt() + floor(Ship.commodities[Commodity.Opium]!!.toDouble() * 0.1 * Random.nextDouble()).roundToInt())
             )
@@ -763,8 +763,8 @@ fun main() {
         // Adjust values for next location.
         println("Arriving at ${Ship.location}")
         ++Time.monthsPassed
-        Finance.debt = (Finance.debt * 1.2).toInt()
-        Finance.moneyInBank = (Finance.moneyInBank * 1.05).toInt()
+        Finance.debt = (Finance.debt * 1.2).toLong()
+        Finance.moneyInBank = (Finance.moneyInBank * 1.05).toLong()
     }
 
     val netWorth = Finance.cash + Finance.moneyInBank - Finance.debt
