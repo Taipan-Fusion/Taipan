@@ -5,6 +5,11 @@ import kotlin.random.Random
 import kotlin.math.pow
 import kotlin.math.floor
 
+/**
+ * The ship can be at any of the below ports at any given time ([Ship.location]).
+ *
+ * TODO (Issue #7) Change the name of [Location] to `Port` and add information and unique characteristics to each `Port`.
+ */
 @Suppress("unused")
 enum class Location (val id: Int) {
     HongKong (1),
@@ -16,10 +21,17 @@ enum class Location (val id: Int) {
     Batavia (7)
 }
 
+/**
+ * A commodity that can be traded in the game.
+ */
 enum class Commodity {
     Opium, Silk, Arms, General;
 
     companion object {
+        /**
+         * Given user [input], returns the corresponding [Commodity].
+         * Throws [UnknownAbbreviationException] if the input is invalid.
+         */
         fun fromAbbreviation(input: String): Commodity =
             when (input) {
                 "o" -> Opium
@@ -30,7 +42,10 @@ enum class Commodity {
             }
     }
 
-    class UnknownAbbreviationException (message: String): Exception(message)
+    /**
+     * Thrown if the user is asked for a commodity but types an invalid response.
+     */
+    class UnknownAbbreviationException (input: String): Exception("`$input` is not a valid commodity.")
 }
 
 object Ship {
@@ -38,31 +53,54 @@ object Ship {
     var health = 100
     var cargoUnits = 150
     var vacantCargoSpaces = 100
+
+    /**
+     * The quantity of each [Commodity] available on the [Ship].
+     */
     val commodities = mutableMapOf(
         Commodity.Opium to 0,
         Commodity.Silk to 0,
         Commodity.Arms to 0,
         Commodity.General to 0
     )
+
     var location = Location.HongKong
 }
 
 object Warehouse {
+    /**
+     * The quantity of each [Commodity] currently stored in the [Warehouse].
+     */
     var commodities = mutableMapOf(
         Commodity.Opium to 0,
         Commodity.Silk to 0,
         Commodity.Arms to 0,
         Commodity.General to 0
     )
+
     var vacantCargoSpaces = 10000
     const val totalCargoSpaces = 10000
 
     val occupiedCargoSpaces get() = totalCargoSpaces - vacantCargoSpaces
 }
 
+/**
+ * TODO Explain who Li Yuen is
+ */
 object LiYuen {
+    /**
+     *
+     */
     var chanceOfAttack = 0.5
+
+    /**
+     *
+     */
     var chanceOfExtortion = 0.8
+
+    /**
+     *
+     */
     var extortionMultiplier = 1.0
 }
 
@@ -112,6 +150,9 @@ object Time {
 
 val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
 
+/**
+ * Prints the [prompt] with no newline and gets a line of input from the user.
+ */
 fun input(prompt: String): String {
     print("$prompt ")
     return readln()
@@ -630,8 +671,7 @@ fun main() {
                             for (commodity in Commodity.values()) {
                                 val directionMultiplier = if (toWarehouse) +1 else -1
                                 val actionString = if (toWarehouse) "to the warehouse" else "aboard ship"
-                                val amountAvailableToMove =
-                                    (if (toWarehouse) Ship.commodities else Warehouse.commodities)[commodity]!!
+                                val amountAvailableToMove = (if (toWarehouse) Ship.commodities else Warehouse.commodities)[commodity]!!
 
                                 if (amountAvailableToMove > 0) {
                                     intInputLoop("How much ${commodity.name} shall I move $actionString, Taipan?") {
