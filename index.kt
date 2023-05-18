@@ -55,7 +55,7 @@ object Warehouse {
         Commodity.General to 0
     )
     var vacantCargoSpaces = 10000
-    private const val totalCargoSpaces = 10000
+    const val totalCargoSpaces = 10000
 
     val occupiedCargoSpaces: Int
         get() = totalCargoSpaces - vacantCargoSpaces
@@ -547,32 +547,27 @@ fun main() {
                  }
             }
             
-            if (Random.nextDouble() <= (Ship.commodities[Commodity.Opium]!! + Warehouse.commodities[Commodity.Opium]!!) / (Ship.vacantCargoSpaces + Warehouse.vacantCargoSpaces)) {
-                when (Random.nextInt(1,3)) {
-                    1 -> {
-                        println("Taipan! Robbers raided the ship while you were away and took $amount pound sterling!")
-                        Finance.cash -= amount
-                    }
-                    2 -> {
-                        if (Ship.commodities[Commodity.Opium]!! > 0.25 * Ship.vacantCargoSpaces) {
-                            println("Taipan! The police got to the ship while you were out trading and confiscated $amountOfOpiumLost units of opium!")
-                            Ship.commodities[Commodity.Opium] = Ship.commodities[Commodity.Opium]!! - amountOfOpiumLost
-                            Ship.vacantCargoSpaces += amountOfOpiumLost
-                        } else {
-                            println("Taipan! The police got to the ship while you were out trading, looking for opium. We didn't have enough to arouse suspicion; maybe you should buy some!")
-                        }
-                    }
-                    3 -> {
-                        if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.vacantCargoSpaces) {
-                            println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated $amountOfWarehouseOpiumLost units of opium!")
-                            Warehouse.commodities[Commodity.Opium] = Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost
-                            Warehouse.vacantCargoSpaces += amountOfWarehouseOpiumLost
-                        } else {
-                            println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
-                        }
-                    }
+            if (Random.nextDouble() <= (Ship.commodities[Commodity.Opium]!! / (Ship.cargoUnits - Ship.cannons * 10))) {
+                println("Bad joss! Officials confiscated your opium and fined you ${amount} cash!")
+                Finance.cash -= amount
+                Ship.vacantCargoSpaces += Ship.commodities[Commodity.Opium]!!
+                Ship.commodities[Commodity.Opium] = 0
+            }
+
+            if (Random.nextDouble() <= 0.15) {
+                println("Bad joss! You were beaten up and robbed of ${(5..100).random() * Finance.cash / 100} cash!")
+            }
+            
+            if (Random.nextDouble() <= (Warehouse.commodities[Commodity.Opium]!!) / (Warehouse.totalCargoSpaces)) {
+                if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.vacantCargoSpaces) {
+                    println("Taipan! Bandits raided our warehouse down in Kwun Tong overnight and stole $amountOfWarehouseOpiumLost units of opium!")
+                    Warehouse.commodities[Commodity.Opium] = Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost
+                    Warehouse.vacantCargoSpaces += amountOfWarehouseOpiumLost
+                } else {
+                    println("Taipan! Bandits raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
                 }
             }
+
             Probabilities.portEvent = (Random.nextDouble() + 0.5) * 0.5
         }
 
