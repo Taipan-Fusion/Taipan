@@ -110,9 +110,7 @@ object Time {
     val monthName get() = monthNames[monthsPassed % 12]
 }
 
-// Originally time()
-val globalMultiplier: Double
-    get() = 1.0 + Time.monthsPassed / 10000
+val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
 
 fun input(prompt: String): String {
     print("$prompt ")
@@ -216,8 +214,6 @@ fun exchangeHandler(buying: Boolean) {
                     false
                 } else true
             }
-
-            return@whichCommodity false
         } catch (_: Commodity.UnknownAbbreviationException) {}
 
         true
@@ -247,12 +243,12 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                     var piratesSank = 0
 
                     // Taipan is firing on the pirates
-                    for (i in 1..Ship.cannons) {
+                    repeat (Ship.cannons) {
                         val damageToPirateShip =
                                 ((Random.nextDouble(0.0, 1.0) + 0.3) * 50 * (1.5 * globalMultiplier - 0.5))
                                         .roundToInt()
                         if (pirateList.isEmpty()) {
-                            break
+                            return@repeat
                         }
 
                         pirateList[pirateList.lastIndex] -= damageToPirateShip
@@ -273,7 +269,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                                 )
                         println("$numberRanAway buggers ran away, Taipan!")
 
-                        for (i in 1..numberRanAway) {
+                        repeat (numberRanAway) {
                             pirateList.removeLast()
                         }
                     }
@@ -295,12 +291,12 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                         val numberRanCounter = pirateGenerator(pirateList.size / 5, pirateList.size)
                         if (numberRanCounter == pirateList.size) {
                             println("We got away from them, Taipan!")
-                            for (i in 1..numberRanCounter) {
+                            repeat (numberRanCounter) {
                                 pirateList.removeLast()
                             }
                         } else if (numberRanCounter > 0) {
                             println("Can't escape them, Taipan, but we managed to lose $numberRanCounter of them!")
-                            for (i in 1..numberRanCounter) {
+                            repeat (numberRanCounter) {
                                 pirateList.removeLast()
                             }
                         } else {
