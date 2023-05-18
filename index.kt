@@ -57,8 +57,7 @@ object Warehouse {
     var vacantCargoSpaces = 10000
     const val totalCargoSpaces = 10000
 
-    val occupiedCargoSpaces: Int
-        get() = totalCargoSpaces - vacantCargoSpaces
+    val occupiedCargoSpaces get() = totalCargoSpaces - vacantCargoSpaces
 }
 
 object LiYuen {
@@ -104,14 +103,11 @@ object Time {
 
     var monthsPassed = 0
 
-    val yearsPassed: Int
-        get() = monthsPassed / 12
+    val yearsPassed get() = monthsPassed / 12
 
-    val currentYear: Int
-        get() = 1860 + yearsPassed
+    val currentYear get() = 1860 + yearsPassed
 
-    val monthName: String
-        get() = monthNames[monthsPassed % 12]
+    val monthName get() = monthNames[monthsPassed % 12]
 }
 
 // Originally time()
@@ -167,7 +163,7 @@ fun priceGenerator(max: Int, mul: Int): Int =
             .toDouble()
         * max.toDouble()
         * globalMultiplier
-        * 1 / mul
+        / mul
     ).roundToInt()
 
 fun pirateGenerator(min: Int, max: Int): Int =
@@ -178,7 +174,7 @@ fun pirateGenerator(min: Int, max: Int): Int =
         * globalMultiplier
     ).roundToInt()
 
-fun randomPriceGenerator(max: Int) : Int =
+fun randomPriceGenerator(max: Int): Int =
     ((if (Random.nextDouble() <= 0.5) (1..4) else (50..1000))
         .random()
         .toDouble()
@@ -295,7 +291,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                 }
                 "r" -> {
                     // Attempt to run away
-                    if (Random.nextDouble() <= 0.5 * 200 / (Ship.cargoUnits + 5 * numberOfPirates)) {
+                    if (Random.nextDouble() <= 100 / (Ship.cargoUnits + 5 * numberOfPirates)) {
                         val numberRanCounter = pirateGenerator(pirateList.size / 5, pirateList.size)
                         if (numberRanCounter == pirateList.size) {
                             println("We got away from them, Taipan!")
