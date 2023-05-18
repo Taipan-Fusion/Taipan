@@ -178,25 +178,13 @@ fun pirateGenerator(min: Int, max: Int): Int =
         * globalMultiplier
     ).roundToInt()
 
-fun randomPriceGenerator(max: Int) : Int {
-    if (Random.nextDouble() <= 0.5) {
-        return (
-            (1..4)
-            .random()
-            .toDouble()
-            * max.toDouble()
-            * globalMultiplier
-        ).roundToInt()
-    } else {
-        return (
-            (50..1000)
-            .random()
-            .toDouble()
-            * max.toDouble()
-            * globalMultiplier
-        ).roundToInt()
-    }
-}
+fun randomPriceGenerator(max: Int) : Int =
+    ((if (Random.nextDouble() <= 0.5) (1..4) else (50..1000))
+        .random()
+        .toDouble()
+        * max.toDouble()
+        * globalMultiplier
+    ).roundToInt()
 
 /**
  * Asks the user what and how much they would like to buy ([buying] = true) or sell ([buying] = false).
@@ -547,7 +535,7 @@ fun main() {
             }
             
             if (Random.nextDouble() <= (Ship.commodities[Commodity.Opium]!! / (Ship.cargoUnits - Ship.cannons * 10))) {
-                println("Bad joss! Officials confiscated your opium and fined you ${amount} cash!")
+                println("Bad joss! Officials confiscated your opium and fined you $amount cash!")
                 Finance.cash -= amount
                 Ship.vacantCargoSpaces += Ship.commodities[Commodity.Opium]!!
                 Ship.commodities[Commodity.Opium] = 0
