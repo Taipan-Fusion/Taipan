@@ -517,7 +517,6 @@ fun main() {
             //Options: More guns, A new ship, Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
             val severity = Random.nextDouble(0.01, 1.0)
             val amount = (Finance.cash * severity).roundToInt()
-            val amountOfOpiumLost = (Ship.commodities[Commodity.Opium]!! * severity).roundToInt()
             val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
             if (Random.nextDouble() <= 0.35) {
                 val shipCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.35).roundToInt()
