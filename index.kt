@@ -5,6 +5,11 @@ import kotlin.random.Random
 import kotlin.math.pow
 import kotlin.math.floor
 
+/**
+ * The ship can be at any of the below ports at any given time ([Ship.location]).
+ *
+ * TODO (Issue #7) Change the name of [Location] to `Port` and add information and unique characteristics to each `Port`.
+ */
 @Suppress("unused")
 enum class Location (val id: Int) {
     HongKong (1),
@@ -16,10 +21,17 @@ enum class Location (val id: Int) {
     Batavia (7)
 }
 
+/**
+ * A commodity that can be traded in the game.
+ */
 enum class Commodity {
     Opium, Silk, Arms, General;
 
     companion object {
+        /**
+         * Given user [input], returns the corresponding [Commodity].
+         * Throws [UnknownAbbreviationException] if the input is invalid.
+         */
         fun fromAbbreviation(input: String): Commodity =
             when (input) {
                 "o" -> Opium
@@ -30,7 +42,10 @@ enum class Commodity {
             }
     }
 
-    class UnknownAbbreviationException (message: String): Exception(message)
+    /**
+     * Thrown if the user is asked for a commodity but types an invalid response.
+     */
+    class UnknownAbbreviationException (input: String): Exception("`$input` is not a valid commodity.")
 }
 
 object Ship {
@@ -38,32 +53,54 @@ object Ship {
     var health = 100
     var cargoUnits = 150
     var vacantCargoSpaces = 100
+
+    /**
+     * The quantity of each [Commodity] available on the [Ship].
+     */
     val commodities = mutableMapOf(
         Commodity.Opium to 0,
         Commodity.Silk to 0,
         Commodity.Arms to 0,
         Commodity.General to 0
     )
+
     var location = Location.HongKong
 }
 
 object Warehouse {
+    /**
+     * The quantity of each [Commodity] currently stored in the [Warehouse].
+     */
     var commodities = mutableMapOf(
         Commodity.Opium to 0,
         Commodity.Silk to 0,
         Commodity.Arms to 0,
         Commodity.General to 0
     )
+
     var vacantCargoSpaces = 10000
     const val totalCargoSpaces = 10000
 
-    val occupiedCargoSpaces: Int
-        get() = totalCargoSpaces - vacantCargoSpaces
+    val occupiedCargoSpaces get() = totalCargoSpaces - vacantCargoSpaces
 }
 
+/**
+ * TODO Explain who Li Yuen is
+ */
 object LiYuen {
+    /**
+     *
+     */
     var chanceOfAttack = 0.5
+
+    /**
+     *
+     */
     var chanceOfExtortion = 0.8
+
+    /**
+     *
+     */
     var extortionMultiplier = 1.0
 }
 
@@ -104,20 +141,18 @@ object Time {
 
     var monthsPassed = 0
 
-    val yearsPassed: Int
-        get() = monthsPassed / 12
+    val yearsPassed get() = monthsPassed / 12
 
-    val currentYear: Int
-        get() = 1860 + yearsPassed
+    val currentYear get() = 1860 + yearsPassed
 
-    val monthName: String
-        get() = monthNames[monthsPassed % 12]
+    val monthName get() = monthNames[monthsPassed % 12]
 }
 
-// Originally time()
-val globalMultiplier: Double
-    get() = 1.0 + Time.monthsPassed / 10000
+val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
 
+/**
+ * Prints the [prompt] with no newline and gets a line of input from the user.
+ */
 fun input(prompt: String): String {
     print("$prompt ")
     return readln()
@@ -167,7 +202,7 @@ fun priceGenerator(max: Int, mul: Int): Int =
             .toDouble()
         * max.toDouble()
         * globalMultiplier
-        * 1 / mul
+        / mul
     ).roundToInt()
 
 fun pirateGenerator(min: Int, max: Int): Int =
@@ -178,7 +213,7 @@ fun pirateGenerator(min: Int, max: Int): Int =
         * globalMultiplier
     ).roundToInt()
 
-fun randomPriceGenerator(max: Int) : Int =
+fun randomPriceGenerator(max: Int): Int =
     ((if (Random.nextDouble() <= 0.5) (1..4) else (50..1000))
         .random()
         .toDouble()
@@ -220,8 +255,6 @@ fun exchangeHandler(buying: Boolean) {
                     false
                 } else true
             }
-
-            return@whichCommodity false
         } catch (_: Commodity.UnknownAbbreviationException) {}
 
         true
@@ -251,12 +284,12 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                     var piratesSank = 0
 
                     // Taipan is firing on the pirates
-                    for (i in 1..Ship.cannons) {
+                    repeat (Ship.cannons) {
                         val damageToPirateShip =
                                 ((Random.nextDouble(0.0, 1.0) + 0.3) * 50 * (1.5 * globalMultiplier - 0.5))
                                         .roundToInt()
                         if (pirateList.isEmpty()) {
-                            break
+                            return@repeat
                         }
 
                         pirateList[pirateList.lastIndex] -= damageToPirateShip
@@ -277,7 +310,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                                 )
                         println("$numberRanAway buggers ran away, Taipan!")
 
-                        for (i in 1..numberRanAway) {
+                        repeat (numberRanAway) {
                             pirateList.removeLast()
                         }
                     }
@@ -295,16 +328,16 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                 }
                 "r" -> {
                     // Attempt to run away
-                    if (Random.nextDouble() <= 0.5 * 200 / (Ship.cargoUnits + 5 * numberOfPirates)) {
+                    if (Random.nextDouble() <= 100 / (Ship.cargoUnits + 5 * numberOfPirates)) {
                         val numberRanCounter = pirateGenerator(pirateList.size / 5, pirateList.size)
                         if (numberRanCounter == pirateList.size) {
                             println("We got away from them, Taipan!")
-                            for (i in 1..numberRanCounter) {
+                            repeat (numberRanCounter) {
                                 pirateList.removeLast()
                             }
                         } else if (numberRanCounter > 0) {
                             println("Can't escape them, Taipan, but we managed to lose $numberRanCounter of them!")
-                            for (i in 1..numberRanCounter) {
+                            repeat (numberRanCounter) {
                                 pirateList.removeLast()
                             }
                         } else {
@@ -543,6 +576,7 @@ fun main() {
 
             if (Random.nextDouble() <= 0.15) {
                 println("Bad joss! You were beaten up and robbed of ${(5..100).random() * Finance.cash / 100} cash!")
+                Finance.cash -= (Random.nextDouble(0.01, 1.0) * Finance.cash).roundToInt()
             }
             
             if (Random.nextDouble() <= (Warehouse.commodities[Commodity.Opium]!!) / (Warehouse.totalCargoSpaces)) {
@@ -638,8 +672,7 @@ fun main() {
                             for (commodity in Commodity.values()) {
                                 val directionMultiplier = if (toWarehouse) +1 else -1
                                 val actionString = if (toWarehouse) "to the warehouse" else "aboard ship"
-                                val amountAvailableToMove =
-                                    (if (toWarehouse) Ship.commodities else Warehouse.commodities)[commodity]!!
+                                val amountAvailableToMove = (if (toWarehouse) Ship.commodities else Warehouse.commodities)[commodity]!!
 
                                 if (amountAvailableToMove > 0) {
                                     intInputLoop("How much ${commodity.name} shall I move $actionString, Taipan?") {
