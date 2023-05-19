@@ -255,6 +255,8 @@ fun exchangeHandler(buying: Boolean) {
                     false
                 } else true
             }
+            
+            return@whichCommodity false
         } catch (_: Commodity.UnknownAbbreviationException) {}
 
         true
