@@ -4,6 +4,7 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.math.pow
 import kotlin.math.floor
+import kotlin.collections.shuffle
 
 /**
  * The ship can be at any of the below ports at any given time ([Ship.location]).
@@ -449,7 +450,38 @@ fun casino() {
     println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
     when (input("What games would you like to play?")) {
         "b" -> {
-
+            var deck: Array<String> = arrayOf(
+                "A", "A", "A", "A",
+                "2", "2", "2", "2",
+                "3", "3", "3", "3",
+                "4", "4", "4", "4",
+                "5", "5", "5", "5",
+                "6", "6", "6", "6",
+                "7", "7", "7", "7",
+                "8", "8", "8", "8",
+                "9", "9", "9", "9",
+                "10", "10", "10", "10",
+                "J", "J", "J", "J"
+                "Q", "Q", "Q", "Q",
+                "K", "K", "K", "K"
+            )
+            val cardValues = mutableMapOf(
+                "A" to 1,
+                "2" to 2,
+                "3" to 3,
+                "4" to 4,
+                "5" to 5,
+                "6" to 6,
+                "7" to 7,
+                "8" to 8,
+                "9" to 9,
+                "10" to 10,
+                "J" to 10,
+                "Q" to 10,
+                "K" to 10
+            )
+            deck.shuffle()
+            println("Brother Li has dealt the cards.")
         }
         "d" -> {
 
