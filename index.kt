@@ -195,6 +195,12 @@ fun boolInputLoop(prompt: String, handler: (Boolean) -> Boolean) {
     }
 }
 
+/**
+ * Generates a price for a particular commodity in the port that Taipan is currently in.
+ * Ranges from 5 to 25, with the multiplier depending on the commodity.
+ * globalMultiplier acts as natural inflation.
+ */
+
 fun priceGenerator(max: Int, mul: Int): Int =
     (
         ((5 * mul)..(25 * mul))
@@ -205,6 +211,12 @@ fun priceGenerator(max: Int, mul: Int): Int =
         / mul
     ).roundToInt()
 
+/**
+ * Generates a number of pirates immediately before a battle.
+ * Depends on multiple factors: type of pirate, amount of commodities onboard, etc...
+ * Pirates become more numerous as time passes.
+ */
+
 fun pirateGenerator(min: Int, max: Int): Int =
     (
         (min..max)
@@ -212,6 +224,11 @@ fun pirateGenerator(min: Int, max: Int): Int =
             .toDouble()
         * globalMultiplier
     ).roundToInt()
+
+/**
+ * Generates a random price for a particular commodity.
+ * Happens rarely; prices range from 1 to 4 or 50 to 1000 with a multiplier.
+ */
 
 fun randomPriceGenerator(max: Int): Int =
     ((if (Random.nextDouble() <= 0.5) (1..4) else (50..1000))
@@ -447,7 +464,6 @@ fun main() {
             }
 
             // Decide whether to activate Li Yuen.
-            // TODO TEST Li Yuen extortion
             if (Random.nextDouble() <= LiYuen.chanceOfExtortion) {
                 val amountRequested = (
                     1.1 * LiYuen.extortionMultiplier
