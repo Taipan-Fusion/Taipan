@@ -593,8 +593,9 @@ fun main() {
             }
 
             if (Random.nextDouble() <= 0.15) {
-                println("Bad joss! You were beaten up and robbed of ${(5..100).random() * Finance.cash / 100} cash!")
-                Finance.cash -= (Random.nextDouble(0.01, 1.0) * Finance.cash).roundToInt()
+                val robbedAmount = (Random.nextDouble(0.05, 1.0) * Finance.cash).roundToInt()
+                println("Bad joss! You were beaten up and robbed of ${robbedAmount} cash!")
+                Finance.cash -= robbedAmount
             }
             
             if (Random.nextDouble() <= (Warehouse.commodities[Commodity.Opium]!!) / (Warehouse.totalCargoSpaces)) {
