@@ -152,7 +152,7 @@ object Casino {
     var moneySpent: Long = 0
     var moneyEarned: Long = 0
     var monthSinceLastVisit: Int = 0
-    var membershipLevel: Int = 1
+    var visitedBefore: Boolean = false
     val profit get() = moneyEarned - moneySpent
 }
 
@@ -434,9 +434,38 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
  */
 
 fun casino() {
-    println("Howdy Taipan! Welcome to the Shanghai Casino Club!")
+    if (Casino.visitedBefore) {
+        if (Casino.monthSinceLastVisit <= 3) {
+            println("Welcome back, Taipan! The Master of the House has given you your favorite table!")
+            println("Pick where you left off and have fun!")
+        }
+        if (Casino.monthSinceLastVisit > 3) {
+            println("It's been a while, Taipan! Enjoy yourself!")
+        }
+    } else {
+        println("Welcome to the Shanghai Casino Club, Taipan!")
+    }
+    println("Games available: ")
+    println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
     when (input("What games would you like to play?")) {
+        "b" -> {
 
+        }
+        "d" -> {
+
+        }
+        "s" -> {
+
+        }
+        "p" -> {
+
+        }
+        "r" -> {
+
+        }
+        "k" -> {
+
+        }
     }
 }
 fun main() {
