@@ -148,6 +148,14 @@ object Time {
     val monthName get() = monthNames[monthsPassed % 12]
 }
 
+object Casino {
+    var moneySpent: Long = 0
+    var moneyEarned: Long = 0
+    var monthSinceLastVisit: Int = 0
+    var membershipLevel: Int = 1
+    val profit get() = moneyEarned - moneySpent
+}
+
 val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
 
 /**
@@ -420,6 +428,17 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
     return true
 }
 
+/**
+ * Casino Function in Shanghai.
+ * Taipan can gamble and play various games.
+ */
+
+fun casino() {
+    println("Howdy Taipan! Welcome to the Shanghai Casino Club!")
+    when (input("What games would you like to play?")) {
+
+    }
+}
 fun main() {
     println("Welcome to Taipan!")
 
