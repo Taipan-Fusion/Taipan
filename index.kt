@@ -446,7 +446,9 @@ fun casino() {
     } else {
         println("Welcome to the Shanghai Casino Club, Taipan!")
     }
+    Casino.monthSinceLastVisit = 0
     var leftCasino = false
+    Casino.visitedBefore = true
     while (!leftCasino) {
         println("Games available: ")
         println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
@@ -472,7 +474,7 @@ fun casino() {
                 fun getSum(hiddenDeck: MutableList<String>, visibleDeck: MutableList<String>): Int {
                     var sum = cardValues.get(hiddenDeck[0])!!.toInt()
                     for (i in 1..visibleDeck.size) {
-                        sum += visibleDeck[i - 1].toInt()
+                        sum += cardValues.get(visibleDeck[i - 1])!!
                     }
                     if (hiddenDeck.contains("A") || visibleDeck.contains("A")) {
                         if (sum > 21) {
@@ -483,7 +485,7 @@ fun casino() {
                             return sum + 11
                         }
                     } else {
-                        return sum + 1
+                        return sum
                     }
                 }
                 var bet: Long = 0
@@ -507,37 +509,65 @@ fun casino() {
                     "8", "8", "8", "8",
                     "9", "9", "9", "9",
                     "10", "10", "10", "10",
-                    "J", "J", "J", "J"
+                    "J", "J", "J", "J",
                     "Q", "Q", "Q", "Q",
                     "K", "K", "K", "K"
                 )
                 var deckForGame: MutableList<String> = deck.shuffled().toMutableList()
                 var playerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
                 deckForGame.removeLast()
-                var dealerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
+                var dealerDeckVisible = mutableListOf(deckForGame[deckForGame.size - 1])
                 deckForGame.removeLast()
                 var playerDeckVisible: MutableList<String> = mutableListOf()
-                var dealerDeckVisible: MutableList<String> = mutableListOf()
+                var dealerDeckNotVisible: MutableList<String> = mutableListOf()
                 var bust = false
                 var stay = false
-                var playerSum: Int = 0
+                var playerSum: Int
                 var dealerSum: Int = 0
                 println("Elder Brother He has dealt the cards.")
                 while (!bust && !stay) {
+                    playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                    println("Your hidden card: $playerDeckNotVisible")
+                    println("Your visible deck: $playerDeckVisible")
+                    println("The dealer's visible card: $dealerDeckVisible")
+                    println("Your sum: $playerSum")
                     when (input("Do you want to hit or stay?")) {
                         "h" -> {
                             playerDeckVisible.add(deckForGame[deckForGame.size - 1])
-                            
-                            println("Your hidden card: $playerDeckNotVisible")
-                            println("Your visible deck: $playerDeckVisible")
-                            println("Your sum: $playerSum")
+                            deckForGame.removeLast()
+                            playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
                             if (playerSum > 21) {
+                                println("Your hidden card: $playerDeckNotVisible")
+                                println("Your visible deck: $playerDeckVisible")
+                                println("The dealer's visible card: $dealerDeckVisible")
+                                println("Your sum: $playerSum")
                                 println("You went bust!")
+                                println("You lost $bet cash!")
                                 bust = true
+                                Finance.cash -= bet
+                                Casino.moneySpent += bet
                             }
                         }
                         "s" -> {
                             stay = true
+                        }
+                    }
+                }
+                while (dealerSum <= 17 && !bust) {
+                    dealerDeckNotVisible.add(deckForGame[deckForGame.size - 1])
+                    deckForGame.removeLast()
+                    dealerSum = getSum(dealerDeckNotVisible, dealerDeckVisible)
+                    if (dealerSum > 21) {
+                        println("The dealer went bust!")
+                        if (playerDeckVisible.contains("J") && playerDeckNotVisible.contains("A") || playerDeckVisible.contains("A") && playerDeckNotVisible.contains("J")) {
+                            println("You had a blackjack!")
+                            println("You won ${(bet * 5.0 / 2.0).roundToInt().toLong()} cash!")
+                            Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong()
+                            Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong()
+                        } else {
+                            println("You won ${bet} cash!")
+                            Finance.cash += bet
+                            Casino.moneyEarned += bet
                         }
                     }
                 }
@@ -803,9 +833,10 @@ fun main() {
             val inHongKong = Ship.location == Location.HongKong
 
             // Prompt the user.
-            when (input("Shall I Buy, Sell, ${if (Ship.location == Location.HongKong) "Visit Bank, Transfer Cargo${if (Finance.moneyInBank + Finance.cash < 1000000) {", or Quit Trading?"} else {", Quit Trading, or Retire?"}}" else "Quit Trading?"}")) {
+            when (input("Shall I Buy, Sell, ${if (Ship.location == Location.Shanghai) "Visit Casino, or" else ""} ${if (Ship.location == Location.HongKong) "Visit Bank, Transfer Cargo${if (Finance.moneyInBank + Finance.cash < 1000000) {", or Quit Trading?"} else {", Quit Trading, or Retire?"}}" else "Quit Trading?"}")) {
                 "b" -> exchangeHandler(buying = true)
                 "s" -> exchangeHandler(buying = false)
+                "c" -> if (Ship.location == Location.Shanghai) casino()
                 "v" -> if (inHongKong) {
                     intInputLoop ("How much will you deposit?") { cashToDeposit ->
                         if (cashToDeposit > Finance.cash) {
