@@ -494,9 +494,9 @@ fun casino() {
                     }
                     if (hiddenDeck.contains("A") || visibleDeck.contains("A")) {
                         if (sum > 21) {
-                            return sum + 1
+                            return sum
                         } else if (sum + 10 > 21) {
-                            return sum + 1
+                            return sum
                         } else {
                             return sum + 10
                         }
@@ -523,16 +523,12 @@ fun casino() {
                         break
                     }
                     var deckForGame: MutableList<String> = deck.shuffled().toMutableList()
-
                     var playerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
-
                     deckForGame.removeLast()
-
                     var dealerDeckVisible = mutableListOf(deckForGame[deckForGame.size - 1])
-
                     deckForGame.removeLast()
-
-                    var playerDeckVisible: MutableList<String> = mutableListOf()
+                    var playerDeckVisible: MutableList<String> = mutableListOf(deckForGame[deckForGame.size - 1])
+                    deckForGame.removeLast()
                     var dealerDeckNotVisible: MutableList<String> = mutableListOf()
                     var bust = false
                     var stay = false
@@ -547,7 +543,7 @@ fun casino() {
                         println("Your visible deck: $playerDeckVisible")
                         println("The dealer's visible card: $dealerDeckVisible")
                         println("Your sum: $playerSum")
-                        when (input("Do you want to hit or stay?")) {
+                        when (input("Do you want to hit${if (playerDeckVisible.size + playerDeckNotVisible.size == 2) ", double down," else ""} or stay?")) {
                             "h" -> {
                                 playerDeckVisible.add(deckForGame[deckForGame.size - 1])
                                 deckForGame.removeLast()
@@ -567,10 +563,28 @@ fun casino() {
                             "s" -> {
                                 stay = true
                             }
+                            "d" -> if (playerDeckVisible.size + playerDeckNotVisible.size == 2) {
+                                playerDeckVisible.add(deckForGame[deckForGame.size - 1])
+                                deckForGame.removeLast()
+                                playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                                bet *= 2
+                                if (playerSum > 21) {
+                                    println("Your hidden card: $playerDeckNotVisible")
+                                    println("Your visible deck: $playerDeckVisible")
+                                    println("The dealer's visible card: $dealerDeckVisible")
+                                    println("Your sum: $playerSum")
+                                    println("You went bust!")
+                                    println("You lost $bet cash!")
+                                    bust = true
+                                    Finance.cash -= bet
+                                    Casino.moneySpent += bet
+                                }
+                                stay = true
+                            }
                         }
                     }
 
-                    while (dealerSum <= 17 && !bust) {
+                    while (dealerSum < 17 && !bust) {
                         dealerDeckNotVisible.add(deckForGame[deckForGame.size - 1])
                         deckForGame.removeLast()
                         dealerSum = getSum(dealerDeckVisible, dealerDeckNotVisible)
