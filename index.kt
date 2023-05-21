@@ -454,6 +454,7 @@ fun casino() {
         println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
         when (input("What games would you like to play? Lowercase E to Exit the Casino.")) {
             "b" -> {
+                var leftBlackjack = false
                 val cardValues =
                     mutableMapOf(
                         "A" to 1,
@@ -469,8 +470,23 @@ fun casino() {
                         "J" to 10,
                         "Q" to 10,
                         "K" to 10
+                )
+                var deck: MutableList<String> =
+                    mutableListOf(
+                        "A","A","A","A",
+                        "2","2","2","2",
+                        "3","3","3","3",
+                        "4","4","4","4",
+                        "5","5","5","5",
+                        "6","6","6","6",
+                        "7","7","7","7",
+                        "8","8","8","8",
+                        "9","9","9","9",
+                        "10","10","10","10",
+                        "J","J","J","J",
+                        "Q","Q","Q","Q",
+                        "K","K","K","K"
                     )
-
                 fun getSum(hiddenDeck: MutableList<String>, visibleDeck: MutableList<String>): Int {
                     var sum = cardValues.get(hiddenDeck[0])!!.toInt()
                     for (i in 1..visibleDeck.size) {
@@ -488,119 +504,126 @@ fun casino() {
                         return sum
                     }
                 }
-                var bet: Long = 0
-                intInputLoop("How much do you want to bet?") {
-                    betAmount -> if (betAmount < 5 || betAmount > Finance.cash) {
-                        println("You can't do that, Taipan!")
-                        true
-                    } else {
-                        bet = betAmount.toLong()
-                        false
-                    }
-                }
-                var deck: MutableList<String> = mutableListOf(
-                    "A", "A", "A", "A",
-                    "2", "2", "2", "2",
-                    "3", "3", "3", "3",
-                    "4", "4", "4", "4",
-                    "5", "5", "5", "5",
-                    "6", "6", "6", "6",
-                    "7", "7", "7", "7",
-                    "8", "8", "8", "8",
-                    "9", "9", "9", "9",
-                    "10", "10", "10", "10",
-                    "J", "J", "J", "J",
-                    "Q", "Q", "Q", "Q",
-                    "K", "K", "K", "K"
-                )
-                var deckForGame: MutableList<String> = deck.shuffled().toMutableList()
-                var playerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
-                deckForGame.removeLast()
-                var dealerDeckVisible = mutableListOf(deckForGame[deckForGame.size - 1])
-                deckForGame.removeLast()
-                var playerDeckVisible: MutableList<String> = mutableListOf()
-                var dealerDeckNotVisible: MutableList<String> = mutableListOf()
-                var bust = false
-                var stay = false
-                var playerSum: Int = 0
-                var dealerSum: Int = 0
-                println("Elder Brother He has dealt the cards.")
-                while (!bust && !stay) {
-                    playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-                    println("Your hidden card: $playerDeckNotVisible")
-                    println("Your visible deck: $playerDeckVisible")
-                    println("The dealer's visible card: $dealerDeckVisible")
-                    println("Your sum: $playerSum")
-                    when (input("Do you want to hit or stay?")) {
-                        "h" -> {
-                            playerDeckVisible.add(deckForGame[deckForGame.size - 1])
-                            deckForGame.removeLast()
-                            playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-                            if (playerSum > 21) {
-                                println("Your hidden card: $playerDeckNotVisible")
-                                println("Your visible deck: $playerDeckVisible")
-                                println("The dealer's visible card: $dealerDeckVisible")
-                                println("Your sum: $playerSum")
-                                println("You went bust!")
-                                println("You lost $bet cash!")
-                                bust = true
-                                Finance.cash -= bet
-                                Casino.moneySpent += bet
-                            }
-                        }
-                        "s" -> {
-                            stay = true
-                        }
-                    }
-                }
-                while (dealerSum <= 17 && !bust) {
-                    dealerDeckNotVisible.add(deckForGame[deckForGame.size - 1])
-                    deckForGame.removeLast()
-                    dealerSum = getSum(dealerDeckVisible, dealerDeckNotVisible)
-                    if (dealerSum > 21) {
-                        println("The dealer went bust!")
-                        if (playerDeckVisible.contains("J") && playerDeckNotVisible.contains("A") || playerDeckVisible.contains("A") && playerDeckNotVisible.contains("J")) {
-                            println("You had a blackjack!")
-                            println("You won ${(bet * 5.0 / 2.0).roundToInt().toLong()} cash!")
-                            Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong()
-                            Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong()
+                while (!leftBlackjack) {
+                    var bet: Long = 0
+
+                    intInputLoop("How much do you want to bet? Enter 0 to exit blackjack.") { betAmount ->
+                        if (betAmount == 0) {
+                            leftBlackjack = true
+                            false
+                        } else if (betAmount < 5 || betAmount > Finance.cash) {
+                            println("You can't do that, Taipan!")
+                            true
                         } else {
-                            println("You won ${bet} cash!")
-                            Finance.cash += bet
-                            Casino.moneyEarned += bet
+                            bet = betAmount.toLong()
+                            false
                         }
+                    }
+                    if (leftBlackjack) {
                         break
                     }
-                }
-                if (dealerSum <= 21 && !bust) {
-                    println("Your hidden card: $playerDeckNotVisible")
-                    println("Your visible deck: $playerDeckVisible")
-                    println("Dealer's visible card: $dealerDeckVisible")
-                    println("Dealer's hidden deck: $dealerDeckNotVisible")
-                    println("Your sum: $playerSum")
-                    println("Dealer's sum: $dealerSum")
-                    if (playerSum > dealerSum) {
-                        if (playerDeckVisible.contains("J") && playerDeckNotVisible.contains("A") ||
-                            playerDeckVisible.contains("A") && playerDeckNotVisible.contains("J")
-                        ) {
-                            println("Your sum was greater and you had a blackjack!")
-                            println("You won ${(bet * 5.0 / 2.0).roundToInt().toLong()} cash!")
-                            Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong()
-                            Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong()
-                        } else {
-                            println("Your sum was greater!")
-                            println("You won ${bet} cash!")
-                            Finance.cash += bet
-                            Casino.moneyEarned += bet
+                    var deckForGame: MutableList<String> = deck.shuffled().toMutableList()
+
+                    var playerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
+
+                    deckForGame.removeLast()
+
+                    var dealerDeckVisible = mutableListOf(deckForGame[deckForGame.size - 1])
+
+                    deckForGame.removeLast()
+
+                    var playerDeckVisible: MutableList<String> = mutableListOf()
+                    var dealerDeckNotVisible: MutableList<String> = mutableListOf()
+                    var bust = false
+                    var stay = false
+                    var playerSum: Int = 0
+                    var dealerSum: Int = 0
+
+                    println("Elder Brother He has dealt the cards.")
+
+                    while (!bust && !stay) {
+                        playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                        println("Your hidden card: $playerDeckNotVisible")
+                        println("Your visible deck: $playerDeckVisible")
+                        println("The dealer's visible card: $dealerDeckVisible")
+                        println("Your sum: $playerSum")
+                        when (input("Do you want to hit or stay?")) {
+                            "h" -> {
+                                playerDeckVisible.add(deckForGame[deckForGame.size - 1])
+                                deckForGame.removeLast()
+                                playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                                if (playerSum > 21) {
+                                    println("Your hidden card: $playerDeckNotVisible")
+                                    println("Your visible deck: $playerDeckVisible")
+                                    println("The dealer's visible card: $dealerDeckVisible")
+                                    println("Your sum: $playerSum")
+                                    println("You went bust!")
+                                    println("You lost $bet cash!")
+                                    bust = true
+                                    Finance.cash -= bet
+                                    Casino.moneySpent += bet
+                                }
+                            }
+                            "s" -> {
+                                stay = true
+                            }
                         }
-                    } else if (playerSum == dealerSum) {
-                        println("You and the dealer (Brother He) tied.")
-                    } else {
-                        println("The dealer had a larger sum! You lost!")
-                        Finance.cash -= bet
-                        Casino.moneySpent += bet
                     }
+
+                    while (dealerSum <= 17 && !bust) {
+                        dealerDeckNotVisible.add(deckForGame[deckForGame.size - 1])
+                        deckForGame.removeLast()
+                        dealerSum = getSum(dealerDeckVisible, dealerDeckNotVisible)
+                        if (dealerSum > 21) {
+                            println("The dealer went bust!")
+                            if (playerDeckVisible.contains("J") && playerDeckNotVisible.contains("A") ||
+                                            playerDeckVisible.contains("A") && playerDeckNotVisible.contains("J")
+                            ) {
+                                println("You had a blackjack!")
+                                println("You won ${(bet * 5.0 / 2.0).roundToInt().toLong()} cash!")
+                                Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong()
+                                Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong()
+                            } else {
+                                println("You won ${bet} cash!")
+                                Finance.cash += bet
+                                Casino.moneyEarned += bet
+                            }
+                            break
+                        }
+                    }
+
+                    if (dealerSum <= 21 && !bust) {
+                        println("Your hidden card: $playerDeckNotVisible")
+                        println("Your visible deck: $playerDeckVisible")
+                        println("Dealer's visible card: $dealerDeckVisible")
+                        println("Dealer's hidden deck: $dealerDeckNotVisible")
+                        println("Your sum: $playerSum")
+                        println("Dealer's sum: $dealerSum")
+                        if (playerSum > dealerSum) {
+                            if (playerDeckVisible.contains("J") && playerDeckNotVisible.contains("A") ||
+                                            playerDeckVisible.contains("A") && playerDeckNotVisible.contains("J")
+                            ) {
+                                println("Your sum was greater and you had a blackjack!")
+                                println("You won ${(bet * 5.0 / 2.0).roundToInt().toLong()} cash!")
+                                Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong()
+                                Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong()
+                            } else {
+                                println("Your sum was greater!")
+                                println("You won ${bet} cash!")
+                                Finance.cash += bet
+                                Casino.moneyEarned += bet
+                            }
+                        } else if (playerSum == dealerSum) {
+                            println("You and the dealer (Brother He) tied.")
+                        } else {
+                            println("The dealer had a larger sum! You lost!")
+                            Finance.cash -= bet
+                            Casino.moneySpent += bet
+                        }
+                    }
+
                 }
+                
             }
             "d" -> {
 
@@ -1004,6 +1027,7 @@ fun main() {
 
     val netWorth = Finance.cash + Finance.moneyInBank - Finance.debt
     val score = netWorth / (Time.monthsPassed + 1) / 100
+    Casino.monthSinceLastVisit++
 
     println("FINAL STATS")
     println("Net cash: $netWorth")
