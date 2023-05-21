@@ -630,7 +630,7 @@ fun casino() {
                         } else if (playerSum == dealerSum) {
                             println("You and the dealer (Brother He) tied.")
                         } else {
-                            println("The dealer had a larger sum! You lost!")
+                            println("The dealer had a larger sum! You lost $bet cash!")
                             Finance.cash -= bet
                             Casino.moneySpent += bet
                         }
