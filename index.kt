@@ -863,7 +863,7 @@ fun main() {
             val inHongKong = Ship.location == Location.HongKong
 
             // Prompt the user.
-            when (input("Shall I Buy, Sell,${if (Ship.location == Location.Shanghai) " Visit Casino" else ""}${if (Ship.location == Location.HongKong) " Visit Bank, Transfer Cargo${if (Finance.moneyInBank + Finance.cash < 1000000) {", or Quit Trading?"} else {", Quit Trading, or Retire?"}}" else ", or Quit Trading?"}")) {
+            when (input("Shall I Buy, Sell,${if (Ship.location == Location.Shanghai) " Visit Casino" else ""}${if (Ship.location == Location.HongKong) " Visit Bank, Transfer Cargo${if (Finance.moneyInBank + Finance.cash < 1000000) {", or Quit Trading?"} else {", Quit Trading, or Retire?"}}" else " or Quit Trading?"}")) {
                 "b" -> exchangeHandler(buying = true)
                 "s" -> exchangeHandler(buying = false)
                 "c" -> if (Ship.location == Location.Shanghai) casino()
