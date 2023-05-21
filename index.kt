@@ -4,7 +4,7 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.math.pow
 import kotlin.math.floor
-import kotlin.collections.shuffle
+import kotlin.collections.shuffled
 
 /**
  * The ship can be at any of the below ports at any given time ([Ship.location]).
@@ -446,57 +446,120 @@ fun casino() {
     } else {
         println("Welcome to the Shanghai Casino Club, Taipan!")
     }
-    println("Games available: ")
-    println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
-    when (input("What games would you like to play?")) {
-        "b" -> {
-            var deck: Array<String> = arrayOf(
-                "A", "A", "A", "A",
-                "2", "2", "2", "2",
-                "3", "3", "3", "3",
-                "4", "4", "4", "4",
-                "5", "5", "5", "5",
-                "6", "6", "6", "6",
-                "7", "7", "7", "7",
-                "8", "8", "8", "8",
-                "9", "9", "9", "9",
-                "10", "10", "10", "10",
-                "J", "J", "J", "J"
-                "Q", "Q", "Q", "Q",
-                "K", "K", "K", "K"
-            )
-            val cardValues = mutableMapOf(
-                "A" to 1,
-                "2" to 2,
-                "3" to 3,
-                "4" to 4,
-                "5" to 5,
-                "6" to 6,
-                "7" to 7,
-                "8" to 8,
-                "9" to 9,
-                "10" to 10,
-                "J" to 10,
-                "Q" to 10,
-                "K" to 10
-            )
-            deck.shuffle()
-            println("Brother Li has dealt the cards.")
-        }
-        "d" -> {
+    var leftCasino = false
+    while (!leftCasino) {
+        println("Games available: ")
+        println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
+        when (input("What games would you like to play? Lowercase E to Exit the Casino.")) {
+            "b" -> {
+                val cardValues =
+                    mutableMapOf(
+                        "A" to 1,
+                        "2" to 2,
+                        "3" to 3,
+                        "4" to 4,
+                        "5" to 5,
+                        "6" to 6,
+                        "7" to 7,
+                        "8" to 8,
+                        "9" to 9,
+                        "10" to 10,
+                        "J" to 10,
+                        "Q" to 10,
+                        "K" to 10
+                    )
 
-        }
-        "s" -> {
+                fun getSum(hiddenDeck: MutableList<String>, visibleDeck: MutableList<String>): Int {
+                    var sum = cardValues.get(hiddenDeck[0])!!.toInt()
+                    for (i in 1..visibleDeck.size) {
+                        sum += visibleDeck[i - 1].toInt()
+                    }
+                    if (hiddenDeck.contains("A") || visibleDeck.contains("A")) {
+                        if (sum > 21) {
+                            return sum + 1
+                        } else if (sum + 10 > 21) {
+                            return sum + 1
+                        } else {
+                            return sum + 11
+                        }
+                    } else {
+                        return sum + 1
+                    }
+                }
+                var bet: Long = 0
+                intInputLoop("How much do you want to bet?") {
+                    betAmount -> if (betAmount < 5 && betAmount > Finance.cash) {
+                        println("You can't do that, Taipan!")
+                        true
+                    } else {
+                        bet = betAmount.toLong()
+                        false
+                    }
+                }
+                var deck: MutableList<String> = mutableListOf(
+                    "A", "A", "A", "A",
+                    "2", "2", "2", "2",
+                    "3", "3", "3", "3",
+                    "4", "4", "4", "4",
+                    "5", "5", "5", "5",
+                    "6", "6", "6", "6",
+                    "7", "7", "7", "7",
+                    "8", "8", "8", "8",
+                    "9", "9", "9", "9",
+                    "10", "10", "10", "10",
+                    "J", "J", "J", "J"
+                    "Q", "Q", "Q", "Q",
+                    "K", "K", "K", "K"
+                )
+                var deckForGame: MutableList<String> = deck.shuffled().toMutableList()
+                var playerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
+                deckForGame.removeLast()
+                var dealerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
+                deckForGame.removeLast()
+                var playerDeckVisible: MutableList<String> = mutableListOf()
+                var dealerDeckVisible: MutableList<String> = mutableListOf()
+                var bust = false
+                var stay = false
+                var playerSum: Int = 0
+                var dealerSum: Int = 0
+                println("Elder Brother He has dealt the cards.")
+                while (!bust && !stay) {
+                    when (input("Do you want to hit or stay?")) {
+                        "h" -> {
+                            playerDeckVisible.add(deckForGame[deckForGame.size - 1])
+                            
+                            println("Your hidden card: $playerDeckNotVisible")
+                            println("Your visible deck: $playerDeckVisible")
+                            println("Your sum: $playerSum")
+                            if (playerSum > 21) {
+                                println("You went bust!")
+                                bust = true
+                            }
+                        }
+                        "s" -> {
+                            stay = true
+                        }
+                    }
+                }
+            }
+            "d" -> {
 
-        }
-        "p" -> {
+            }
+            "s" -> {
 
-        }
-        "r" -> {
+            }
+            "p" -> {
 
-        }
-        "k" -> {
+            }
+            "r" -> {
 
+            }
+            "k" -> {
+
+            }
+            "e" -> {
+                leftCasino = true
+            }
         }
     }
 }
