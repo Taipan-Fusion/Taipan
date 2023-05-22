@@ -360,7 +360,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                 }
                 "r" -> {
                     // Attempt to run away
-                    if (Random.nextDouble() <= 100 / (Ship.cargoUnits + 5 * numberOfPirates)) {
+                    if (Random.nextDouble() <= Ship.cargoUnits.toDouble().pow(0.9) / (Ship.cargoUnits + 5 * pirateList.size)) {
                         val numberRanCounter = pirateGenerator(pirateList.size / 5, pirateList.size)
                         if (numberRanCounter == pirateList.size) {
                             println("We got away from them, Taipan!")
@@ -373,8 +373,13 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                                 pirateList.removeLast()
                             }
                         } else {
-                            println("Can't escape them, Taipan!")
-                            println("${pirateList.size} remain, Taipan!")
+                            println("Can't escape them, Taipan!, but we managed to lose one of them!")
+                            pirateList.removeLast()
+                            if (pirateList.size == 0) {
+                                println("We got away from them, Taipan!")
+                            } else {
+                                println("${pirateList.size} remain, Taipan!")
+                            }
                         }
                     } else {
                         println("Can't escape them, Taipan!")
@@ -404,7 +409,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
 
         println("They're firing on us, Taipan!")
 
-        if (Random.nextDouble() < gunKnockoutChance) {
+        if (Random.nextDouble() < gunKnockoutChance && Ship.cannons > 0) {
             println("They hit a gun, Taipan!")
             Ship.cannons--
             Ship.vacantCargoSpaces += 10
