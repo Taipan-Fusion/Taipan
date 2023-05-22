@@ -1042,11 +1042,11 @@ fun main() {
         ++Time.monthsPassed
         Finance.debt = (Finance.debt * 1.2).toLong()
         Finance.moneyInBank = (Finance.moneyInBank * 1.05).toLong()
+        Casino.monthSinceLastVisit++
     }
 
     val netWorth = Finance.cash + Finance.moneyInBank - Finance.debt
     val score = netWorth / (Time.monthsPassed + 1) / 100
-    Casino.monthSinceLastVisit++
 
     println("FINAL STATS")
     println("Net cash: $netWorth")
