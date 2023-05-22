@@ -373,7 +373,7 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                                 pirateList.removeLast()
                             }
                         } else {
-                            println("Can't escape them, Taipan!, but we managed to lose one of them!")
+                            println("Can't escape them, Taipan!, but we managed to lose 1 of them!")
                             pirateList.removeLast()
                             if (pirateList.size == 0) {
                                 println("We got away from them, Taipan!")
@@ -849,11 +849,11 @@ fun main() {
             
             if (Random.nextDouble() <= (Warehouse.commodities[Commodity.Opium]!!) / (Warehouse.totalCargoSpaces)) {
                 if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.vacantCargoSpaces) {
-                    println("Taipan! Bandits raided our warehouse down in Kwun Tong overnight and stole $amountOfWarehouseOpiumLost units of opium!")
+                    println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated $amountOfWarehouseOpiumLost units of opium!")
                     Warehouse.commodities[Commodity.Opium] = Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost
                     Warehouse.vacantCargoSpaces += amountOfWarehouseOpiumLost
                 } else {
-                    println("Taipan! Bandits raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
+                    println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
                 }
             }
 
