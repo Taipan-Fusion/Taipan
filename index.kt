@@ -150,14 +150,163 @@ object Time {
 }
 
 object Casino {
-    var moneySpent: Long = 0
-    var moneyEarned: Long = 0
-    var monthSinceLastVisit: Int = 0
-    var visitedBefore: Boolean = false
+    var moneySpent = 0L
+    private var moneyEarned = 0L
+    var monthSinceLastVisit = 0
+    var visitedBefore = false
+
     val profit get() = moneyEarned - moneySpent
+
+    object Blackjack {
+        enum class Card (val value: Int, val stringName: String) {
+            A(1, "A"),
+            _2(2, "2"),
+            _3(3, "3"),
+            _4(4, "4"),
+            _5(5, "5"),
+            _6(6, "6"),
+            _7(7, "7"),
+            _8(8, "8"),
+            _9(9, "9"),
+            _10(10, "10"),
+            J(10, "J"),
+            Q(10, "Q"),
+            K(10, "K")
+        }
+
+        private infix fun MutableList<Card>.transferTopCardTo(destinationDeck: MutableList<Card>) {
+            destinationDeck.add(this.removeLast())
+        }
+
+        private fun getSum(hiddenDeck: MutableList<Card>, visibleDeck: MutableList<Card>): Int {
+            val sum = hiddenDeck.first().value + visibleDeck.sumOf { it.value }
+            return sum +
+                if ((Card.A in hiddenDeck || Card.A in visibleDeck) && sum < 12) 10 else 0
+        }
+
+        fun play() {
+            val deck =
+                mutableListOf(
+                    Card.A, Card.A, Card.A, Card.A,
+                    Card._2, Card._2, Card._2, Card._2,
+                    Card._3, Card._3, Card._3, Card._3,
+                    Card._4, Card._4, Card._4, Card._4,
+                    Card._5, Card._5, Card._5, Card._5,
+                    Card._6, Card._6, Card._6, Card._6,
+                    Card._7, Card._7, Card._7, Card._7,
+                    Card._8, Card._8, Card._8, Card._8,
+                    Card._9, Card._9, Card._9, Card._9,
+                    Card._10, Card._10, Card._10, Card._10,
+                    Card.J, Card.J, Card.J, Card.J,
+                    Card.Q, Card.Q, Card.Q, Card.Q,
+                    Card.K, Card.K, Card.K, Card.K,
+                )
+
+            while(true) {
+                var exitBlackjack = false
+
+                intInputLoop ("How much do you want to bet? Enter 0 to exit blackjack.") { bet ->
+                    when (bet) {
+                        0 -> {
+                            exitBlackjack = true
+                            false
+                        }
+                        // Bet is too small
+                        in (Finance.cash + 1) until 5 -> {
+                            println("You can't do that, Taipan!")
+                            true
+                        }
+                        // Keep playing
+                        else -> {
+                            val gameDeck = deck.shuffled().toMutableList()
+                            val playerDeckNotVisible = mutableListOf<Card>().also {
+                                gameDeck transferTopCardTo it
+                            }
+                            val dealerDeckVisible = mutableListOf<Card>().also {
+                                gameDeck transferTopCardTo it
+                            }
+                            val playerDeckVisible = mutableListOf<Card>().also {
+                                gameDeck transferTopCardTo it
+                            }
+                            var bust = false
+                            var stay = false
+                            var playerSum: Int
+
+                            println("Elder Brother He has dealt the cards.")
+
+                            while (!bust && !stay) {
+                                playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                                println("Your hidden card: $playerDeckNotVisible")
+                                println("Your visible deck: $playerDeckVisible")
+                                println("The dealer's visible card: $dealerDeckVisible")
+                                println("Your sum: $playerSum")
+
+                                inputLoop ("Do you want to hit${if (playerDeckVisible.size + playerDeckNotVisible.size == 2) ", double down," else ""} or stay?") {
+                                    when (it) {
+                                        "h" -> {
+                                            gameDeck transferTopCardTo playerDeckVisible
+                                            playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+
+                                            if (playerSum > 21) {
+                                                println("Your hidden card: $playerDeckNotVisible")
+                                                println("Your visible deck: $playerDeckVisible")
+                                                println("The dealer's visible card: $dealerDeckVisible")
+                                                println("Your sum: $playerSum")
+                                                println("You went bust!")
+                                                println("You lost $bet cash!")
+                                                bust = true
+                                                Finance.cash -= bet
+                                                moneySpent += bet
+                                            }
+
+                                            false
+                                        }
+                                        "s" -> {
+                                            stay = true
+
+                                            false
+                                        }
+                                        "d" -> {
+                                            if (playerDeckVisible.size + playerDeckNotVisible.size == 2) {
+                                                gameDeck transferTopCardTo playerDeckVisible
+                                                playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                                                val newBet = bet * 2
+
+                                                if (playerSum > 21) {
+                                                    println("Your hidden card: $playerDeckNotVisible")
+                                                    println("Your visible deck: $playerDeckVisible")
+                                                    println("The dealer's visible card: $dealerDeckVisible")
+                                                    println("Your sum: $playerSum")
+                                                    println("You went bust!")
+                                                    println("You lost $newBet cash!")
+                                                    bust = true
+                                                    Finance.cash -= newBet
+                                                    moneySpent += newBet
+                                                }
+                                                stay = true
+                                            }
+                                            false
+                                        }
+                                        else -> true
+                                    }
+                                }
+                            }
+
+                            false
+                        }
+                    }
+                }
+
+                if (exitBlackjack) return
+            }
+        }
+    }
 }
 
 val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
+
+infix fun<Tin, Tout> Tin.sendTo(lambda: (Tin) -> Tout) =
+    lambda(this)
 
 /**
  * Prints the [prompt] with no newline and gets a line of input from the user.
@@ -172,7 +321,7 @@ fun input(prompt: String): String {
  */
 fun inputLoop(prompt: String, handler: (String) -> Boolean) {
     while (true) {
-        if (!handler(input(prompt))) break
+        if (!(input(prompt) sendTo handler)) break
     }
 }
 
@@ -209,7 +358,6 @@ fun boolInputLoop(prompt: String, handler: (Boolean) -> Boolean) {
  * Ranges from 5 to 25, with the multiplier depending on the commodity.
  * globalMultiplier acts as natural inflation.
  */
-
 fun priceGenerator(max: Int, mul: Int): Int =
     (
         ((5 * mul)..(25 * mul))
@@ -225,7 +373,6 @@ fun priceGenerator(max: Int, mul: Int): Int =
  * Depends on multiple factors: type of pirate, amount of commodities onboard, etc...
  * Pirates become more numerous as time passes.
  */
-
 fun pirateGenerator(min: Int, max: Int): Int =
     (
         (min..max)
@@ -238,7 +385,6 @@ fun pirateGenerator(min: Int, max: Int): Int =
  * Generates a random price for a particular commodity.
  * Happens rarely; prices range from 1 to 4 or 50 to 1000 with a multiplier.
  */
-
 fun randomPriceGenerator(max: Int): Int =
     ((if (Random.nextDouble() <= 0.5) (1..4) else (50..1000))
         .random()
@@ -435,215 +581,31 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
 }
 
 /**
- * Casino Function in Shanghai.
+ * Casino function in Shanghai.
  * Taipan can gamble and play various games.
  */
-
 fun casino() {
-    if (Casino.visitedBefore) {
-        if (Casino.monthSinceLastVisit <= 3) {
-            println("Welcome back, Taipan! The Master of the House has given you your favorite table!")
-            println("Pick where you left off and have fun!")
-        }
-        if (Casino.monthSinceLastVisit > 3) {
-            println("It's been a while, Taipan! Enjoy yourself!")
-        }
-    } else {
-        println("Welcome to the Shanghai Casino Club, Taipan!")
-    }
+    println(
+        if (Casino.visitedBefore) {
+            if (Casino.monthSinceLastVisit < 4)
+                "Welcome back, Taipan! The Master of the House has given you your favorite table!\nPick where you left off and have fun!"
+            else
+                "It's been a while, Taipan! Enjoy yourself!"
+        } else
+            "Welcome to the Shanghai Casino Club, Taipan!"
+    )
+
     Casino.monthSinceLastVisit = 0
-    var leftCasino = false
     Casino.visitedBefore = true
+
+    var leftCasino = false
+
     while (!leftCasino) {
         println("Games available: ")
         println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
+
         when (input("What games would you like to play? Lowercase E to Exit the Casino.")) {
-            "b" -> {
-                var leftBlackjack = false
-                val cardValues =
-                    mutableMapOf(
-                        "A" to 1,
-                        "2" to 2,
-                        "3" to 3,
-                        "4" to 4,
-                        "5" to 5,
-                        "6" to 6,
-                        "7" to 7,
-                        "8" to 8,
-                        "9" to 9,
-                        "10" to 10,
-                        "J" to 10,
-                        "Q" to 10,
-                        "K" to 10
-                )
-                var deck: MutableList<String> =
-                    mutableListOf(
-                        "A","A","A","A",
-                        "2","2","2","2",
-                        "3","3","3","3",
-                        "4","4","4","4",
-                        "5","5","5","5",
-                        "6","6","6","6",
-                        "7","7","7","7",
-                        "8","8","8","8",
-                        "9","9","9","9",
-                        "10","10","10","10",
-                        "J","J","J","J",
-                        "Q","Q","Q","Q",
-                        "K","K","K","K"
-                    )
-                fun getSum(hiddenDeck: MutableList<String>, visibleDeck: MutableList<String>): Int {
-                    var sum = cardValues.get(hiddenDeck[0])!!.toInt()
-                    for (i in 1..visibleDeck.size) {
-                        sum += cardValues.get(visibleDeck[i - 1])!!
-                    }
-                    if (hiddenDeck.contains("A") || visibleDeck.contains("A")) {
-                        if (sum > 21) {
-                            return sum
-                        } else if (sum + 10 > 21) {
-                            return sum
-                        } else {
-                            return sum + 10
-                        }
-                    } else {
-                        return sum
-                    }
-                }
-                while (!leftBlackjack) {
-                    var bet: Long = 0
-
-                    intInputLoop("How much do you want to bet? Enter 0 to exit blackjack.") { betAmount ->
-                        if (betAmount == 0) {
-                            leftBlackjack = true
-                            false
-                        } else if (betAmount < 5 || betAmount > Finance.cash) {
-                            println("You can't do that, Taipan!")
-                            true
-                        } else {
-                            bet = betAmount.toLong()
-                            false
-                        }
-                    }
-                    if (leftBlackjack) {
-                        break
-                    }
-                    var deckForGame: MutableList<String> = deck.shuffled().toMutableList()
-                    var playerDeckNotVisible = mutableListOf(deckForGame[deckForGame.size - 1])
-                    deckForGame.removeLast()
-                    var dealerDeckVisible = mutableListOf(deckForGame[deckForGame.size - 1])
-                    deckForGame.removeLast()
-                    var playerDeckVisible: MutableList<String> = mutableListOf(deckForGame[deckForGame.size - 1])
-                    deckForGame.removeLast()
-                    var dealerDeckNotVisible: MutableList<String> = mutableListOf()
-                    var bust = false
-                    var stay = false
-                    var playerSum: Int = 0
-                    var dealerSum: Int = 0
-
-                    println("Elder Brother He has dealt the cards.")
-
-                    while (!bust && !stay) {
-                        playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-                        println("Your hidden card: $playerDeckNotVisible")
-                        println("Your visible deck: $playerDeckVisible")
-                        println("The dealer's visible card: $dealerDeckVisible")
-                        println("Your sum: $playerSum")
-                        when (input("Do you want to hit${if (playerDeckVisible.size + playerDeckNotVisible.size == 2) ", double down," else ""} or stay?")) {
-                            "h" -> {
-                                playerDeckVisible.add(deckForGame[deckForGame.size - 1])
-                                deckForGame.removeLast()
-                                playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-                                if (playerSum > 21) {
-                                    println("Your hidden card: $playerDeckNotVisible")
-                                    println("Your visible deck: $playerDeckVisible")
-                                    println("The dealer's visible card: $dealerDeckVisible")
-                                    println("Your sum: $playerSum")
-                                    println("You went bust!")
-                                    println("You lost $bet cash!")
-                                    bust = true
-                                    Finance.cash -= bet
-                                    Casino.moneySpent += bet
-                                }
-                            }
-                            "s" -> {
-                                stay = true
-                            }
-                            "d" -> if (playerDeckVisible.size + playerDeckNotVisible.size == 2) {
-                                playerDeckVisible.add(deckForGame[deckForGame.size - 1])
-                                deckForGame.removeLast()
-                                playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-                                bet *= 2
-                                if (playerSum > 21) {
-                                    println("Your hidden card: $playerDeckNotVisible")
-                                    println("Your visible deck: $playerDeckVisible")
-                                    println("The dealer's visible card: $dealerDeckVisible")
-                                    println("Your sum: $playerSum")
-                                    println("You went bust!")
-                                    println("You lost $bet cash!")
-                                    bust = true
-                                    Finance.cash -= bet
-                                    Casino.moneySpent += bet
-                                }
-                                stay = true
-                            }
-                        }
-                    }
-
-                    while (dealerSum < 17 && !bust) {
-                        dealerDeckNotVisible.add(deckForGame[deckForGame.size - 1])
-                        deckForGame.removeLast()
-                        dealerSum = getSum(dealerDeckVisible, dealerDeckNotVisible)
-                        if (dealerSum > 21) {
-                            println("The dealer went bust!")
-                            if (playerDeckVisible.contains("J") && playerDeckNotVisible.contains("A") ||
-                                            playerDeckVisible.contains("A") && playerDeckNotVisible.contains("J")
-                            ) {
-                                println("You had a blackjack!")
-                                println("You won ${(bet * 5.0 / 2.0).roundToInt().toLong()} cash!")
-                                Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong()
-                                Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong()
-                            } else {
-                                println("You won ${bet} cash!")
-                                Finance.cash += bet
-                                Casino.moneyEarned += bet
-                            }
-                            break
-                        }
-                    }
-
-                    if (dealerSum <= 21 && !bust) {
-                        println("Your hidden card: $playerDeckNotVisible")
-                        println("Your visible deck: $playerDeckVisible")
-                        println("Dealer's visible card: $dealerDeckVisible")
-                        println("Dealer's hidden deck: $dealerDeckNotVisible")
-                        println("Your sum: $playerSum")
-                        println("Dealer's sum: $dealerSum")
-                        if (playerSum > dealerSum) {
-                            if (playerDeckVisible.contains("J") && playerDeckNotVisible.contains("A") ||
-                                            playerDeckVisible.contains("A") && playerDeckNotVisible.contains("J")
-                            ) {
-                                println("Your sum was greater and you had a blackjack!")
-                                println("You won ${(bet * 5.0 / 2.0).roundToInt().toLong()} cash!")
-                                Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong()
-                                Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong()
-                            } else {
-                                println("Your sum was greater!")
-                                println("You won ${bet} cash!")
-                                Finance.cash += bet
-                                Casino.moneyEarned += bet
-                            }
-                        } else if (playerSum == dealerSum) {
-                            println("You and the dealer (Brother He) tied.")
-                        } else {
-                            println("The dealer had a larger sum! You lost $bet cash!")
-                            Finance.cash -= bet
-                            Casino.moneySpent += bet
-                        }
-                    }
-
-                }
-                
-            }
+            "b" -> Casino.Blackjack.play()
             "d" -> {
 
             }
@@ -847,7 +809,7 @@ fun main() {
 
             if (Random.nextDouble() <= 0.15) {
                 val robbedAmount = (Random.nextDouble(0.05, 1.0) * Finance.cash).roundToInt()
-                println("Bad joss! You were beaten up and robbed of ${robbedAmount} cash!")
+                println("Bad joss! You were beaten up and robbed of $robbedAmount cash!")
                 Finance.cash -= robbedAmount
             }
             
