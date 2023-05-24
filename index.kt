@@ -667,6 +667,10 @@ fun casino() {
 }
 fun main() {
     println("Welcome to Taipan!")
+    println("How to play Taipan")
+    println("1. Use single, lowercase letters for commands: f for fight, b for buy, o for opium, h for hit, etc...")
+    println("2. One turn equals one month, bank and moneylender interest rates are at 5% and 20% respectively")
+    println("3. Try to make as much money as possible!")
 
     // Each iteration is a different port.
     mainLoop@while (true) {
