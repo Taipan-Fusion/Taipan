@@ -52,8 +52,8 @@ enum class Commodity {
 object Ship {
     var cannons = 5
     var health = 100
-    var cargoUnits = 150
-    var vacantCargoSpaces = 100
+    var cargoUnits = 100
+    var vacantCargoSpaces = 50
 
     /**
      * The quantity of each [Commodity] available on the [Ship].
