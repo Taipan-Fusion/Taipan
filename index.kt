@@ -579,7 +579,9 @@ fun combat(damageC: Double, gunKnockoutChance: Double, numberOfPirates: Int, pir
                                 pirateList.removeLast()
                             }
                         } else {
-                            println("Can't escape them, Taipan!, but we managed to lose 1 of them!")
+                            if (pirateList.size > 1) {
+                                println("Can't escape them, Taipan!, but we managed to lose 1 of them!")
+                            }
                             pirateList.removeLast()
                             if (pirateList.size == 0) {
                                 println("We got away from them, Taipan!")
