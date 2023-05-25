@@ -305,8 +305,15 @@ object Casino {
 
 val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
 
+/**
+ * Functional pipe operator.
+ *
+ * `X sendTo Y` is the same as `Y(X)`.
+ */
 infix fun<Tin, Tout> Tin.sendTo(lambda: (Tin) -> Tout) =
     lambda(this)
+
+
 
 /**
  * Prints the [prompt] with no newline and gets a line of input from the user.
@@ -640,13 +647,13 @@ fun main() {
         if (Ship.location == Location.HongKong) {
             // If low on health, go to the shipyard.
             if (Ship.health < 100) {
-                val shipIstTotScalar: Double = 1 + (1 - (100 - Ship.health) / 100.0)
+                val shipIstTotScalar = 1 + (1 - (100 - Ship.health) / 100.0)
                 val shipFixPrice =
                     (
                         Random.nextInt(1, Ship.cargoUnits)
                         * shipIstTotScalar
                         * globalMultiplier
-                        * (1..5).random()
+                        * Random.nextInt(1, 5)
                     ).roundToInt()
 
                 println("Captain McHenry of the Hong Kong Consolidated Repair Corporation walks over to your ship and says: <<")
