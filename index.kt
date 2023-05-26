@@ -894,6 +894,8 @@ fun main() {
             Finance.prices[Commodity.Arms] = priceGenerator(10, 1)
             Finance.prices[Commodity.General] = priceGenerator(1, 1)
         } else {
+            var commodityArr = ["o", "s", "a", "g"]
+            var commoditySelected = Random.nextInt(0, 3)
             Finance.prices[Commodity.Opium] = randomPriceGenerator(1000)
             Finance.prices[Commodity.Silk] = randomPriceGenerator(100)
             Finance.prices[Commodity.Arms] = randomPriceGenerator(10)
