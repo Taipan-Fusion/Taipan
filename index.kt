@@ -888,20 +888,37 @@ fun main() {
             Probabilities.portEvent = (Random.nextDouble() + 0.5) * 0.5
         }
 
-        if (Random.nextDouble() <= 0.98) {
+        if (Random.nextDouble() <= 0.9) {
             Finance.prices[Commodity.Opium] = priceGenerator(1000, 2)
             Finance.prices[Commodity.Silk] = priceGenerator(100, 2)
             Finance.prices[Commodity.Arms] = priceGenerator(10, 1)
             Finance.prices[Commodity.General] = priceGenerator(1, 1)
         } else {
-            var commodityArr = ["o", "s", "a", "g"]
-            var commoditySelected = Random.nextInt(0, 3)
-            Finance.prices[Commodity.Opium] = randomPriceGenerator(1000)
-            Finance.prices[Commodity.Silk] = randomPriceGenerator(100)
-            Finance.prices[Commodity.Arms] = randomPriceGenerator(10)
-            Finance.prices[Commodity.General] = randomPriceGenerator(1)
+            var commodityList = listOf("Opium", "Silk", "Arms", "General")
+            var num = Random.nextInt(0, 4)
+            var commoditySelected = commodityList[num]
+            if (commoditySelected == "Opium") {
+                Finance.prices[Commodity.Opium] = randomPriceGenerator(1000)
+            } else {
+                Finance.prices[Commodity.Opium] = priceGenerator(1000, 2)
+            }
+            if (commoditySelected == "Silk") {
+                Finance.prices[Commodity.Silk] = randomPriceGenerator(100)
+            } else {
+                Finance.prices[Commodity.Silk] = priceGenerator(100, 2)
+            }
+            if (commoditySelected == "Arms") {
+                Finance.prices[Commodity.Arms] = randomPriceGenerator(10)
+            } else {
+                Finance.prices[Commodity.Arms] = priceGenerator(10, 1)
+            }
+            if (commoditySelected == "General") {
+                Finance.prices[Commodity.General] = randomPriceGenerator(1)
+            } else {
+                Finance.prices[Commodity.General] = priceGenerator(1, 1)
+            }
             println("Taipan!!!")
-            println("Prices are wild!!!")
+            println("Prices for $commoditySelected are wild!!!")
         }
 
         tradingLoop@while (true) {
