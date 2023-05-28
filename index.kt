@@ -262,6 +262,7 @@ object Casino {
                                                 bust = true
                                                 Finance.cash -= bet
                                                 moneySpent += bet
+                                                
                                             }
 
                                             false
@@ -285,7 +286,12 @@ object Casino {
                                                     println("You went bust!")
                                                     println("You lost $newBet cash!")
                                                     bust = true
-                                                    Finance.cash -= newBet
+                                                    if (Finance.cash - newBet < 0) {
+                                                        Finance.debt = newBet - Finance.cash
+                                                        Finance.cash = 0
+                                                    } else {
+                                                        Finance.cash -= newBet
+                                                    }
                                                     moneySpent += newBet
                                                 }
                                                 doubleMultiplier = 2L 
@@ -340,7 +346,12 @@ object Casino {
                                     println("You and the dealer (Brother He) tied.")
                                 } else {
                                     println("The dealer had a larger sum! You lost ${bet * doubleMultiplier} cash!")
-                                    Finance.cash -= bet * doubleMultiplier
+                                    if (Finance.cash - bet * doubleMultiplier < 0) {
+                                        Finance.debt = bet * doubleMultiplier - Finance.cash
+                                        Finance.cash = 0
+                                    } else {
+                                        Finance.cash -= bet * doubleMultiplier
+                                    }
                                     Casino.moneySpent += bet * doubleMultiplier
                                 }
                             }
