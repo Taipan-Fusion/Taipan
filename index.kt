@@ -211,72 +211,46 @@ object Casino {
                             exitBlackjack = true
                             false
                         }
-                        // Bet is too small
-                        in (Finance.cash + 1) until 5 -> {
-                            println("You can't do that, Taipan!")
-                            true
-                        }
+
                         // Keep playing
-                        else -> {
-                            val gameDeck = deck.shuffled().toMutableList()
-                            val playerDeckNotVisible = mutableListOf<Card>().also {
-                                gameDeck transferTopCardTo it
-                            }
-                            val dealerDeckVisible = mutableListOf<Card>().also {
-                                gameDeck transferTopCardTo it
-                            }
-                            val playerDeckVisible = mutableListOf<Card>().also {
-                                gameDeck transferTopCardTo it
-                            }
-                            val dealerDeckNotVisible = mutableListOf<Card>().also {
-                                gameDeck transferTopCardTo it
-                            }
-                            var bust = false
-                            var stay = false
-                            var doubleMultiplier = 1L
-                            var playerSum: Int = 0
-                            var dealerSum: Int = 0
+                        else -> { 
+                            if (bet > Finance.cash) {
+                                println("You can't bet that much!")
+                                true
+                            } else {
+                                val gameDeck = deck.shuffled().toMutableList()
+                                val playerDeckNotVisible = mutableListOf<Card>().also {
+                                    gameDeck transferTopCardTo it
+                                }
+                                val dealerDeckVisible = mutableListOf<Card>().also {
+                                    gameDeck transferTopCardTo it
+                                }
+                                val playerDeckVisible = mutableListOf<Card>().also {
+                                    gameDeck transferTopCardTo it
+                                }
+                                val dealerDeckNotVisible = mutableListOf<Card>().also {
+                                    gameDeck transferTopCardTo it
+                                }
+                                var bust = false
+                                var stay = false
+                                var doubleMultiplier = 1L
+                                var playerSum: Int = 0
+                                var dealerSum: Int = 0
 
-                            println("Elder Brother He has dealt the cards.")
+                                println("Elder Brother He has dealt the cards.")
 
-                            while (!bust && !stay) {
-                                playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-                                println("Your hidden card: $playerDeckNotVisible")
-                                println("Your visible deck: $playerDeckVisible")
-                                println("The dealer's visible card: $dealerDeckVisible")
-                                println("Your sum: $playerSum")
+                                while (!bust && !stay) {
+                                    playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                                    println("Your hidden card: $playerDeckNotVisible")
+                                    println("Your visible deck: $playerDeckVisible")
+                                    println("The dealer's visible card: $dealerDeckVisible")
+                                    println("Your sum: $playerSum")
 
-                                inputLoop ("Do you want to hit${if (playerDeckVisible.size + playerDeckNotVisible.size == 2) ", double down," else ""} or stay?") {
-                                    when (it) {
-                                        "h" -> {
-                                            gameDeck transferTopCardTo playerDeckVisible
-                                            playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-
-                                            if (playerSum > 21) {
-                                                println("Your hidden card: $playerDeckNotVisible")
-                                                println("Your visible deck: $playerDeckVisible")
-                                                println("The dealer's visible card: $dealerDeckVisible")
-                                                println("Your sum: $playerSum")
-                                                println("You went bust!")
-                                                println("You lost $bet cash!")
-                                                bust = true
-                                                Finance.cash -= bet
-                                                moneySpent += bet
-                                                
-                                            }
-
-                                            false
-                                        }
-                                        "s" -> {
-                                            stay = true
-
-                                            false
-                                        }
-                                        "d" -> {
-                                            if (playerDeckVisible.size + playerDeckNotVisible.size == 2) {
+                                    inputLoop ("Do you want to hit${if (playerDeckVisible.size + playerDeckNotVisible.size == 2) ", double down," else ""} or stay?") {
+                                        when (it) {
+                                            "h" -> {
                                                 gameDeck transferTopCardTo playerDeckVisible
                                                 playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
-                                                val newBet = bet * 2
 
                                                 if (playerSum > 21) {
                                                     println("Your hidden card: $playerDeckNotVisible")
@@ -284,84 +258,150 @@ object Casino {
                                                     println("The dealer's visible card: $dealerDeckVisible")
                                                     println("Your sum: $playerSum")
                                                     println("You went bust!")
-                                                    println("You lost $newBet cash!")
+                                                    println("You lost $bet cash!")
                                                     bust = true
-                                                    if (Finance.cash - newBet < 0) {
-                                                        Finance.debt = newBet - Finance.cash
-                                                        Finance.cash = 0
-                                                    } else {
-                                                        Finance.cash -= newBet
-                                                    }
-                                                    moneySpent += newBet
+                                                    Finance.cash -= bet
+                                                    moneySpent += bet
+                                                    
                                                 }
-                                                doubleMultiplier = 2L 
-                                                stay = true
+
+                                                false
                                             }
-                                            false
+                                            "s" -> {
+                                                stay = true
+
+                                                false
+                                            }
+                                            "d" -> {
+                                                if (playerDeckVisible.size + playerDeckNotVisible.size == 2) {
+                                                    gameDeck transferTopCardTo playerDeckVisible
+                                                    playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
+                                                    val newBet = bet * 2
+
+                                                    if (playerSum > 21) {
+                                                        println("Your hidden card: $playerDeckNotVisible")
+                                                        println("Your visible deck: $playerDeckVisible")
+                                                        println("The dealer's visible card: $dealerDeckVisible")
+                                                        println("Your sum: $playerSum")
+                                                        println("You went bust!")
+                                                        println("You lost $newBet cash!")
+                                                        bust = true
+                                                        if (Finance.cash - newBet < 0) {
+                                                            Finance.debt = newBet - Finance.cash
+                                                            Finance.cash = 0
+                                                        } else {
+                                                            Finance.cash -= newBet
+                                                        }
+                                                        moneySpent += newBet
+                                                    }
+                                                    doubleMultiplier = 2L 
+                                                    stay = true
+                                                }
+                                                false
+                                            }
+                                            else -> true
                                         }
-                                        else -> true
                                     }
                                 }
-                            }
 
-                            while (dealerSum <= 17 && !bust) {
-                                gameDeck transferTopCardTo dealerDeckNotVisible
-                                dealerSum = getSum(dealerDeckVisible, dealerDeckNotVisible)
-                                if (dealerSum > 21) {
-                                    println("The dealer went bust!")
-                                    if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
-                                        println("You had a blackjack!")
-                                        println("You won ${(bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()} cash!")
-                                        Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
-                                        Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
-                                    } else {
-                                        println("You won ${bet * doubleMultiplier} cash!")
-                                        Finance.cash += bet * doubleMultiplier
-                                        Casino.moneyEarned += bet * doubleMultiplier
+                                while (dealerSum <= 17 && !bust) {
+                                    gameDeck transferTopCardTo dealerDeckNotVisible
+                                    dealerSum = getSum(dealerDeckVisible, dealerDeckNotVisible)
+                                    if (dealerSum > 21) {
+                                        println("The dealer went bust!")
+                                        if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
+                                            println("You had a blackjack!")
+                                            println("You won ${(bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()} cash!")
+                                            Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                            Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                        } else {
+                                            println("You won ${bet * doubleMultiplier} cash!")
+                                            Finance.cash += bet * doubleMultiplier
+                                            Casino.moneyEarned += bet * doubleMultiplier
+                                        }
+                                        break
                                     }
-                                    break
                                 }
-                            }
 
-                            if (dealerSum <= 21 && !bust) {
-                                println("Your hidden card: $playerDeckNotVisible")
-                                println("Your visible deck: $playerDeckVisible")
-                                println("Dealer's visible card: $dealerDeckVisible")
-                                println("Dealer's hidden deck: $dealerDeckNotVisible")
-                                println("Your sum: $playerSum")
-                                println("Dealer's sum: $dealerSum")
-                                if (playerSum > dealerSum) {
-                                    if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
-                                        println("Your sum was greater and you had a blackjack!")
-                                        println("You won ${(bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()} cash!")
-                                        Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
-                                        Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                if (dealerSum <= 21 && !bust) {
+                                    println("Your hidden card: $playerDeckNotVisible")
+                                    println("Your visible deck: $playerDeckVisible")
+                                    println("Dealer's visible card: $dealerDeckVisible")
+                                    println("Dealer's hidden deck: $dealerDeckNotVisible")
+                                    println("Your sum: $playerSum")
+                                    println("Dealer's sum: $dealerSum")
+                                    if (playerSum > dealerSum) {
+                                        if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
+                                            println("Your sum was greater and you had a blackjack!")
+                                            println("You won ${(bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()} cash!")
+                                            Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                            Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                        } else {
+                                            println("Your sum was greater!")
+                                            println("You won ${bet * doubleMultiplier} cash!")
+                                            Finance.cash += bet * doubleMultiplier
+                                            Casino.moneyEarned += bet * doubleMultiplier
+                                        }
+                                    } else if (playerSum == dealerSum) {
+                                        println("You and the dealer (Brother He) tied.")
                                     } else {
-                                        println("Your sum was greater!")
-                                        println("You won ${bet * doubleMultiplier} cash!")
-                                        Finance.cash += bet * doubleMultiplier
-                                        Casino.moneyEarned += bet * doubleMultiplier
+                                        println("The dealer had a larger sum! You lost ${bet * doubleMultiplier} cash!")
+                                        if (Finance.cash - bet * doubleMultiplier < 0) {
+                                            Finance.debt = bet * doubleMultiplier - Finance.cash
+                                            Finance.cash = 0
+                                        } else {
+                                            Finance.cash -= bet * doubleMultiplier
+                                        }
+                                        Casino.moneySpent += bet * doubleMultiplier
                                     }
-                                } else if (playerSum == dealerSum) {
-                                    println("You and the dealer (Brother He) tied.")
-                                } else {
-                                    println("The dealer had a larger sum! You lost ${bet * doubleMultiplier} cash!")
-                                    if (Finance.cash - bet * doubleMultiplier < 0) {
-                                        Finance.debt = bet * doubleMultiplier - Finance.cash
-                                        Finance.cash = 0
-                                    } else {
-                                        Finance.cash -= bet * doubleMultiplier
-                                    }
-                                    Casino.moneySpent += bet * doubleMultiplier
                                 }
-                            }
 
-                            false
+                                false
+                            }
                         }
                     }
                 }
 
                 if (exitBlackjack) return
+            }
+        }
+    }
+
+    object Doubles {
+        private fun doubles(amount: Long, times: Int): Long {
+            if (Random.nextDouble() <= 0.5) {
+                if (times == 0) {
+                    return 0
+                } else {
+                    return amount
+                }
+            } else {
+                return doubles(amount * 2, times + 1)
+            }
+        }
+        fun play() {
+            var exitDoubles = true
+            while (exitDoubles) {
+                intInputLoop("How much do you want to bet? Enter 0 to exit Doubles.") { bet ->
+                    when (bet) {
+                        0 -> {
+                            exitDoubles = false
+                            false
+                        }
+                        else -> {
+                            if (bet < 10 || bet > Finance.cash) {
+                                println("You can't do that!")
+                                true
+                            } else {
+                                Finance.cash -= bet.toLong()
+                                var doublesRound = doubles((bet / 10.0).roundToInt().toLong(), 0)
+                                Finance.cash += doublesRound
+                                println("You won $doublesRound cash!")
+                                false
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -675,13 +715,11 @@ fun casino() {
 
     while (!leftCasino) {
         println("Games available: ")
-        println("Blackjack, Dice, Slots, Poker, Roulette, and Keno.")
+        println("Blackjack, Doubles, Slots, Poker, Roulette, and Keno.")
 
         when (input("What games would you like to play? Lowercase E to Exit the Casino.")) {
             "b" -> Casino.Blackjack.play()
-            "d" -> {
-
-            }
+            "d" -> Casino.Doubles.play()
             "s" -> {
 
             }
