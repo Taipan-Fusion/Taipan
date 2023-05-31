@@ -925,7 +925,7 @@ fun main() {
             }
             
             if (Random.nextDouble() <= (Warehouse.commodities[Commodity.Opium]!!) / (Warehouse.totalCargoSpaces)) {
-                if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.vacantCargoSpaces) {
+                if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.totalCargoSpaces) {
                     println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated $amountOfWarehouseOpiumLost units of opium!")
                     Warehouse.commodities[Commodity.Opium] = Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost
                     Warehouse.vacantCargoSpaces += amountOfWarehouseOpiumLost
