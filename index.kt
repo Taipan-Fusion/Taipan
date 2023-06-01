@@ -775,7 +775,7 @@ fun main() {
                     if (amountPaid > Finance.cash) {
                         println("Taipan, you only have ${Finance.cash} cash.")
                         true
-                    } else if (amountPaid > shipFixPrice) {
+                    } else if (amountPaid >= shipFixPrice) {
                         // If the player paid what the captain asked for, completely repair the ship
                         Ship.health = 100
                         Finance.cash -= amountPaid
