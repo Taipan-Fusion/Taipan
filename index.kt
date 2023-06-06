@@ -875,9 +875,15 @@ fun main() {
                 }
                 false
             }
+        } else {
+            if (LiYuen.chanceOfAttack >= 0.5) {
+                if (Random.nextDouble() < 0.3) {
+                    println("Taipan! It's Li Yuen's lieutenant!")
+                    println("He says that his admiral wishes to see you, posthaste!")  
+                }
+            }
         }
-
-        // TODO TEST Port event
+        
         if (Random.nextDouble() <= Probabilities.portEvent) {
             //Options: More guns, A new ship, Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
             val severity = Random.nextDouble(0.01, 1.0)
