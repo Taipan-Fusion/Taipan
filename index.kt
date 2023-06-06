@@ -410,16 +410,26 @@ object Casino {
         /**
          * TODO kenoHandler()
          */
-        private fun kenoHandler(label: String, number: Int) {
+        private fun kenoHandler(label: String): Int {
+            var result: Int = 0
             intInputLoop("Guess your $label number (between 1 and 10).") {
-                /* not yet implemented
                 bet -> when (bet) {
-                    number = bet
-                    true
+                    0 -> {
+                        println("You can't do that!")
+                        true
+                    }
+                    else -> {
+                        if (bet < 1 || bet > 10) {
+                            println("You can't do that!")
+                            true
+                        } else {
+                            result = bet
+                            false
+                        }
+                    } 
                 }
-                 */
-                false
             }
+            return result
         }
         private fun keno(amount: Long) {
             var num1: Int = 0
@@ -427,11 +437,11 @@ object Casino {
             var num3: Int = 0
             var num4: Int = 0
             var num5: Int = 0
-            kenoHandler("first", num1)
-            kenoHandler("second", num2)
-            kenoHandler("third", num3)
-            kenoHandler("fourth", num4)
-            kenoHandler("fifth", num5)
+            num1 = kenoHandler("first")
+            num2 = kenoHandler("second")
+            num3 = kenoHandler("third")
+            num4 = kenoHandler("fourth")
+            num5 = kenoHandler("fifth")
             var numList = mutableListOf(num1, num2, num3, num4, num5)
             var answerNum1: Int = (1..10).random()
             var answerNum2: Int = (1..10).random()
@@ -440,10 +450,13 @@ object Casino {
             var answerNum5: Int = (1..10).random()
             var answerNumList = mutableListOf(answerNum1, answerNum2, answerNum3, answerNum4, answerNum5)
             var common = numList.intersect(answerNumList)
-            var winningCash: Int = 0
-
+            var winningCash: Long = (5.0).pow(common.size.toDouble()).toLong() * amount
+            if (common.size == 0) {
+                winningCash = 0L
+            }
             val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
             println("${numbersMatchedText[common.size]} of your numbers matched the winners. You won $winningCash cash!")
+            Finance.cash += winningCash
         }
         fun play() {
             var exitKeno = false
@@ -793,9 +806,7 @@ fun casino() {
             "r" -> {
 
             }
-            "k" -> {
-
-            }
+            "k" -> Casino.Keno.play()
             "e" -> {
                 leftCasino = true
             }
@@ -1084,7 +1095,7 @@ fun main() {
                             Finance.cash -= cashToDeposit
                             Finance.moneyInBank += cashToDeposit
                             false
-                        } else false
+                        } else true
                     }
                     intInputLoop ("How much will you withdraw?") { cashToWithdraw ->
                         if (cashToWithdraw > Finance.moneyInBank) {
@@ -1094,7 +1105,7 @@ fun main() {
                             Finance.cash += cashToWithdraw
                             Finance.moneyInBank -= cashToWithdraw
                             false
-                        } else false
+                        } else true
                     }
                 }
                 "t" -> if (inHongKong) {
@@ -1113,8 +1124,10 @@ fun main() {
                                     intInputLoop("How much ${commodity.name} shall I move $actionString, Taipan?") {
                                         if (it > amountAvailableToMove) {
                                             println("You only have $amountAvailableToMove, Taipan.")
+                                            true
                                         } else if (Warehouse.vacantCargoSpaces - it < 0 && toWarehouse ) {
                                             println("There's not enough space in the warehouse, Taipan!")
+                                            true
                                         } else if (it >= 0) {
                                             Ship.vacantCargoSpaces += directionMultiplier * it
                                             Warehouse.vacantCargoSpaces -= directionMultiplier * it
@@ -1122,8 +1135,8 @@ fun main() {
                                                 Warehouse.commodities[commodity]!! + directionMultiplier * it
                                             Ship.commodities[commodity] =
                                                 Ship.commodities[commodity]!! - directionMultiplier * it
+                                            false
                                         }
-                                        false
                                     }
                                 }
                             }
