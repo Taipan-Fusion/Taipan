@@ -207,6 +207,7 @@ object Casino {
                 var exitBlackjack = false
 
                 intInputLoop ("How much do you want to bet? Enter 0 to exit blackjack.") { bet ->
+
                     when (bet) {
                         0 -> {
                             exitBlackjack = true
@@ -235,8 +236,25 @@ object Casino {
                                 var bust = false
                                 var stay = false
                                 var doubleMultiplier = 1L
-                                var playerSum: Int = 0
-                                var dealerSum: Int = 0
+                                var playerSum = 0
+                                var dealerSum = 0
+
+                                fun youHadABlackjack(message: String) {
+                                    println(message)
+                                    println("You won ${(bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()} cash!")
+                                    Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                    moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                }
+
+                                fun bust() {
+                                    println("Your hidden card: $playerDeckNotVisible")
+                                    println("Your visible deck: $playerDeckVisible")
+                                    println("The dealer's visible card: $dealerDeckVisible")
+                                    println("Your sum: $playerSum")
+                                    println("You went bust!")
+                                    println("You lost $bet cash!")
+                                    bust = true
+                                }
 
                                 println("Elder Brother He has dealt the cards.")
 
@@ -254,16 +272,9 @@ object Casino {
                                                 playerSum = getSum(playerDeckNotVisible, playerDeckVisible)
 
                                                 if (playerSum > 21) {
-                                                    println("Your hidden card: $playerDeckNotVisible")
-                                                    println("Your visible deck: $playerDeckVisible")
-                                                    println("The dealer's visible card: $dealerDeckVisible")
-                                                    println("Your sum: $playerSum")
-                                                    println("You went bust!")
-                                                    println("You lost $bet cash!")
-                                                    bust = true
+                                                    bust()
                                                     Finance.cash -= bet
                                                     moneySpent += bet
-                                                    
                                                 }
 
                                                 false
@@ -280,13 +291,7 @@ object Casino {
                                                     val newBet = bet * 2
 
                                                     if (playerSum > 21) {
-                                                        println("Your hidden card: $playerDeckNotVisible")
-                                                        println("Your visible deck: $playerDeckVisible")
-                                                        println("The dealer's visible card: $dealerDeckVisible")
-                                                        println("Your sum: $playerSum")
-                                                        println("You went bust!")
-                                                        println("You lost $newBet cash!")
-                                                        bust = true
+                                                        bust()
                                                         if (Finance.cash - newBet < 0) {
                                                             Finance.debt = newBet - Finance.cash
                                                             Finance.cash = 0
@@ -311,14 +316,11 @@ object Casino {
                                     if (dealerSum > 21) {
                                         println("The dealer went bust!")
                                         if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
-                                            println("You had a blackjack!")
-                                            println("You won ${(bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()} cash!")
-                                            Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
-                                            Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                            youHadABlackjack("You had a blackjack!")
                                         } else {
                                             println("You won ${bet * doubleMultiplier} cash!")
                                             Finance.cash += bet * doubleMultiplier
-                                            Casino.moneyEarned += bet * doubleMultiplier
+                                            moneyEarned += bet * doubleMultiplier
                                         }
                                         break
                                     }
@@ -333,15 +335,12 @@ object Casino {
                                     println("Dealer's sum: $dealerSum")
                                     if (playerSum > dealerSum) {
                                         if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
-                                            println("Your sum was greater and you had a blackjack!")
-                                            println("You won ${(bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()} cash!")
-                                            Finance.cash += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
-                                            Casino.moneyEarned += (bet * 5.0 / 2.0).roundToInt().toLong() * doubleMultiplier
+                                            youHadABlackjack("Your sum was greater and you had a blackjack!")
                                         } else {
                                             println("Your sum was greater!")
                                             println("You won ${bet * doubleMultiplier} cash!")
                                             Finance.cash += bet * doubleMultiplier
-                                            Casino.moneyEarned += bet * doubleMultiplier
+                                            moneyEarned += bet * doubleMultiplier
                                         }
                                     } else if (playerSum == dealerSum) {
                                         println("You and the dealer (Brother He) tied.")
@@ -353,7 +352,7 @@ object Casino {
                                         } else {
                                             Finance.cash -= bet * doubleMultiplier
                                         }
-                                        Casino.moneySpent += bet * doubleMultiplier
+                                        moneySpent += bet * doubleMultiplier
                                     }
                                 }
 
@@ -370,14 +369,14 @@ object Casino {
 
     object Doubles {
         private fun doubles(amount: Long, times: Int): Long {
-            if (Random.nextDouble() <= 0.5) {
+            return if (Random.nextDouble() <= 0.5) {
                 if (times == 0) {
-                    return 0
+                    0
                 } else {
-                    return amount
+                    amount
                 }
             } else {
-                return doubles(amount * 2, times + 1)
+                doubles(amount * 2, times + 1)
             }
         }
         fun play() {
@@ -395,7 +394,7 @@ object Casino {
                                 true
                             } else {
                                 Finance.cash -= bet.toLong()
-                                var doublesRound = doubles((bet / 10.0).roundToInt().toLong(), 0)
+                                val doublesRound = doubles((bet / 10.0).roundToInt().toLong(), 0)
                                 Finance.cash += doublesRound
                                 println("You won $doublesRound cash!")
                                 false
@@ -408,12 +407,18 @@ object Casino {
     }
 
     object Keno {
+        /**
+         * TODO kenoHandler()
+         */
         private fun kenoHandler(label: String, number: Int) {
             intInputLoop("Guess your $label number (between 1 and 10).") {
+                /* not yet implemented
                 bet -> when (bet) {
                     number = bet
                     true
                 }
+                 */
+                false
             }
         }
         private fun keno(amount: Long) {
@@ -436,19 +441,9 @@ object Casino {
             var answerNumList = mutableListOf(answerNum1, answerNum2, answerNum3, answerNum4, answerNum5)
             var common = numList.intersect(answerNumList)
             var winningCash: Int = 0
-            if (common.size == 0) {
-                println("None of your numbers matched the winners. You won 0 cash.")
-            } else if (common.size == 1) {
-                println("One of your numbers matched the winners! You won $winningCash cash!")
-            } else if (common.size == 2) {
-                println("Two of your numbers matched the winners! You won $winningCash cash!")
-            } else if (common.size == 3) {
-                println("Three of your numbers matched the winners! You won $winningCash cash!")
-            } else if (common.size == 4) {
-                println("Four of your numbers matched the winners! You won $winningCash cash!")
-            } else if (common.size == 5) {
-                println("All of your numbers matched the winners! You won $winningCash cash!")
-            }
+
+            val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
+            println("${numbersMatchedText[common.size]} of your numbers matched the winners. You won $winningCash cash!")
         }
         fun play() {
             var exitKeno = false
@@ -465,7 +460,7 @@ object Casino {
                                 true
                             } else {
                                 Finance.cash -= bet.toLong()
-                                keno(bet)
+                                keno(bet.toLong())
                                 false
                             }
                         }   
@@ -1018,9 +1013,9 @@ fun main() {
             Finance.prices[Commodity.Arms] = priceGenerator(10, 1)
             Finance.prices[Commodity.General] = priceGenerator(1, 1)
         } else {
-            var commodityList = listOf("Opium", "Silk", "Arms", "General")
-            var num = Random.nextInt(0, 4)
-            var commoditySelected = commodityList[num]
+            val commodityList = listOf("Opium", "Silk", "Arms", "General")
+            val num = Random.nextInt(0, 4)
+            val commoditySelected = commodityList[num]
             if (commoditySelected == "Opium") {
                 Finance.prices[Commodity.Opium] = randomPriceGenerator(1000)
             } else {
