@@ -5,6 +5,7 @@ import kotlin.random.Random
 import kotlin.math.pow
 import kotlin.math.floor
 import kotlin.collections.shuffled
+import kotlin.collections.intersect
 
 /**
  * The ship can be at any of the below ports at any given time ([Ship.location]).
@@ -380,12 +381,12 @@ object Casino {
             }
         }
         fun play() {
-            var exitDoubles = true
-            while (exitDoubles) {
+            var exitDoubles = false
+            while (!exitDoubles) {
                 intInputLoop("How much do you want to bet? Enter 0 to exit Doubles.") { bet ->
                     when (bet) {
                         0 -> {
-                            exitDoubles = false
+                            exitDoubles = true
                             false
                         }
                         else -> {
@@ -401,6 +402,74 @@ object Casino {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    object Keno {
+        private fun kenoHandler(label: String, number: Int) {
+            intInputLoop("Guess your $label number (between 1 and 10).") {
+                bet -> when (bet) {
+                    number = bet
+                    true
+                }
+            }
+        }
+        private fun keno(amount: Long) {
+            var num1: Int = 0
+            var num2: Int = 0
+            var num3: Int = 0
+            var num4: Int = 0
+            var num5: Int = 0
+            kenoHandler("first", num1)
+            kenoHandler("second", num2)
+            kenoHandler("third", num3)
+            kenoHandler("fourth", num4)
+            kenoHandler("fifth", num5)
+            var numList = mutableListOf(num1, num2, num3, num4, num5)
+            var answerNum1: Int = (1..10).random()
+            var answerNum2: Int = (1..10).random()
+            var answerNum3: Int = (1..10).random()
+            var answerNum4: Int = (1..10).random()
+            var answerNum5: Int = (1..10).random()
+            var answerNumList = mutableListOf(answerNum1, answerNum2, answerNum3, answerNum4, answerNum5)
+            var common = numList.intersect(answerNumList)
+            var winningCash: Int = 0
+            if (common.size == 0) {
+                println("None of your numbers matched the winners. You won 0 cash.")
+            } else if (common.size == 1) {
+                println("One of your numbers matched the winners! You won $winningCash cash!")
+            } else if (common.size == 2) {
+                println("Two of your numbers matched the winners! You won $winningCash cash!")
+            } else if (common.size == 3) {
+                println("Three of your numbers matched the winners! You won $winningCash cash!")
+            } else if (common.size == 4) {
+                println("Four of your numbers matched the winners! You won $winningCash cash!")
+            } else if (common.size == 5) {
+                println("All of your numbers matched the winners! You won $winningCash cash!")
+            }
+        }
+        fun play() {
+            var exitKeno = false
+            while (!exitKeno) {
+                intInputLoop("How much do you want to bet? Enter 0 to exit Keno.") { bet ->
+                    when (bet) {
+                        0 -> {
+                            exitKeno = true
+                            false
+                        }
+                        else -> {
+                            if (bet < 10 || bet > Finance.cash) {
+                                println("You can't do that!")
+                                true
+                            } else {
+                                Finance.cash -= bet.toLong()
+                                keno(bet)
+                                false
+                            }
+                        }   
+                    }     
                 }
             }
         }
