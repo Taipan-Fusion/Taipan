@@ -407,9 +407,6 @@ object Casino {
     }
 
     object Keno {
-        /**
-         * TODO kenoHandler()
-         */
         private fun kenoHandler(label: String): Int {
             var result: Int = 0
             intInputLoop("Guess your $label number (between 1 and 10).") {
@@ -444,13 +441,30 @@ object Casino {
             var answerNum4: Int = (1..10).random()
             var answerNum5: Int = (1..10).random()
             var answerNumList = mutableListOf(answerNum1, answerNum2, answerNum3, answerNum4, answerNum5)
-            var common = numList.intersect(answerNumList)
-            var winningCash: Long = (5.0).pow(common.size.toDouble()).toLong() * amount
-            if (common.size == 0) {
+            var common = 0
+            // TODO refactor
+            if (num1 == answerNum1) {
+                common++
+            }
+            if (num2 == answerNum2) {
+                common++
+            }
+            if (num3 == answerNum3) {
+                common++
+            }
+            if (num4 == answerNum4) {
+                common++
+            }
+            if (num5 == answerNum5) {
+                common++
+            }
+            var winningCash: Long = (5.0).pow(common.toDouble()).toLong() * amount
+            if (common == 0) {
                 winningCash = 0L
             }
             val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
-            println("${numbersMatchedText[common.size]} of your numbers matched the winners. You won $winningCash cash!")
+            println("Winning numbers: ${answerNum1}, ${answerNum2}, ${answerNum3}, ${answerNum4}, ${answerNum5}")
+            println("${numbersMatchedText[common]} of your numbers matched the winners. You won $winningCash cash!")
             Finance.cash += winningCash
         }
         fun play() {
