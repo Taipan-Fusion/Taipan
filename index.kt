@@ -413,17 +413,17 @@ object Casino {
         private fun kenoHandler(label: String): Int {
             var result: Int = 0
             intInputLoop("Guess your $label number (between 1 and 10).") {
-                bet -> when (bet) {
+                num -> when (num) {
                     0 -> {
                         println("You can't do that!")
                         true
                     }
                     else -> {
-                        if (bet < 1 || bet > 10) {
+                        if (num < 1 || num > 10) {
                             println("You can't do that!")
                             true
                         } else {
-                            result = bet
+                            result = num
                             false
                         }
                     } 
@@ -432,16 +432,11 @@ object Casino {
             return result
         }
         private fun keno(amount: Long) {
-            var num1: Int = 0
-            var num2: Int = 0
-            var num3: Int = 0
-            var num4: Int = 0
-            var num5: Int = 0
-            num1 = kenoHandler("first")
-            num2 = kenoHandler("second")
-            num3 = kenoHandler("third")
-            num4 = kenoHandler("fourth")
-            num5 = kenoHandler("fifth")
+            var num1: Int = kenoHandler("first")
+            var num2: Int = kenoHandler("second")
+            var num3: Int = kenoHandler("third")
+            var num4: Int = kenoHandler("fourth")
+            var num5: Int = kenoHandler("fifth")
             var numList = mutableListOf(num1, num2, num3, num4, num5)
             var answerNum1: Int = (1..10).random()
             var answerNum2: Int = (1..10).random()
@@ -1136,7 +1131,7 @@ fun main() {
                                             Ship.commodities[commodity] =
                                                 Ship.commodities[commodity]!! - directionMultiplier * it
                                             false
-                                        }
+                                        } else true
                                     }
                                 }
                             }
