@@ -493,6 +493,18 @@ object Casino {
     }
 }
 
+object HorseRacing {
+    //structure of a horse
+    //TODO: Implement Horse Racing
+    data class Horse(
+        val name: String,
+        var lapNumber: Int = 0,
+        var amountOfLapDone: Int = 0,
+        var currentStamina: Double = 1.0,
+        var currentHopDistance: Int = 0,
+        val burstyness: Double = Random.nextDouble()
+    )
+}
 val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
 
 /**
