@@ -847,7 +847,7 @@ fun main() {
                 println("Captain McHenry of the Hong Kong Consolidated Repair Corporation walks over to your ship and says: <<")
                 println(
                     if (Ship.health < 30)
-                        "Matey! That ship of yours is 'bout to rot away like a piece of driftwood in Kolwoon Bay! Don't worry, it's nothing I can't fix. For a price, that is!"
+                        "Matey! That ship of yours is 'bout to rot away like a piece of driftwood in Kowloon Bay! Don't worry, it's nothing I can't fix. For a price, that is!"
                     else if (Ship.health < 50)
                         "That there ship's taken quite a bit of damage, matey! You best get it fixed before you go out to sea again! I can get you sailing the friendly waves in no time! For a price, that is!"
                     else
