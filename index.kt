@@ -367,10 +367,6 @@ object Casino {
     }
 
     object Doubles {
-        private fun doubles(amount: Long, times: Int): Long =
-            if (Random.nextDouble() <= 0.5)
-                (if (times == 0) 0 else amount)
-            else doubles(amount * 2, times + 1)
         fun play() {
             var exitDoubles = false
             while (!exitDoubles) {
@@ -385,10 +381,15 @@ object Casino {
                                 println("You can't do that!")
                                 true
                             } else {
-                                Finance.cash -= bet.toLong()
-                                val doublesRound = doubles((bet / 10.0).roundToInt().toLong(), 0)
-                                Finance.cash += doublesRound
-                                println("You won $doublesRound cash!")
+                                var times = 0
+                                while (Random.nextDouble() <= 0.5) {
+                                    times++
+                                }
+                                val cashWon =
+                                    if (times == 0) 0
+                                    else bet / 10 * 2.0.pow(times).toLong()
+                                Finance.cash += cashWon - bet.toLong()
+                                println("You won $cashWon cash!")
                                 false
                             }
                         }
