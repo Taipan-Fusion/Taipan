@@ -62,7 +62,7 @@ const locationsMap = {
 function game() {
   console.log("Welcome to Taipan!")
   while (gameAttributes.status !== "Terminated") {
-    if (player.location === "Hong Kong") {
+    if (player.location === "Hong Kon") {
       if (ship.health < 100) {
         shipyard()
       }
