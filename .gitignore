@@ -1,2 +1,7 @@
-/taipan/
+/taipan/.svelte-kit
+/taipan/node_modules
 index.jar
+/.fleet/
+/.idea/
+/.vscode/
+/META-INF/
