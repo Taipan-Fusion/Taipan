@@ -85,9 +85,6 @@ object Warehouse {
     val occupiedCargoSpaces get() = totalCargoSpaces - vacantCargoSpaces
 }
 
-/**
- * TODO Explain who Li Yuen is
- */
 object LiYuen {
     /**
      *
@@ -366,32 +363,30 @@ object Casino {
         }
     }
 
-    object Doubles {
-        fun play() {
-            var exitDoubles = false
-            while (!exitDoubles) {
-                intInputLoop("How much do you want to bet? Enter 0 to exit Doubles.") { bet ->
-                    when (bet) {
-                        0 -> {
-                            exitDoubles = true
-                            false
-                        }
-                        else -> {
-                            if (bet < 10 || bet > Finance.cash) {
-                                println("You can't do that!")
-                                true
-                            } else {
-                                var times = 0
-                                while (Random.nextDouble() <= 0.5) {
-                                    times++
-                                }
-                                val cashWon =
-                                    if (times == 0) 0
-                                    else bet / 10 * 2.0.pow(times).toLong()
-                                Finance.cash += cashWon - bet.toLong()
-                                println("You won $cashWon cash!")
-                                false
+    fun doubles() {
+        var exitDoubles = false
+        while (!exitDoubles) {
+            intInputLoop("How much do you want to bet? Enter 0 to exit Doubles.") { bet ->
+                when (bet) {
+                    0 -> {
+                        exitDoubles = true
+                        false
+                    }
+                    else -> {
+                        if (bet < 10 || bet > Finance.cash) {
+                            println("You can't do that!")
+                            true
+                        } else {
+                            var times = 0
+                            while (Random.nextDouble() <= 0.5) {
+                                times++
                             }
+                            val cashWon =
+                                if (times == 0) 0
+                                else bet / 10 * 2.0.pow(times).toLong()
+                            Finance.cash += cashWon - bet.toLong()
+                            println("You won $cashWon cash!")
+                            false
                         }
                     }
                 }
@@ -399,51 +394,49 @@ object Casino {
         }
     }
 
-    object Keno {
-        fun play() {
-            val ordinalNumbers = listOf("first", "second", "third", "fourth", "fifth")
-            val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
+    fun keno() {
+        val ordinalNumbers = listOf("first", "second", "third", "fourth", "fifth")
+        val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
 
-            var exitKeno = false
-            while (!exitKeno) {
-                intInputLoop("How much do you want to bet? Enter 0 to exit Keno.") { bet ->
-                    when (bet) {
-                        0 -> {
-                            exitKeno = true
-                            false
-                        }
-                        else -> {
-                            if (bet !in 10..Finance.cash) {
-                                println("You can't do that!")
-                                true
-                            } else {
-                                Finance.cash -= bet.toLong()
-                                val guesses = mutableListOf<Int>()
-                                val answers = (0 until 5)
-                                    .map { (1..10).random() }
+        var exitKeno = false
+        while (!exitKeno) {
+            intInputLoop("How much do you want to bet? Enter 0 to exit Keno.") { bet ->
+                when (bet) {
+                    0 -> {
+                        exitKeno = true
+                        false
+                    }
+                    else -> {
+                        if (bet !in 10..Finance.cash) {
+                            println("You can't do that!")
+                            true
+                        } else {
+                            Finance.cash -= bet.toLong()
+                            val guesses = mutableListOf<Int>()
+                            val answers = (0 until 5)
+                                .map { (1..10).random() }
 
-                                repeat(answers.size) {
-                                    intInputLoop("Guess your ${ordinalNumbers[it]} number (between 1 and 10).") { num ->
-                                        if (num !in 1..10) {
-                                            println("You can't do that!")
-                                            true
-                                        } else {
-                                            guesses += num
-                                            false
-                                        }
+                            repeat(answers.size) {
+                                intInputLoop("Guess your ${ordinalNumbers[it]} number (between 1 and 10).") { num ->
+                                    if (num !in 1..10) {
+                                        println("You can't do that!")
+                                        true
+                                    } else {
+                                        guesses += num
+                                        false
                                     }
                                 }
-
-                                val numCorrectAnswers = answers.indices.count { guesses[it] == answers[it] }
-                                val cashWon =
-                                    if (numCorrectAnswers == 0) 0L
-                                    else (5.0).pow(numCorrectAnswers.toDouble()).toLong() * bet
-
-                                println("Winning numbers: ${answers.joinToString(", ")}")
-                                println("${numbersMatchedText[numCorrectAnswers]} of your numbers matched the winners. You won $cashWon cash!")
-                                Finance.cash += cashWon
-                                false
                             }
+
+                            val numCorrectAnswers = answers.indices.count { guesses[it] == answers[it] }
+                            val cashWon =
+                                if (numCorrectAnswers == 0) 0L
+                                else (5.0).pow(numCorrectAnswers.toDouble()).toLong() * bet
+
+                            println("Winning numbers: ${answers.joinToString(", ")}")
+                            println("${numbersMatchedText[numCorrectAnswers]} of your numbers matched the winners. You won $cashWon cash!")
+                            Finance.cash += cashWon
+                            false
                         }
                     }
                 }
@@ -774,7 +767,7 @@ fun casino() {
 
         when (input("What games would you like to play? Lowercase E to Exit the Casino.")) {
             "b" -> Casino.Blackjack.play()
-            "d" -> Casino.Doubles.play()
+            "d" -> Casino.doubles()
             "s" -> {
 
             }
@@ -784,7 +777,7 @@ fun casino() {
             "r" -> {
 
             }
-            "k" -> Casino.Keno.play()
+            "k" -> Casino.keno()
             "e" -> {
                 leftCasino = true
             }
