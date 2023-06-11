@@ -5,7 +5,6 @@ import kotlin.random.Random
 import kotlin.math.pow
 import kotlin.math.floor
 import kotlin.collections.shuffled
-import kotlin.collections.intersect
 
 /**
  * The ship can be at any of the below ports at any given time ([Ship.location]).
@@ -215,7 +214,7 @@ object Casino {
                         }
 
                         // Keep playing
-                        else -> { 
+                        else -> {
                             if (bet > Finance.cash) {
                                 println("You can't bet that much!")
                                 true
@@ -300,7 +299,7 @@ object Casino {
                                                         }
                                                         moneySpent += newBet
                                                     }
-                                                    doubleMultiplier = 2L 
+                                                    doubleMultiplier = 2L
                                                     stay = true
                                                 }
                                                 false
@@ -315,7 +314,7 @@ object Casino {
                                     dealerSum = getSum(dealerDeckVisible, dealerDeckNotVisible)
                                     if (dealerSum > 21) {
                                         println("The dealer went bust!")
-                                        if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
+                                        if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {
                                             youHadABlackjack("You had a blackjack!")
                                         } else {
                                             println("You won ${bet * doubleMultiplier} cash!")
@@ -334,7 +333,7 @@ object Casino {
                                     println("Your sum: $playerSum")
                                     println("Dealer's sum: $dealerSum")
                                     if (playerSum > dealerSum) {
-                                        if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {  
+                                        if (Card.J in playerDeckVisible && Card.A in playerDeckNotVisible || Card.A in playerDeckVisible && Card.J in playerDeckNotVisible) {
                                             youHadABlackjack("Your sum was greater and you had a blackjack!")
                                         } else {
                                             println("Your sum was greater!")
@@ -368,17 +367,6 @@ object Casino {
     }
 
     object Doubles {
-        private fun doubles(amount: Long, times: Int): Long {
-            return if (Random.nextDouble() <= 0.5) {
-                if (times == 0) {
-                    0
-                } else {
-                    amount
-                }
-            } else {
-                doubles(amount * 2, times + 1)
-            }
-        }
         fun play() {
             var exitDoubles = false
             while (!exitDoubles) {
@@ -393,10 +381,15 @@ object Casino {
                                 println("You can't do that!")
                                 true
                             } else {
-                                Finance.cash -= bet.toLong()
-                                val doublesRound = doubles((bet / 10.0).roundToInt().toLong(), 0)
-                                Finance.cash += doublesRound
-                                println("You won $doublesRound cash!")
+                                var times = 0
+                                while (Random.nextDouble() <= 0.5) {
+                                    times++
+                                }
+                                val cashWon =
+                                    if (times == 0) 0
+                                    else bet / 10 * 2.0.pow(times).toLong()
+                                Finance.cash += cashWon - bet.toLong()
+                                println("You won $cashWon cash!")
                                 false
                             }
                         }
@@ -407,67 +400,10 @@ object Casino {
     }
 
     object Keno {
-        private fun kenoHandler(label: String): Int {
-            var result: Int = 0
-            intInputLoop("Guess your $label number (between 1 and 10).") {
-                num -> when (num) {
-                    0 -> {
-                        println("You can't do that!")
-                        true
-                    }
-                    else -> {
-                        if (num < 1 || num > 10) {
-                            println("You can't do that!")
-                            true
-                        } else {
-                            result = num
-                            false
-                        }
-                    } 
-                }
-            }
-            return result
-        }
-        private fun keno(amount: Long) {
-            var num1: Int = kenoHandler("first")
-            var num2: Int = kenoHandler("second")
-            var num3: Int = kenoHandler("third")
-            var num4: Int = kenoHandler("fourth")
-            var num5: Int = kenoHandler("fifth")
-            var numList = mutableListOf(num1, num2, num3, num4, num5)
-            var answerNum1: Int = (1..10).random()
-            var answerNum2: Int = (1..10).random()
-            var answerNum3: Int = (1..10).random()
-            var answerNum4: Int = (1..10).random()
-            var answerNum5: Int = (1..10).random()
-            var answerNumList = mutableListOf(answerNum1, answerNum2, answerNum3, answerNum4, answerNum5)
-            var common = 0
-            // TODO refactor
-            if (num1 == answerNum1) {
-                common++
-            }
-            if (num2 == answerNum2) {
-                common++
-            }
-            if (num3 == answerNum3) {
-                common++
-            }
-            if (num4 == answerNum4) {
-                common++
-            }
-            if (num5 == answerNum5) {
-                common++
-            }
-            var winningCash: Long = (5.0).pow(common.toDouble()).toLong() * amount
-            if (common == 0) {
-                winningCash = 0L
-            }
-            val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
-            println("Winning numbers: ${answerNum1}, ${answerNum2}, ${answerNum3}, ${answerNum4}, ${answerNum5}")
-            println("${numbersMatchedText[common]} of your numbers matched the winners. You won $winningCash cash!")
-            Finance.cash += winningCash
-        }
         fun play() {
+            val ordinalNumbers = listOf("first", "second", "third", "fourth", "fifth")
+            val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
+
             var exitKeno = false
             while (!exitKeno) {
                 intInputLoop("How much do you want to bet? Enter 0 to exit Keno.") { bet ->
@@ -477,16 +413,39 @@ object Casino {
                             false
                         }
                         else -> {
-                            if (bet < 10 || bet > Finance.cash) {
+                            if (bet !in 10..Finance.cash) {
                                 println("You can't do that!")
                                 true
                             } else {
                                 Finance.cash -= bet.toLong()
-                                keno(bet.toLong())
+                                val guesses = mutableListOf<Int>()
+                                val answers = (0 until 5)
+                                    .map { (1..10).random() }
+
+                                repeat(answers.size) {
+                                    intInputLoop("Guess your ${ordinalNumbers[it]} number (between 1 and 10).") { num ->
+                                        if (num !in 1..10) {
+                                            println("You can't do that!")
+                                            true
+                                        } else {
+                                            guesses += num
+                                            false
+                                        }
+                                    }
+                                }
+
+                                val numCorrectAnswers = answers.indices.count { guesses[it] == answers[it] }
+                                val cashWon =
+                                    if (numCorrectAnswers == 0) 0L
+                                    else (5.0).pow(numCorrectAnswers.toDouble()).toLong() * bet
+
+                                println("Winning numbers: ${answers.joinToString(", ")}")
+                                println("${numbersMatchedText[numCorrectAnswers]} of your numbers matched the winners. You won $cashWon cash!")
+                                Finance.cash += cashWon
                                 false
                             }
-                        }   
-                    }     
+                        }
+                    }
                 }
             }
         }
@@ -514,8 +473,6 @@ val globalMultiplier get() = 1.0 + Time.monthsPassed / 10000
  */
 infix fun<Tin, Tout> Tin.sendTo(lambda: (Tin) -> Tout) =
     lambda(this)
-
-
 
 /**
  * Prints the [prompt] with no newline and gets a line of input from the user.
