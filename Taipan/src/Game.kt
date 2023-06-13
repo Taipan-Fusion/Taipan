@@ -77,17 +77,12 @@ class Game(private val ui: UserInterface) {
         var storm = 0.11
     }
 
-    internal var monthsPassed = 0
-
-    internal val yearsPassed get() = monthsPassed / 12
-    internal val currentYear get() = 1860 + yearsPassed
-    internal val monthName get() = Util.monthNames[monthsPassed % 12]
-
     object Casino {
         var monthSinceLastVisit = 0
-        var visitedBefore = true
         var moneySpent = 0L
     }
+
+    internal var monthsPassed = 0
 
     private fun MutableList<BlackjackCard>.transferTopCardTo(destinationDeck: MutableList<BlackjackCard>) {
         destinationDeck.add(this.removeLast())
@@ -124,10 +119,10 @@ class Game(private val ui: UserInterface) {
                 (buying && numProductsExchanged > numberOfProductsAffordable)
                 || (!buying && numProductsExchanged > Ship.commodities[commodity]!!)
             ) {
-                println(
-                    if (buying) "You can't afford that!"
-                    else "You don't have that much ${commodity.name}!"
-                )
+                if (buying)
+                    ui.outputCannotAfford(commodity, numProductsExchanged)
+                else
+                    ui.outputNotEnoughToSell(commodity, numProductsExchanged)
             } else if (numProductsExchanged >= 0) {
                 Ship.commodities[commodity] = Ship.commodities[commodity]!! + directionMultiplier * numProductsExchanged
                 Finance.cash -= directionMultiplier * numProductsExchanged * priceOfProduct
@@ -266,23 +261,18 @@ class Game(private val ui: UserInterface) {
             println("They're firing on us, Taipan!")
 
             if (Random.nextDouble() < gunKnockoutChance && Ship.cannons > 0) {
-                println("They hit a gun, Taipan!")
                 Ship.cannons--
                 Ship.vacantCargoSpaces += 10
+                ui.outputCombatPiratesHitGun()
             } else {
-                println("We took $damageToPlayerShip damage, Taipan!")
                 Ship.health -= damageToPlayerShip
+                ui.outputCombatTookDamage(damageToPlayerShip)
             }
 
-            println("Ship---------------------------Ship")
-            println("Cannons: ${Ship.cannons}")
-            println("Health: ${Ship.health}")
-            println("Units: ${Ship.cargoUnits}")
+            ui.outputCombatDisplayStats()
 
             if (Ship.health <= 0) {
-                println("The buggers got us, Taipan!!")
-                println("It's all over, Taipan!!")
-                println("We're going down, Taipan!!")
+                ui.outputPiratesSankShip()
                 return false
             }
         }
@@ -306,21 +296,10 @@ class Game(private val ui: UserInterface) {
                                 * Random.nextInt(1, 5)
                             ).roundToInt()
 
-                    println("Captain McHenry of the Hong Kong Consolidated Repair Corporation walks over to your ship and says: <<")
-                    println(
-                        if (Ship.health < 30)
-                            "Matey! That ship of yours is 'bout to rot away like a piece of driftwood in Kowloon Bay! Don't worry, it's nothing I can't fix. For a price, that is!"
-                        else if (Ship.health < 50)
-                            "That there ship's taken quite a bit of damage, matey! You best get it fixed before you go out to sea again! I can get you sailing the friendly waves in no time! For a price, that is!"
-                        else
-                            "What a mighty fine ship you have there, matey! Or, shall I say, had... It could really use some of what I call \"Tender Love n' Care\". 'Tis but a scratch, as they say, but I take any job, no matter how small. For a price, that is!"
-                    )
-                    println("I'll fix you up to full workin' order for $shipFixPrice pound sterling.")
-
-                    val amountPaid = ui.inputPayMcHenryHowMuch()
+                    val amountPaid = ui.inputPayMcHenryHowMuch(shipFixPrice)
 
                     if (amountPaid > Finance.cash) {
-                        println("Taipan, you only have ${Finance.cash} cash.")
+                        ui.outputNotEnoughCashToPayMcHenry()
                     } else if (amountPaid >= shipFixPrice) {
                         // If the player paid what the captain asked for, completely repair the ship
                         Ship.health = 100
@@ -347,9 +326,7 @@ class Game(private val ui: UserInterface) {
                                 LiYuen.chanceOfExtortion = 0.1
                                 LiYuen.chanceOfAttack = 0.025
                                 LiYuen.extortionMultiplier = 1.0
-                                println("Elder Brother Wu has given Li Yuen the difference, which will be added to your debt.")
                             } else {
-                                println("The difference will not be paid! Elder Brother Wu says, 'I would be wary of pirates if I were you, Taipan!'")
                                 LiYuen.chanceOfExtortion = 0.8
                                 LiYuen.chanceOfAttack = 0.5
                             }
@@ -371,8 +348,10 @@ class Game(private val ui: UserInterface) {
                 if (ui.inputBusinessWithElderBrotherWu()) {
                     if (Finance.debt > 0) {
                         val repayAmount = ui.inputRepayElderBrotherWuHowMuch()
-                        if (repayAmount > Finance.cash || repayAmount < 0) {
-                            println("You can't do that, Taipan!")
+                        if (repayAmount < 0) {
+                            ui.outputCannotRepayWuNegative(repayAmount)
+                        } else if (repayAmount > Finance.cash) {
+                            ui.outputNotEnoughCashToRepayWu(repayAmount)
                         } else {
                             Finance.cash -= repayAmount
                             Finance.debt = if (repayAmount > Finance.debt) 0 else repayAmount.toLong()
@@ -398,8 +377,7 @@ class Game(private val ui: UserInterface) {
             if (Random.nextDouble() <= Probabilities.portEvent) {
                 //Options: More guns, A new ship, Robbed for some amount of money, Opium confiscated from cargo, Opium confiscated from warehouse
                 val severity = Random.nextDouble(0.01, 1.0)
-                val amount = (Finance.cash * severity).roundToInt()
-                val amountOfWarehouseOpiumLost = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
+
                 if (Random.nextDouble() <= 0.35 && Finance.cash >= 500) {
                     val shipCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.35).roundToInt()
                     if (ui.inputTradeShip()) {
@@ -409,6 +387,7 @@ class Game(private val ui: UserInterface) {
                         Ship.health = 100
                     }
                 }
+
                 if (Random.nextDouble() <= 0.5 && Finance.cash >= 100) {
                     val gunCost = ((Random.nextDouble() + 0.1) * Finance.cash * 0.5 * 0.3).roundToInt()
                     if (ui.inputAnotherGun()) {
@@ -423,92 +402,65 @@ class Game(private val ui: UserInterface) {
                 }
 
                 if (Random.nextDouble() <= (Ship.commodities[Commodity.Opium]!! / (Ship.cargoUnits - Ship.cannons * 10))) {
-                    println("Bad joss! Officials confiscated your opium and fined you $amount cash!")
+                    val amount = (Finance.cash * severity).roundToInt()
                     Finance.cash -= amount
                     Ship.vacantCargoSpaces += Ship.commodities[Commodity.Opium]!!
                     Ship.commodities[Commodity.Opium] = 0
+                    ui.outputFinedForOpium(amount)
                 }
 
                 if (Random.nextDouble() <= 0.15) {
                     val robbedAmount = (Random.nextDouble(0.05, 1.0) * Finance.cash).roundToInt()
-                    println("Bad joss! You were beaten up and robbed of $robbedAmount cash!")
                     Finance.cash -= robbedAmount
+                    ui.outputRobbed(robbedAmount)
                 }
 
                 if (Random.nextDouble() <= (Warehouse.commodities[Commodity.Opium]!!) / Warehouse.totalCargoSpaces) {
                     if (Warehouse.commodities[Commodity.Opium]!! > 0.1 * Warehouse.totalCargoSpaces) {
-                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight and confiscated $amountOfWarehouseOpiumLost units of opium!")
+                        val opiumConfiscated = (Warehouse.commodities[Commodity.Opium]!! * severity).roundToInt()
                         Warehouse.commodities[Commodity.Opium] =
-                            Warehouse.commodities[Commodity.Opium]!! - amountOfWarehouseOpiumLost
-                        Warehouse.vacantCargoSpaces += amountOfWarehouseOpiumLost
+                            Warehouse.commodities[Commodity.Opium]!! - opiumConfiscated
+                        Warehouse.vacantCargoSpaces += opiumConfiscated
+                        ui.outputWarehouseRaided(opiumConfiscated)
                     } else {
-                        println("Taipan! The police raided our warehouse down in Kwun Tong overnight. We didn't have enough opium there to arouse suspicion, so they left without hubbub.")
+                        ui.outputWarehouseRaided(null)
                     }
                 }
 
                 Probabilities.portEvent = (Random.nextDouble() + 0.5) * 0.5
             }
 
+            val maxes = mapOf(
+                Commodity.Opium to 1000,
+                Commodity.Silk to 100,
+                Commodity.Arms to 10,
+                Commodity.General to 1
+            )
+            val mins = mapOf(
+                Commodity.Opium to 2,
+                Commodity.Silk to 2,
+                Commodity.Arms to 1,
+                Commodity.General to 1
+            )
+
             if (Random.nextDouble() <= 0.9) {
-                Finance.prices[Commodity.Opium] = Util.priceGenerator(1000, 2, globalMultiplier)
-                Finance.prices[Commodity.Silk] = Util.priceGenerator(100, 2, globalMultiplier)
-                Finance.prices[Commodity.Arms] = Util.priceGenerator(10, 1, globalMultiplier)
-                Finance.prices[Commodity.General] = Util.priceGenerator(1, 1, globalMultiplier)
+                for (commodity in Commodity.values()) {
+                    Finance.prices[commodity] = Util.priceGenerator(maxes[commodity]!!, mins[commodity]!!, globalMultiplier)
+                }
             } else {
-                val commodityList = listOf("Opium", "Silk", "Arms", "General")
-                val num = Random.nextInt(0, 4)
-                val commoditySelected = commodityList[num]
-                if (commoditySelected == "Opium") {
-                    Finance.prices[Commodity.Opium] = Util.randomPriceGenerator(1000, globalMultiplier)
-                } else {
-                    Finance.prices[Commodity.Opium] = Util.priceGenerator(1000, 2, globalMultiplier)
+                val commoditySelected = Commodity.values().random()
+                for (commodity in Commodity.values()) {
+                    Finance.prices[commodity] =
+                        if (commodity == commoditySelected)
+                            Util.randomPriceGenerator(maxes[commodity]!!, globalMultiplier)
+                        else
+                            Util.priceGenerator(maxes[commodity]!!, mins[commodity]!!, globalMultiplier)
                 }
-                if (commoditySelected == "Silk") {
-                    Finance.prices[Commodity.Silk] = Util.randomPriceGenerator(100, globalMultiplier)
-                } else {
-                    Finance.prices[Commodity.Silk] = Util.priceGenerator(100, 2, globalMultiplier)
-                }
-                if (commoditySelected == "Arms") {
-                    Finance.prices[Commodity.Arms] = Util.randomPriceGenerator(10, globalMultiplier)
-                } else {
-                    Finance.prices[Commodity.Arms] = Util.priceGenerator(10, 1, globalMultiplier)
-                }
-                if (commoditySelected == "General") {
-                    Finance.prices[Commodity.General] = Util.randomPriceGenerator(1, globalMultiplier)
-                } else {
-                    Finance.prices[Commodity.General] = Util.priceGenerator(1, 1, globalMultiplier)
-                }
-                println("Taipan!!!")
-                println("Prices for $commoditySelected are wild!!!")
+                ui.outputPricesAreWild(commoditySelected)
             }
 
             tradingLoop@ while (true) {
-                // Display all known information.
-                println("Player---------------------------Player")
-                println("Bank: ${Finance.moneyInBank}")
-                println("Cash: ${Finance.cash}")
-                println("Debt: ${Finance.debt}")
-                println("Location: ${Ship.location}")
-                println("Date: $monthName $currentYear")
-                println("Ship---------------------------Ship")
-                println("Cannons: ${Ship.cannons}")
-                println("Health: ${Ship.health}")
-                println("Units: ${Ship.cargoUnits}")
-                println("Hold: ${Ship.vacantCargoSpaces}")
-                for (commodity in Commodity.values()) {
-                    println("${commodity.name}: ${Ship.commodities[commodity]}")
-                }
-                println("Warehouse---------------------------Warehouse")
-                for (commodity in Commodity.values()) {
-                    println("${commodity.name}: ${Warehouse.commodities[commodity]}")
-                }
-                println("In Use: ${Warehouse.occupiedCargoSpaces}")
-                println("Vacant: ${Warehouse.vacantCargoSpaces}")
-                println("Prices-----------------------------Prices")
-                println("Taipan, prices per unit here are:")
-                for (commodity in Commodity.values()) {
-                    println("${commodity.name}: ${Finance.prices[commodity]}")
-                }
+                ui.outputDisplayInformationBeforeTradingLoopAction()
 
                 val inHongKong = Ship.location == Location.HongKong
 
@@ -517,22 +469,8 @@ class Game(private val ui: UserInterface) {
                     UserInterface.TradingLoopAction.Buy -> exchangeHandler(buying = true)
                     UserInterface.TradingLoopAction.Sell -> exchangeHandler(buying = false)
                     UserInterface.TradingLoopAction.VisitCasino -> if (Ship.location == Location.Shanghai) {
-                        println(
-                            if (Casino.visitedBefore) {
-                                if (Casino.monthSinceLastVisit < 4)
-                                    "Welcome back, Taipan! The Master of the House has given you your favorite table!\nPick where you left off and have fun!"
-                                else
-                                    "It's been a while, Taipan! Enjoy yourself!"
-                            } else
-                                "Welcome to the Shanghai Casino Club, Taipan!"
-                        )
-
-                        var leftCasino = false
-
-                        while (!leftCasino) {
-                            println("Games available: ")
-                            println("Blackjack, Doubles, Slots, Poker, Roulette, and Keno.")
-
+                        ui.outputEnteringCasino()
+                        casinoLoop@ while (true) {
                             when (ui.inputWhichGame()) {
                                 UserInterface.Game.Blackjack -> {
                                     val deck =
@@ -558,7 +496,7 @@ class Game(private val ui: UserInterface) {
                                                 0 -> break
                                                 else -> {
                                                     if (bet > Finance.cash) {
-                                                        println("You can't bet that much!")
+                                                        ui.outputBlackjackBetTooLarge(bet)
                                                     } else {
                                                         val gameDeck = deck.shuffled().toMutableList()
                                                         val playerDeckNotVisible = mutableListOf<BlackjackCard>().also {
@@ -579,8 +517,7 @@ class Game(private val ui: UserInterface) {
                                                         var playerSum = 0
                                                         var dealerSum = 0
 
-                                                        fun youHadABlackjack(message: String) {
-                                                            println(message)
+                                                        fun youHadABlackjack() {
                                                             println(
                                                                 "You won ${
                                                                     (bet * 5.0 / 2.0 * doubleMultiplier).roundToInt().toLong()
@@ -651,7 +588,8 @@ class Game(private val ui: UserInterface) {
                                                             if (dealerSum > 21) {
                                                                 println("The dealer went bust!")
                                                                 if (BlackjackCard.J in playerDeckVisible && BlackjackCard.A in playerDeckNotVisible || BlackjackCard.A in playerDeckVisible && BlackjackCard.J in playerDeckNotVisible) {
-                                                                    youHadABlackjack("You had a blackjack!")
+                                                                    println("You had a blackjack!")
+                                                                    youHadABlackjack()
                                                                 } else {
                                                                     println("You won ${bet * doubleMultiplier} cash!")
                                                                     Finance.cash += bet * doubleMultiplier
@@ -669,7 +607,8 @@ class Game(private val ui: UserInterface) {
                                                             println("Dealer's sum: $dealerSum")
                                                             if (playerSum > dealerSum) {
                                                                 if (BlackjackCard.J in playerDeckVisible && BlackjackCard.A in playerDeckNotVisible || BlackjackCard.A in playerDeckVisible && BlackjackCard.J in playerDeckNotVisible) {
-                                                                    youHadABlackjack("Your sum was greater and you had a blackjack!")
+                                                                    println("Your sum was greater and you had a blackjack!")
+                                                                    youHadABlackjack()
                                                                 } else {
                                                                     println("Your sum was greater!")
                                                                     println("You won ${bet * doubleMultiplier} cash!")
@@ -700,8 +639,8 @@ class Game(private val ui: UserInterface) {
                                     when (val bet = ui.inputDoublesBetAmount()) {
                                         0 -> break
                                         else -> {
-                                            if (bet < 10 || bet > Finance.cash) {
-                                                println("You can't do that!")
+                                            if (bet !in 10..Finance.cash) {
+                                                ui.outputDoublesInvalidBet(bet)
                                             } else {
                                                 var times = 0
                                                 while (Random.nextDouble() <= 0.5) {
@@ -711,7 +650,7 @@ class Game(private val ui: UserInterface) {
                                                     if (times == 0) 0
                                                     else bet / 10 * 2.0.pow(times).toLong()
                                                 Finance.cash += cashWon - bet.toLong()
-                                                println("You won $cashWon cash!")
+                                                ui.outputDoublesResult(cashWon)
                                                 break
                                             }
                                         }
@@ -727,15 +666,13 @@ class Game(private val ui: UserInterface) {
                                 UserInterface.Game.Roulette -> {
                                 }
 
-                                UserInterface.Game.Keno -> {
-                                    val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
-
+                                UserInterface.Game.Keno ->
                                     while (true) {
                                         when (val bet = ui.inputKenoBetAmount()) {
                                             0 -> break
                                             else -> {
                                                 if (bet !in 10..Finance.cash) {
-                                                    println("You can't do that!")
+                                                    ui.outputKenoInvalidBet(bet)
                                                 } else {
                                                     Finance.cash -= bet.toLong()
                                                     val guesses = mutableListOf<Int>()
@@ -746,7 +683,7 @@ class Game(private val ui: UserInterface) {
                                                         while (true) {
                                                             val guess = ui.inputKenoGuess()
                                                             if (guess !in 1..10) {
-                                                                println("You can't do that!")
+                                                                ui.outputKenoInvalidGuess(guess)
                                                             } else {
                                                                 guesses += guess
                                                                 break
@@ -759,17 +696,16 @@ class Game(private val ui: UserInterface) {
                                                         if (numCorrectAnswers == 0) 0L
                                                         else (5.0).pow(numCorrectAnswers.toDouble()).toLong() * bet
 
-                                                    println("Winning numbers: ${answers.joinToString(", ")}")
-                                                    println("${numbersMatchedText[numCorrectAnswers]} of your numbers matched the winners. You won $cashWon cash!")
+                                                    ui.outputKenoResults(answers, numCorrectAnswers)
+
                                                     Finance.cash += cashWon
                                                     break
                                                 }
                                             }
                                         }
                                     }
-                                }
 
-                                UserInterface.Game.ExitCasino -> leftCasino = true
+                                UserInterface.Game.ExitCasino -> break@casinoLoop
                             }
                         }
                     }
@@ -778,7 +714,7 @@ class Game(private val ui: UserInterface) {
                             val cashToDeposit = ui.inputDepositHowMuch()
 
                             if (cashToDeposit > Finance.cash) {
-                                println("Taipan, you only have ${Finance.cash} in your wallet.")
+                                ui.outputNotEnoughCashToDeposit()
                             } else if (cashToDeposit >= 0) {
                                 Finance.cash -= cashToDeposit
                                 Finance.moneyInBank += cashToDeposit
@@ -790,7 +726,7 @@ class Game(private val ui: UserInterface) {
                             val cashToWithdraw = ui.inputWithdrawHowMuch()
 
                             if (cashToWithdraw > Finance.moneyInBank) {
-                                println("Taipan, you only have ${Finance.moneyInBank} in your bank.")
+                                ui.outputNotEnoughCashToWithdraw()
                             } else if (cashToWithdraw >= 0) {
                                 Finance.cash += cashToWithdraw
                                 Finance.moneyInBank -= cashToWithdraw
@@ -803,7 +739,7 @@ class Game(private val ui: UserInterface) {
                         if ((Ship.commodities.values + Warehouse.commodities.values)
                                 .all { it == 0 }
                         ) {
-                            println("You have no cargo, Taipan.")
+                            ui.outputNoCargoToMove()
                         } else {
                             for (toWarehouse in listOf(true, false)) {
                                 for (commodity in Commodity.values()) {
@@ -815,9 +751,9 @@ class Game(private val ui: UserInterface) {
                                         while (true) {
                                             val amountToMove = ui.inputMoveHowMuch()
                                             if (amountToMove > amountAvailableToMove) {
-                                                println("You only have $amountAvailableToMove, Taipan.")
+                                                ui.outputNotEnoughToMoveToWarehouse(amountAvailableToMove)
                                             } else if (Warehouse.vacantCargoSpaces - amountToMove < 0 && toWarehouse) {
-                                                println("There's not enough space in the warehouse, Taipan!")
+                                                ui.outputNotEnoughSpaceInWarehouse()
                                             } else if (amountToMove >= 0) {
                                                 Ship.vacantCargoSpaces += directionMultiplier * amountToMove
                                                 Warehouse.vacantCargoSpaces -= directionMultiplier * amountToMove
@@ -835,13 +771,13 @@ class Game(private val ui: UserInterface) {
                     }
 
                     UserInterface.TradingLoopAction.Quit -> if (Ship.vacantCargoSpaces < 0) {
-                        println("Your ship would be overburdened, Taipan!")
+                        ui.outputCannotQuitOverburdened()
                     } else {
                         while (true) {
                             val newLocation = ui.inputGoWhere()
 
                             if (newLocation == Ship.location) {
-                                println("You're already here, Taipan.")
+                                ui.outputAlreadyHere()
                             } else {
                                 Ship.location = newLocation
                                 break
@@ -867,10 +803,10 @@ class Game(private val ui: UserInterface) {
                     globalMultiplier
                 )
 
-                println("Li Yuen's pirates, Taipan!")
-                println("$number ships of Li Yuen's pirate fleet!")
+                ui.outputLiYuenPirateAttack(number)
 
-                if (!combat(2.0, 0.2, number, 2.0)) break@mainLoop
+                if (!combat(2.0, 0.2, number, 2.0))
+                    break@mainLoop
                 LiYuen.chanceOfAttack = 0.5
                 LiYuen.chanceOfExtortion = 0.8
             }
@@ -882,53 +818,40 @@ class Game(private val ui: UserInterface) {
                     (5 + 2 * floor((monthsPassed + 1) / 6.0 + Ship.cargoUnits / 75.0).roundToInt() + floor(Ship.commodities[Commodity.Opium]!!.toDouble() * 0.1 * Random.nextDouble()).roundToInt()),
                     globalMultiplier
                 )
-                println("$number hostile ships approaching, Taipan!")
-                if (!combat(1.5, 0.1, number, 1.5)) break@mainLoop
+                ui.outputPirateAttack(numShips = number)
+                if (!combat(1.5, 0.1, number, 1.5))
+                    break@mainLoop
                 Probabilities.pirateAttack =
                     (Random.nextDouble() + 0.05 + Ship.commodities[Commodity.Opium]!!.toDouble() / Ship.vacantCargoSpaces.toDouble()) * 0.25
             }
 
             // Storm
             if (Random.nextDouble() <= Probabilities.storm) {
-                println("Storm, Taipan!")
+                ui.outputStorm()
                 if (Random.nextDouble() <= (100.0 - Ship.health) / 1000.0) {
-                    println("We're going down, Taipan!")
+                    ui.outputStormGoingDown()
                     break@mainLoop
                 } else {
-                    println("We survived, Taipan!")
+                    ui.outputSurvivedStorm()
                     // Storm moves ship to different location
                     if (Random.nextDouble() < 0.35) {
                         Ship.location = Location.values().random()
-                        println("We've been blown off course to ${Ship.location}")
+                        ui.outputBlownOffCourse()
                     }
                     Probabilities.storm = (Random.nextDouble() + 0.05) * 0.5
                 }
             }
 
             // Adjust values for next location.
-            println("Arriving at ${Ship.location}")
             ++monthsPassed
             Finance.debt = (Finance.debt * 1.2).toLong()
             Finance.moneyInBank = (Finance.moneyInBank * 1.05).toLong()
             Casino.monthSinceLastVisit++
+            ui.outputArrivingNextLocation()
         }
 
         val netWorth = Finance.cash + Finance.moneyInBank - Finance.debt
-        val score = netWorth / (monthsPassed + 1) / 100
 
-        println("FINAL STATS")
-        println("Net cash: $netWorth")
-        println("Ship size: ${Ship.cargoUnits} units with ${Ship.cannons} guns")
-        println("You traded for $yearsPassed year(s)")
-        println("Your score is $score")
-        println(
-            "Rank: ${
-                if (score >= 50000) "Ma Tsu"
-                else if (score >= 8000) "Master Taipan"
-                else if (score >= 1000) "Taipan"
-                else if (score >= 500) "Compradore"
-                else "Galley Hand"
-            }"
-        )
+        ui.outputFinalStats(score = netWorth / (monthsPassed + 1) / 100)
     }
 }
