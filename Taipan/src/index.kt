@@ -446,14 +446,68 @@ object Casino {
 }
 
 object HorseRacing {
+    var horses:MutableList<Horse> = mutableListOf()
+
+    val lapDistance = 100
+    val amountOfLaps = 3
+    fun generate(amount: Int){
+        val names:MutableList<String> = mutableListOf(
+            "Matthew",
+            "Adobe",
+            "Steven",
+            "Bollocks",
+            "Manifest",
+            "Volod",
+            "eRobert",
+            "Borobot",
+            "Ikanik",
+            "Bub"
+        )
+        val trueAmount:Int = (if (amount > names.size) names.size else amount)
+        for (i in 1..trueAmount){
+            val rand:Random = Random.Default
+            val index:Int = rand.nextInt(0, names.size)
+            horses.add(Horse(names[index]))
+            names.removeAt(index)
+        }
+    }
+
+    fun race(): String {
+        //TODO: test this
+        //TODO: add randomness in distances moved etc
+        //TODO: give it a UI
+        val finishLine = lapDistance * amountOfLaps
+        var winningHorse = ""
+        while (winningHorse == "") {
+            var distancePastFinish = 0.0
+            for (horse in horses){
+                //did the horse win here? if not, we do their turn
+                if(horse.distanceGone >= finishLine && horse.distanceGone - finishLine > distancePastFinish){
+                    winningHorse = horse.name
+                    distancePastFinish = horse.distanceGone - finishLine
+                    continue
+                }
+                //how much does the horse move at a given time
+                val toMove = horse.burstyness * horse.currentStamina
+                //horse all but dies on the field
+                if (toMove < horse.burstyness * 2.5){
+                    horse.currentStamina += (12.5/(2*horse.burstyness*1))
+                    horse.distanceGone += 1.25
+                    continue
+                }
+                horse.distanceGone += toMove
+                //experiment with the scalar below
+                horse.currentStamina -= 0.85 * toMove
+            }
+        }
+        return winningHorse
+    }
+
     //structure of a horse
-    //TODO: Implement Horse Racing
     data class Horse(
         val name: String,
-        var lapNumber: Int = 0,
-        var amountOfLapDone: Int = 0,
-        var currentStamina: Double = 1.0,
-        var currentHopDistance: Int = 0,
+        var distanceGone: Double = 0.0,
+        var currentStamina: Double = 25.0,
         val burstyness: Double = Random.nextDouble()
     )
 }
