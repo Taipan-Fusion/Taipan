@@ -1,26 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<!-- <head>
-	<meta charset="utf-8" />
-	<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-	<meta name="viewport" content="width=device-width" />
-	%sveltekit.head%
-</head> -->
-
-<body data-sveltekit-preload-data="hover">
-	<div style="display: contents">%sveltekit.body%</div>
-</body>
-<link rel="stylesheet" href="app.css">
-<script src="index.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-	integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-
-	<div class="Frame1" style="width: 700px; height: 700px; position: relative; background: black">
-		<div class="Mainframe" style="width: 680px; height: 680px; left: 10px; top: 10px; position: absolute; background: black; border: 2px #33FF00 solid"></div>
-		<div class="Cashamount" style="width: 42px; height: 20px; left: 101px; top: 431px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">0</div>
-		<div class="Gamestatusframe" style="width: 214px; height: 300px; left: 437px; top: 91px; position: absolute; background: black; border: 0.50px #33FF00 solid"></div>
-		<div class="Shipstatuslabel" style="width: 188px; height: 43px; left: 450px; top: 325px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">Ship Status</div>
-		<div class="Shipstatusdisplay" style="width: 132px; height: 43px; left: 478px; top: 348px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">Perfect: 100</div>
-
-</html>
+<div class="Frame1" style="width: 700px; height: 700px; position: relative; background: black">
+  <div class="Mainframe"
+    style="width: 680px; height: 680px; left: 10px; top: 10px; position: absolute; background: black; border: 2px #33FF00 solid">
+  </div>
+  <div class="Cashamount"
+    style="width: 42px; height: 20px; left: 101px; top: 431px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Gamestatusframe"
+    style="width: 214px; height: 300px; left: 437px; top: 91px; position: absolute; background: black; border: 0.50px #33FF00 solid">
+  </div>
+  <div class="Shipstatuslabel"
+    style="width: 188px; height: 43px; left: 450px; top: 325px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Ship Status</div>
+  <div class="Shipstatusdisplay"
+    style="width: 132px; height: 43px; left: 478px; top: 348px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Perfect: 100</div>
+  <div class="Firmlocationheading"
+    style="left: 126px; top: 36px; position: absolute; color: #33FF00; font-size: 32px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Firm: ____________, LOCATION</div>
+  <div class="Shipholdamount"
+    style="width: 359px; height: 139px; left: 42px; top: 253px; position: absolute; background: black; border: 0.50px #33FF00 solid">
+  </div>
+  <div class="Holdamount"
+    style="width: 98px; height: 22px; left: 97px; top: 274px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    50</div>
+  <div class="Gunsamount"
+    style="width: 98px; height: 22px; left: 309px; top: 275px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Reportframe"
+    style="width: 609px; height: 200px; left: 42px; top: 469px; position: absolute; background: black; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border: 0.50px #33FF00 solid">
+  </div>
+  <div class="Warehouseframe"
+    style="width: 359px; height: 139px; left: 42px; top: 91px; position: absolute; background: black; border: 0.50px #33FF00 solid">
+  </div>
+  <div class="Characterlabel"
+    style="width: 240px; height: 20px; left: 55px; top: 474px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Compradore’s Report:</div>
+  <div class="Displayprompt"
+    style="width: 295px; height: 48px; left: 55px; top: 517px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Li Yuen asks 189 in donation to the temple of Tin Hau, the Sea Goddess. Will you pay?</div>
+  <div class="Inputlabel"
+    style="width: 55px; height: 18px; left: 55px; top: 585px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Input:</div>
+  <div class="Inputtext"
+    style="width: 230px; height: 18px; left: 106px; top: 585px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    _____</div>
+  <div class="Hongkongwarehouselabel"
+    style="width: 240px; height: 20px; left: 52px; top: 112px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Hong Kong Warehouse</div>
+  <div class="Inuselabel"
+    style="width: 82px; height: 20px; left: 268px; top: 137px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    In use:</div>
+  <div class="Vacantlabel"
+    style="width: 82px; height: 20px; left: 268px; top: 177px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Vacant:</div>
+  <div class="Warehouseopiumamount"
+    style="width: 98px; height: 22px; left: 197px; top: 139px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Warehousesilkamount"
+    style="width: 98px; height: 22px; left: 197px; top: 159px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Warehousearmsamount"
+    style="width: 98px; height: 22px; left: 197px; top: 179px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Warehouseinusecargospaces"
+    style="width: 98px; height: 22px; left: 284px; top: 159px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Warehousevacantcargospaces"
+    style="width: 98px; height: 22px; left: 284px; top: 199px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    10000</div>
+  <div class="Warehousegeneralamount"
+    style="width: 98px; height: 22px; left: 197px; top: 199px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Shipopiumamount"
+    style="width: 98px; height: 22px; left: 197px; top: 301px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Shipsilkamount"
+    style="width: 98px; height: 22px; left: 197px; top: 321px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Shiparmsamount"
+    style="width: 98px; height: 22px; left: 197px; top: 341px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Shipgeneralamount"
+    style="width: 98px; height: 22px; left: 197px; top: 361px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Warehouseopiumlabel"
+    style="width: 57px; height: 20px; left: 69px; top: 139px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Opium</div>
+  <div class="Holdlabel"
+    style="width: 35px; height: 20px; left: 52px; top: 274px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Hold</div>
+  <div class="Gunslabel"
+    style="width: 35px; height: 20px; left: 267px; top: 274px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Guns</div>
+  <div class="Cashlabel"
+    style="width: 42px; height: 20px; left: 55px; top: 431px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Cash:</div>
+  <div class="Banklabel"
+    style="width: 44px; height: 20px; left: 350px; top: 431px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Bank:</div>
+  <div class="Bankamount"
+    style="width: 44px; height: 20px; left: 396px; top: 431px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    0</div>
+  <div class="Warehousesilklabel"
+    style="width: 57px; height: 20px; left: 69px; top: 159px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Silk</div>
+  <div class="Warehousearmslabel"
+    style="width: 57px; height: 20px; left: 69px; top: 179px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Arms</div>
+  <div class="Warehousegenerallabel"
+    style="width: 57px; height: 20px; left: 69px; top: 199px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    General</div>
+  <div class="Shipopiumlabel"
+    style="width: 57px; height: 20px; left: 69px; top: 300px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Opium</div>
+  <div class="Shipsilklabel"
+    style="width: 57px; height: 20px; left: 69px; top: 320px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Silk</div>
+  <div class="Shiparmslabel"
+    style="width: 57px; height: 20px; left: 69px; top: 340px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Arms</div>
+  <div class="Shipgenerallabel"
+    style="width: 57px; height: 20px; left: 69px; top: 360px; position: absolute; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    General</div>
+  <div class="Datelabel"
+    style="width: 188px; height: 30px; left: 450px; top: 112px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Date</div>
+  <div class="Locationlabel"
+    style="width: 188px; height: 30px; left: 450px; top: 177px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Location</div>
+  <div class="Datedisplay"
+    style="width: 188px; height: 30px; left: 450px; top: 138px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    15 Jan 1860</div>
+  <div class="Locationdisplay"
+    style="width: 188px; height: 15px; left: 450px; top: 204px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Hong Kong</div>
+  <div class="Debtlabel"
+    style="width: 188px; height: 43px; left: 450px; top: 253px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    Debt</div>
+  <div class="Debtdisplayamount"
+    style="width: 188px; height: 43px; left: 450px; top: 277px; position: absolute; text-align: center; color: #33FF00; font-size: 16px; font-family: Lekton; font-weight: 400; word-wrap: break-word">
+    5000</div>
+</div>
