@@ -393,8 +393,6 @@ object Casino {
             }
         }
     }
-
-    // Create a slots function that takes in a bet and returns the amount of money won using a random number generator
     fun slots() {
         var exitSlots = false
         while (!exitSlots) {
