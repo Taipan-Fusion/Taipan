@@ -394,6 +394,39 @@ object Casino {
         }
     }
 
+    // Create a slots function that takes in a bet and returns the amount of money won using a random number generator
+    fun slots() {
+        var exitSlots = false
+        while (!exitSlots) {
+            intInputLoop("How much do you want to bet? Enter 0 to exit Slots.") { bet ->
+                when (bet) {
+                    0 -> {
+                        exitSlots = true
+                        false
+                    }
+                    else -> {
+                        if (bet < 10 || bet > Finance.cash) {
+                            println("You can't do that!")
+                            true
+                        } else {
+                            val slot1 = Random.nextInt(0, 10)
+                            val slot2 = Random.nextInt(0, 10)
+                            val slot3 = Random.nextInt(0, 10)
+                            println("You got $slot1, $slot2, $slot3")
+                            val cashWon =
+                                if (slot1 == slot2 && slot2 == slot3) bet * 10
+                                else if (slot1 == slot2 || slot2 == slot3 || slot1 == slot3) bet * 2
+                                else 0
+                            Finance.cash += cashWon
+                            println("You won $cashWon cash!")
+                            false
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun keno() {
         val ordinalNumbers = listOf("first", "second", "third", "fourth", "fifth")
         val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
@@ -822,9 +855,7 @@ fun casino() {
         when (input("What games would you like to play? Lowercase E to Exit the Casino.")) {
             "b" -> Casino.Blackjack.play()
             "d" -> Casino.doubles()
-            "s" -> {
-
-            }
+            "s" -> Casino.slots()
             "p" -> {
 
             }
