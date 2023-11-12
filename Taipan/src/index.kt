@@ -424,7 +424,35 @@ object Casino {
             }
         }
     }
-
+    fun roulette() {
+        var exitRoulette = false
+        while (!exitRoulette) {
+            intInputLoop("How much do you want to bet? Enter 0 to exit Roulette.") { bet ->
+                when (bet) {
+                    0 -> {
+                        exitRoulette = true
+                        false
+                    }
+                    else -> {
+                        if (bet < 10 || bet > Finance.cash) {
+                            println("You can't do that!")
+                            true
+                        } else {
+                            val number = Random.nextInt(0, 37)
+                            println("The number is $number")
+                            val cashWon =
+                                if (number == 0) 0
+                                else if (number % 2 == 0) bet / 2
+                                else bet
+                            Finance.cash += cashWon
+                            println("You won $cashWon cash!")
+                            false
+                        }
+                    }
+                }
+            }
+        }
+    }
     fun keno() {
         val ordinalNumbers = listOf("first", "second", "third", "fourth", "fifth")
         val numbersMatchedText = listOf("None", "One", "Two", "Three", "Four", "All")
